@@ -1,0 +1,13 @@
+{
+    "version": "1.0",
+    "manifest_version": 3,
+    "name": "GraphQL API Requests Mocker",
+    "description": "GraphQL API Requests Mocker",
+    "action": {
+        "default_popup": "js/index.html",
+        "default_title": "React Chrome Extension"
+    },
+    "background": {
+        "service_worker": "js/background.js"
+    }
+}
