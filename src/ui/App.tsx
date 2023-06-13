@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import "./App.css";
 
+import { MessageType } from "../common/types";
+
 function App() {
   useEffect(() => {
-    chrome.runtime.sendMessage({ msg: "Hi from App.tsx!" });
+    chrome.runtime.sendMessage({ type: MessageType.PanelMounted, data: {tabId: chrome.devtools.inspectedWindow.tabId} });
   }, []);
 
   return (
