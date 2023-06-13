@@ -8,8 +8,7 @@
     },
     "devtools_page": "js/devtools.html",
     "permissions": [
-        "webRequest",
-        "activeTab"
+        "debugger"
     ],
     "host_permissions": [
         "http://*/*",

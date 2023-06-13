@@ -16,8 +16,26 @@ body {
 .container {
   width: 64px;
   height: 64px;
-  background-color: #e8e8e8;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: stretch;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.AppStartCapturing {
+  background-color: #4CAF50;
+}
+
+.AppStopCapturing {
+  background-color: #F44336;
+}
+
+.CaptureStatus {
+  color: #ffffff;
 }
