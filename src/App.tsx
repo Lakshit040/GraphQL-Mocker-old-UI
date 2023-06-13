@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   useEffect(() => {
-    chrome.runtime.sendMessage({ popupMounted: true });
+    chrome.runtime.sendMessage({ msg: "Hi from App.tsx!" });
   }, []);
 
   return (

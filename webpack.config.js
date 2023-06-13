@@ -5,7 +5,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
     entry: {
         index: "./src/index.tsx",
-        background: "./src/background.ts"
+        background: "./src/background.ts",
+        devtools: "./src/devtools.ts",
     },
     mode: "production",
     module: {
@@ -34,7 +35,8 @@ module.exports = {
     plugins: [
         new CopyPlugin({
             patterns: [
-                { from: "manifest.json", to: "../manifest.json" },
+                { from: "public/manifest.json", to: "../manifest.json" },
+                { from: "public/devtools.html", to: "devtools.html" },
             ],
         }),
         ...getHtmlPlugins(["index"]),
@@ -52,7 +54,7 @@ function getHtmlPlugins(chunks) {
     return chunks.map(
         (chunk) =>
             new HTMLPlugin({
-                title: "React extension",
+                title: "GraphQL Mocker",
                 filename: `${chunk}.html`,
                 chunks: [chunk],
             })
