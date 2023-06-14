@@ -3,7 +3,6 @@ import "./App.css";
 
 import { MessageType } from "../common/types";
 
-import { startMocking, stopMocking } from "../core/devtools";
 
 function App() {
   useEffect(() => {
@@ -13,7 +12,7 @@ function App() {
   const [capturing, setCapturing] = useState(false);
 
   function handleClick() {
-    (capturing ? stopMocking() : startMocking()).then(() => setCapturing(c => !c));
+    setCapturing(!capturing);
   }
 
   return (
