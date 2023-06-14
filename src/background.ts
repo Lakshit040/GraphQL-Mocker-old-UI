@@ -14,6 +14,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       console.log(
         `${tabId}: Intercepted a request! ${msg.data.url} ${msg.data.config.method}`
       );
+      sendResponse({
+        response: { data: { viewer: { login: "Darth Vader" } } },
+      });
       break;
     }
   }

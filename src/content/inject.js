@@ -63,7 +63,8 @@ window.addEventListener("from-content", (event) => {
   let [resolve, reject] = hijackedRequests.get(requestId);
 
   if (response) {
-    resolve(response);
+    console.log("Injected script got response", response);
+    resolve({ response: JSON.stringify(response) });
   } else {
     reject();
   }
