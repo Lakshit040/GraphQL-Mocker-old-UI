@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case MessageType.RequestIntercepted: {
       let tabId = sender.tab?.id;
       console.log(
-        `${tabId}: Intercepted a request! ${msg.data.url} ${msg.data.method}`
+        `${tabId}: Intercepted a request! ${msg.data.url} ${msg.data.config.method}`
       );
       break;
     }

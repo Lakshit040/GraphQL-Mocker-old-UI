@@ -1,33 +1,25 @@
 import { proxy } from "ajax-hook";
 import { MessageType } from "../common/types";
 
+let hijackedRequests = new Map();
+
 function hijack(url, config) {
   return new Promise((resolve, reject) => {
     if (!/.*graphql.*/.test(url)) return reject();
 
     console.log(`Hijacking possible graphql request ${config.method} ${url}`);
 
+    let requestId = guidGenerator();
+    hijackedRequests.set(requestId, [resolve, reject]);
+
     let message = {
       type: MessageType.RequestIntercepted,
       data: { url, config },
     };
     let event = new CustomEvent("from-injected", {
-      detail: message,
+      detail: { message, requestId },
     });
     window.dispatchEvent(event);
-
-    // chrome.runtime.sendMessage(
-    //   window.__GRAPHQL_MOCKER_EXTENSION_ID__,
-    //   {
-    //     type: MessageType.RequestIntercepted,
-    //     data: { url, config },
-    //   },
-    //   {},
-    //   (response) => {
-    //     if (response) resolve(response);
-    //     else reject();
-    //   }
-    // );
   });
 }
 
@@ -60,4 +52,28 @@ if (window.fetch) {
       })
       .catch(() => f(req, config));
   };
+}
+
+window.addEventListener("from-content", (event) => {
+  console.log("Injected script received message from content script");
+
+  let { requestId, response } = event.detail;
+  if (!hijackedRequests.has(requestId)) return;
+
+  let [resolve, reject] = hijackedRequests.get(requestId);
+
+  if (response) {
+    resolve(response);
+  } else {
+    reject();
+  }
+
+  hijackedRequests.delete(requestId);
+});
+
+function guidGenerator() {
+  let S4 = () =>
+    (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+
+  return `${S4()}${S4()}-${S4()}-${S4()}-${S4()}-${S4()}${S4()}${S4()}`;
 }
