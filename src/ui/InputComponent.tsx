@@ -22,11 +22,6 @@ export default function InputComponent() {
         }
     }
 
-    const handleOptionClick = (event: React.MouseEvent<HTMLOptionElement, MouseEvent>) => {
-        console.log('Option clicked!', event.currentTarget.value);
-        event.stopPropagation();
-    }
-
     const handleResponseChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setRes(event.target.value);
     };
@@ -45,9 +40,9 @@ export default function InputComponent() {
 
                         <label className="label" htmlFor="dropdown">Operation</label>
 
-                        <select value={op} className="input-field" id="dropdown" onChange={handleOptionChange}>
-                            <option value='query' onClick={handleOptionClick}>Query</option>
-                            <option value='mutation' onClick={handleOptionClick}>Mutation</option>
+                        <select value={op === GraphQLOperationType.Query ? "query" : "mutation"} className="input-field" id="dropdown" onChange={handleOptionChange}>
+                            <option value='query'>Query</option>
+                            <option value='mutation'>Mutation</option>
                         </select>
 
                         <label className="label nameLabel" htmlFor="textInput">Operation Name</label>
