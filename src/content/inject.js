@@ -5,7 +5,8 @@ let hijackedRequests = new Map();
 
 function hijack(url, config) {
   return new Promise((resolve, reject) => {
-    if (!/.*graphql.*/.test(url)) return reject();
+    if (!/.*graphql.*/.test(url) || config.method?.toLowerCase() !== "post")
+      return reject();
 
     console.log(`Hijacking possible graphql request ${config.method} ${url}`);
 
@@ -64,7 +65,7 @@ window.addEventListener("from-content", (event) => {
 
   if (response) {
     console.log("Injected script got response", response);
-    resolve({ response: JSON.stringify(response) });
+    resolve({ response });
   } else {
     reject();
   }

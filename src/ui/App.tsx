@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-import { MessageType } from "../common/types";
+import { MessageType, GraphQLOperationType } from "../common/types";
 
+function setMockResponse(operationType: GraphQLOperationType, operationName: string, mockResponse: string) {
+  chrome.runtime.sendMessage({
+    type: MessageType.SetMockResponse,
+    data: {
+      operationType,
+      operationName,
+      mockResponse
+    }
+  });
+}
 
 function App() {
   useEffect(() => {
@@ -12,6 +22,9 @@ function App() {
   const [capturing, setCapturing] = useState(false);
 
   function handleClick() {
+    setMockResponse(GraphQLOperationType.Query, "getViewerLogin", JSON.stringify({
+      data: { viewer: { login: "Darth Vader" } }
+    }));
     setCapturing(!capturing);
   }
 
