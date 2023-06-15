@@ -1,18 +1,24 @@
 import { useState } from "react";
 import "./InputComponent.css";
-import { GraphQLOperationType } from "../common/types";
 
-function startMocking(
+import { MessageType, GraphQLOperationType } from "../common/types";
+
+function setMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  sampleResponse: string
+  mockResponse: string
 ) {
-  console.log(operationType);
-  console.log(operationName);
-  console.log(sampleResponse);
+  chrome.runtime.sendMessage({
+    type: MessageType.SetMockResponse,
+    data: {
+      operationType,
+      operationName,
+      mockResponse,
+    },
+  });
 }
 
-export default function InputComponent() {
+function InputComponent() {
   const [op, setOp] = useState(GraphQLOperationType.Query);
   const [name, setName] = useState("");
   const [res, setRes] = useState("");
@@ -32,7 +38,7 @@ export default function InputComponent() {
   };
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
+    setName(event.target.value.trim());
   };
 
   return (
@@ -78,7 +84,7 @@ export default function InputComponent() {
             ></textarea>
             <button
               className="button"
-              onClick={() => startMocking(op, name, res)}
+              onClick={() => setMockResponse(op, name, res)}
             >
               Generate Mock Response
             </button>
@@ -94,3 +100,5 @@ export default function InputComponent() {
     </>
   );
 }
+
+export default InputComponent;
