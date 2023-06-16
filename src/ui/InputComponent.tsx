@@ -6,7 +6,8 @@ import { MessageType, GraphQLOperationType } from "../common/types";
 function setMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  mockResponse: string
+  mockResponse: string,
+  responseDelay: number
 ) {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
@@ -14,6 +15,7 @@ function setMockResponse(
       operationType,
       operationName,
       mockResponse,
+      responseDelay,
     },
   });
 }
@@ -22,6 +24,7 @@ function InputComponent() {
   const [op, setOp] = useState(GraphQLOperationType.Query);
   const [name, setName] = useState("");
   const [res, setRes] = useState("");
+  const [delay, setDelay] = useState(0);
 
   const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value === "query") {
@@ -39,6 +42,11 @@ function InputComponent() {
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value.trim());
+  };
+
+  const handleDelayChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let _delay = +event.target.value;
+    setDelay(!isNaN(_delay) ? _delay : 0);
   };
 
   return (
@@ -74,7 +82,6 @@ function InputComponent() {
             <label className="label nameLabel" htmlFor="textarea">
               Sample Response
             </label>
-
             <textarea
               className="input-field"
               id="textarea"
@@ -82,9 +89,21 @@ function InputComponent() {
               value={res}
               onChange={handleResponseChange}
             ></textarea>
+
+            <label className="label nameLabel" htmlFor="delayInput">
+              Response Delay (ms)
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              id="delayInput"
+              value={delay.toString()}
+              onChange={handleDelayChange}
+            />
+
             <button
               className="button"
-              onClick={() => setMockResponse(op, name, res)}
+              onClick={() => setMockResponse(op, name, res, delay)}
             >
               Generate Mock Response
             </button>

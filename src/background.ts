@@ -1,10 +1,15 @@
 import { parseIfGraphQLRequest } from "./common/utils";
 import { MessageType, GraphQLOperationType } from "./common/types";
 
-let mockResponses: Map<string, string> = new Map();
+interface MockResponseConfiguration {
+  mockResponse: string;
+  responseDelay: number;
+}
+
+let mockResponses: Map<string, MockResponseConfiguration> = new Map();
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  let isResponseAsync = false;
+  let isResponseAsync = true;
 
   switch (msg.type) {
     case MessageType.PanelMounted: {
@@ -25,7 +30,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       setMockResponse(
         msg.data.operationType,
         msg.data.operationName,
-        msg.data.mockResponse
+        msg.data.mockResponse,
+        msg.data.responseDelay
       );
       break;
     }
@@ -57,10 +63,17 @@ function handleInterceptedRequest(
   console.log("Parse GraphQL operation", operationType, operationName);
 
   let key = `${operationType}:${operationName}`;
-  let mockResponse = mockResponses.get(key);
-  if (mockResponse !== undefined) {
+  let mockResponseConfig = mockResponses.get(key);
+  if (mockResponseConfig !== undefined) {
     console.log("Found a mock response! Sending it as the response!");
-    resolve(mockResponse);
+    let { mockResponse, responseDelay } = mockResponseConfig;
+    if (responseDelay > 0) {
+      setTimeout(() => {
+        resolve(mockResponse);
+      }, responseDelay);
+    } else {
+      resolve(mockResponseConfig.mockResponse);
+    }
     return;
   }
 
@@ -70,7 +83,11 @@ function handleInterceptedRequest(
 function setMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  mockResponse: string
+  mockResponse: string,
+  responseDelay: number
 ) {
-  mockResponses.set(`${operationType}:${operationName}`, mockResponse);
+  mockResponses.set(`${operationType}:${operationName}`, {
+    mockResponse,
+    responseDelay,
+  });
 }
