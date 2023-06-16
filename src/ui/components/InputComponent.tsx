@@ -49,60 +49,46 @@ function InputComponent() {
   };
 
   return (
-    <div className="flex">
-      <label className="label" htmlFor="dropdown">
-        Operation
-      </label>
+    <div className="flex flex-col">
+      <div className="flex">
+        <label>Operation Type</label>
+        <select
+          value={op === GraphQLOperationType.Query ? "query" : "mutation"}
+          onChange={handleOptionChange}
+        >
+          <option value="query">Query</option>
+          <option value="mutation">Mutation</option>
+        </select>
 
-      <select
-        value={op === GraphQLOperationType.Query ? "query" : "mutation"}
-        className="input-field"
-        id="dropdown"
-        onChange={handleOptionChange}
-      >
-        <option value="query">Query</option>
-        <option value="mutation">Mutation</option>
-      </select>
+        <label>Operation Name</label>
+        <input type="text" value={name} onChange={handleNameChange} />
 
-      <label className="label nameLabel" htmlFor="textInput">
-        Operation Name
-      </label>
-      <input
-        type="text"
-        className="input-field"
-        id="textInput"
-        value={name}
-        onChange={handleNameChange}
-      />
+        <button onClick={() => setMockResponse(op, name, res, delay)}>
+          Generate Mock Response
+        </button>
+      </div>
 
-      <label className="label nameLabel" htmlFor="textarea">
-        Sample Response
-      </label>
-      <textarea
-        className="input-field"
-        id="textarea"
-        rows={4}
-        value={res}
-        onChange={handleResponseChange}
-      ></textarea>
+      <div className="flex">
+        <label className="label nameLabel" htmlFor="delayInput">
+          Response Delay (ms)
+        </label>
+        <input
+          type="number"
+          className="input-field"
+          id="delayInput"
+          value={delay.toString()}
+          onChange={handleDelayChange}
+        />
+      </div>
 
-      <label className="label nameLabel" htmlFor="delayInput">
-        Response Delay (ms)
-      </label>
-      <input
-        type="number"
-        className="input-field"
-        id="delayInput"
-        value={delay.toString()}
-        onChange={handleDelayChange}
-      />
-
-      <button
-        className="button"
-        onClick={() => setMockResponse(op, name, res, delay)}
-      >
-        Generate Mock Response
-      </button>
+      <div className="flex">
+        <label>Mock Response</label>
+        <textarea
+          rows={4}
+          value={res}
+          onChange={handleResponseChange}
+        ></textarea>
+      </div>
     </div>
   );
 }
