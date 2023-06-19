@@ -14,6 +14,7 @@ const InputComponent = () => {
   const [operationName, setOperationName] = useState("");
   const [mockResponse, setMockResponse] = useState("");
   const [responseDelay, setResponseDelay] = useState("");
+  const [statusCode, setStatusCode] = useState("200");
 
   const handleOperationTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -35,10 +36,16 @@ const InputComponent = () => {
     setOperationName(event.target.value.trim());
   };
 
-  const handleRequestDelayChange = (
+  const handleResponseDelayChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setResponseDelay(event.target.value.trim());
+  };
+
+  const handleStatusCodeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setStatusCode(event.target.value.trim());
   };
 
   function handleMockButtonPressed() {
@@ -88,14 +95,25 @@ const InputComponent = () => {
         </button>
       </div>
 
-      <TopAlignedLabelAndInput
-        htmlInputId="inputResponseDelay"
-        type="number"
-        label="Response Delay (ms)"
-        value={responseDelay}
-        classOverride="my-2"
-        onChange={handleRequestDelayChange}
-      />
+      <div className="flex items-stretch">
+        <TopAlignedLabelAndInput
+          htmlInputId="inputResponseDelay"
+          type="number"
+          label="Response Delay (ms)"
+          value={responseDelay}
+          classOverride="my-2"
+          onChange={handleResponseDelayChange}
+        />
+
+        <TopAlignedLabelAndInput
+          htmlInputId="inputStatusCode"
+          type="number"
+          label="Status Code"
+          value={statusCode}
+          classOverride="my-2 mx-4"
+          onChange={handleStatusCodeChange}
+        />
+      </div>
 
       <TopAlignedLabelAndInput
         htmlInputId="inputMockResponse"
