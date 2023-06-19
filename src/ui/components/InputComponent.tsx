@@ -54,7 +54,10 @@ const InputComponent = () => {
   return (
     <div className="flex flex-col">
       <div className="flex items-stretch">
-        <div className="flex flex-col-reverse">
+        <TopAlignedLabelAndInput
+          htmlInputId="inputSelectOperationType"
+          label="OperationType"
+        >
           <select
             id="inputSelectOperationType"
             value={
@@ -66,23 +69,16 @@ const InputComponent = () => {
             <option value={QUERY}>Query</option>
             <option value={MUTATION}>Mutation</option>
           </select>
-          <label
-            htmlFor="inputSelectOperationType"
-            className="text-xs text-gray-500 peer-focus:text-blue-600"
-          >
-            Operation Type
-          </label>
-        </div>
+        </TopAlignedLabelAndInput>
 
         <TopAlignedLabelAndInput
-          type="text"
           htmlInputId="inputOperationName"
+          type="text"
+          label="Operation Name"
           value={operationName}
           classOverride="mx-4"
           onChange={handleOperationNameChange}
-        >
-          Operation Name
-        </TopAlignedLabelAndInput>
+        />
 
         <button
           className="px-6 py-2 h-auto self-center rounded-sm font-small tracking-wide text-white transition-colors duration-300 transform bg-blue-600  hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
@@ -93,16 +89,18 @@ const InputComponent = () => {
       </div>
 
       <TopAlignedLabelAndInput
-        type="number"
         htmlInputId="inputResponseDelay"
+        type="number"
+        label="Response Delay (ms)"
         value={responseDelay}
         classOverride="my-2"
         onChange={handleRequestDelayChange}
-      >
-        Response Delay (ms)
-      </TopAlignedLabelAndInput>
+      />
 
-      <div className="flex flex-col-reverse">
+      <TopAlignedLabelAndInput
+        htmlInputId="inputMockResponse"
+        label="Mock Response"
+      >
         <textarea
           id="inputMockResponse"
           value={mockResponse}
@@ -110,13 +108,7 @@ const InputComponent = () => {
           rows={4}
           onChange={handleMockResponseChange}
         ></textarea>
-        <label
-          htmlFor="inputMockResponse"
-          className="text-xs text-gray-500 peer-focus:text-blue-600"
-        >
-          Mock Response
-        </label>
-      </div>
+      </TopAlignedLabelAndInput>
     </div>
   );
 };
