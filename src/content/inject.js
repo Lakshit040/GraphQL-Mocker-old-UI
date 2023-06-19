@@ -27,17 +27,17 @@ function hijack(url, config) {
 proxy({
   onRequest: (config, handler) =>
     hijack(config.url, config)
-      .then(({ response }) => {
+      .then(({ response, statusCode }) => {
         return handler.resolve({
           config,
-          status: 200,
+          status: statusCode,
           headers: [],
           response,
         });
       })
       .catch(() => handler.next(config)),
-  onResponse: (response, handler) => {
-    handler.resolve(response);
+  onResponse: (response, statusCode, handler) => {
+    handler.resolve(response, statusCode);
   },
 });
 
@@ -45,10 +45,10 @@ if (window.fetch) {
   const f = window.fetch;
   window.fetch = (req, config = undefined) => {
     return hijack(req, config)
-      .then(({ response }) => {
+      .then(({ response, statusCode }) => {
         return new Response(response, {
           headers: new Headers([]),
-          status: 200,
+          status: statusCode,
         });
       })
       .catch(() => f(req, config));
@@ -58,14 +58,15 @@ if (window.fetch) {
 window.addEventListener("from-content", (event) => {
   console.log("Injected script received message from content script");
 
-  let { requestId, response } = event.detail;
+  let { requestId, response, statusCode} = event.detail;
   if (!hijackedRequests.has(requestId)) return;
 
   let [resolve, reject] = hijackedRequests.get(requestId);
 
   if (response) {
     console.log("Injected script got response", response);
-    resolve({ response });
+    console.log('Status code: ', statusCode)
+    resolve({ response, statusCode });
   } else {
     reject();
   }
