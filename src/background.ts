@@ -32,12 +32,12 @@ const toVerify: boolean = false
 
 const statusCodeMap: Map<string, number> = new Map()
 
-statusCodeMap.set('Query Validation Failed', 1)
-statusCodeMap.set('Schema Introspection Failed', 2)
-statusCodeMap.set('Internal Server Error', 3)
-statusCodeMap.set('Success', 4)
-statusCodeMap.set('Query Parsing Error', 5)
-statusCodeMap.set('Field Not Found', 6)
+statusCodeMap.set('Query Validation Failed', 401)
+statusCodeMap.set('Schema Introspection Failed', 402)
+statusCodeMap.set('Internal Server Error', 503)
+statusCodeMap.set('Success', 200)
+statusCodeMap.set('Query Parsing Error', 403)
+statusCodeMap.set('Field Not Found', 404)
 
 let mockResponses: Map<string, MockResponseConfiguration> = new Map()
 const randomResponses: Map<string, number> = new Map()
@@ -136,11 +136,11 @@ async function handleInterceptedRequest(
 
     if (responseDelay > 0) {
       setTimeout(() => {
-        resolve(JSON.stringify(generatedResponse.data, null, 2), 200)
+        resolve(JSON.stringify(generatedResponse.data, null, 2), generatedResponse.statusCode)
       })
     }
     else{
-      resolve(JSON.stringify(generatedResponse.data, null, 2), 200)
+      resolve(JSON.stringify(generatedResponse.data, null, 2), generatedResponse.statusCode)
     }
 
     return
