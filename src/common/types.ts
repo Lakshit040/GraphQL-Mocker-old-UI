@@ -1,8 +1,7 @@
 export enum MessageType {
   PanelMounted,
   RequestIntercepted,
-  SetMockResponse,
-  SetRandomResponse
+  SetMockResponse
 }
 
 export enum GraphQLOperationType {

@@ -36,8 +36,8 @@ proxy({
         });
       })
       .catch(() => handler.next(config)),
-  onResponse: (response, statusCode, handler) => {
-    handler.resolve({response, statusCode});
+  onResponse: (response, handler) => {
+    handler.resolve(response);
   },
 });
 
@@ -66,7 +66,7 @@ window.addEventListener("from-content", (event) => {
   if (response) {
     console.log("Injected script got response", response);
     console.log('Status code: ', statusCode)
-    resolve({ response, statusCode });
+    resolve({response, statusCode});
   } else {
     reject();
   }

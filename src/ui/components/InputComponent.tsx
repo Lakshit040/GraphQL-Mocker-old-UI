@@ -58,12 +58,14 @@ const InputComponent = () => {
   function handleMockButtonPressed() {
     const delay = +responseDelay;
     const status = +statusCode;
+    const randomize = shouldRandomizeResponse
     backgroundSetMockResponse(
       operationType,
       operationName,
       mockResponse,
       isNaN(delay) ? 0 : delay,
-      isNaN(status) ? 200 : status
+      isNaN(status) ? 200 : status,
+      randomize
     );
   }
 

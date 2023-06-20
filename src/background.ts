@@ -23,14 +23,13 @@ interface MockResponseConfiguration {
   responseStatus: number
 }
 
-interface RandomResponseConfiguration{
+interface RandomResponseConfiguration {
   responseDelay: number
   responseStatus: number
 }
 
 const randomResponse = {
   data: {},
-  message: '',
 }
 
 const toVerify: boolean = false
@@ -39,6 +38,7 @@ let mockResponses: Map<string, MockResponseConfiguration> = new Map()
 const randomResponses: Map<string, RandomResponseConfiguration> = new Map()
 
 let queryUrl: string = ''
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let isResponseAsync = true
 
@@ -58,23 +58,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break
     }
     case MessageType.SetMockResponse: {
-      console.log(`Got a request to set mock response!`)
+      console.log(`Got a request to set mock/randomize response!`)
       setMockResponse(
         msg.data.operationType,
         msg.data.operationName,
         msg.data.mockResponse,
         msg.data.responseDelay,
-        msg.data.statusCode
-      )
-      break
-    }
-    case MessageType.SetRandomResponse: {
-      console.log(`Got a request to set random response!`)
-      setRandomResponse(
-        msg.data.operationType,
-        msg.data.operationName,
-        msg.data.responseDelay,
-        msg.data.statusCode
+        msg.data.statusCode,
+        msg.data.randomize
       )
       break
     }
@@ -106,21 +97,7 @@ async function handleInterceptedRequest(
   console.log('Parse GraphQL operation', operationType, operationName)
 
   const key = `${operationType}:${operationName}`
-  const mockResponseConfig = mockResponses.get(key)
-  if (mockResponseConfig !== undefined) {
-    console.log('Found a mock response! Sending it as the response!')
-    const { mockResponse, responseDelay, responseStatus} = mockResponseConfig
-    const obj = JSON.parse(mockResponse)
-    obj.message = 'Success'
-    if (responseDelay > 0) {
-      setTimeout(() => {
-        resolve(JSON.stringify(obj, null, 2), responseStatus)
-      }, responseDelay)
-    } else {
-      resolve(JSON.stringify(obj, null, 2), responseStatus)
-    }
-    return
-  }
+
   const randomResponseConfig = randomResponses.get(key)
   if (randomResponseConfig !== undefined) {
     console.log(
@@ -131,19 +108,33 @@ async function handleInterceptedRequest(
     const graphqlQuery = decodeURIComponent(url.searchParams.get('query')!)
     const generatedResponse = await fetchData(endpoint, graphqlQuery)
 
-    const {responseDelay, responseStatus} = randomResponseConfig
-    
+    const { responseDelay, responseStatus } = randomResponseConfig
+
     if (responseDelay > 0) {
       setTimeout(() => {
         resolve(JSON.stringify(generatedResponse, null, 2), responseStatus)
       })
-    }
-    else{
+    } else {
       resolve(JSON.stringify(generatedResponse, null, 2), responseStatus)
     }
-
     return
   }
+
+  const mockResponseConfig = mockResponses.get(key)
+  if (mockResponseConfig !== undefined) {
+    console.log('Found a mock response! Sending it as the response!')
+    const { mockResponse, responseDelay, responseStatus } = mockResponseConfig
+    if (responseDelay > 0) {
+      setTimeout(() => {
+        resolve(mockResponse, responseStatus)
+      }, responseDelay)
+    } else {
+      resolve(mockResponse, responseStatus)
+    }
+    return
+  }
+
+  
   reject()
 }
 
@@ -152,22 +143,21 @@ function setMockResponse(
   operationName: string,
   mockResponse: string,
   responseDelay: number,
-  responseStatus: number
+  responseStatus: number,
+  giveRandom: boolean
 ) {
-  mockResponses.set(`${operationType}:${operationName}`, {
-    mockResponse,
-    responseDelay,
-    responseStatus
-  })
-}
-
-function setRandomResponse(
-  operationType: GraphQLOperationType,
-  operationName: string,
-  responseDelay: number,
-  responseStatus: number
-) {
-  randomResponses.set(`${operationType}:${operationName}`, {responseDelay, responseStatus})
+  if (giveRandom) {
+    randomResponses.set(`${operationType}:${operationName}`, {
+      responseDelay,
+      responseStatus,
+    })
+  } else {
+    mockResponses.set(`${operationType}:${operationName}`, {
+      mockResponse,
+      responseDelay,
+      responseStatus,
+    })
+  }
 }
 
 async function validateQuery(
@@ -203,7 +193,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     const introspectionResult = await response.json()
 
     if (introspectionResult.errors || introspectionResult.error) {
-      randomResponse.message = 'Schema Introspection failed'
       return randomResponse
     }
 
@@ -214,10 +203,8 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     if (toVerify) {
       const res = await validateQuery(schema, graphqlQuery)
       if (res === 2) {
-        randomResponse.message = 'Query Validation Failed'
         return randomResponse
       } else if (res === 3) {
-        randomResponse.message = 'Internal Server Error'
         return randomResponse
       }
     }
@@ -288,7 +275,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
               generateRandomValue(typeName.replace('[', '').replace(']', ''))
             )
           } else {
-            randomResponse.message = 'Field Not Found'
             return {}
           }
         }
@@ -309,9 +295,7 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
       typeMap: Map<string, any>
     ) => {
       const response: any = {}
-      if (!selectionSet) {
-        randomResponse.message = 'Field Not Found'
-      }
+
       for (const field of selectionSet.selections) {
         if (field.kind === 'InlineFragment') {
           response[field.typeCondition!.name.value] = generateMockResponse(
@@ -320,7 +304,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
           )
         } else {
           if (!typeMap.has(field.name.value)) {
-            randomResponse.message = 'Field Not Found'
             return {}
           }
           const typeName = typeMap.get(field.name.value)
@@ -381,7 +364,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
         ) as OperationDefinitionNode
 
       if (!rootQuery) {
-        randomResponse.message = 'Operation Not Found'
         return randomResponse
       }
       return generateMockResponse(rootQuery.selectionSet, typeMap)
@@ -391,14 +373,11 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
       const data = generateNestedMockResponse(parse(graphqlQuery), fieldTypes)
 
       randomResponse.data = data
-      randomResponse.message = 'Success'
       return randomResponse
     } catch {
-      randomResponse.message = 'Query Parsing Error'
       return randomResponse
     }
   } catch (error) {
-    randomResponse.message = 'Internal Server Error'
     return randomResponse
   }
 }
