@@ -37,7 +37,7 @@ proxy({
       })
       .catch(() => handler.next(config)),
   onResponse: (response, statusCode, handler) => {
-    handler.resolve(response, statusCode);
+    handler.resolve({response, statusCode});
   },
 });
 
