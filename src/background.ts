@@ -22,22 +22,14 @@ interface MockResponseConfiguration {
   responseDelay: number
 }
 
+const setStatus = 200;
+
 const randomResponse = {
   data: {},
-  statusCode: 200,
   message: '',
 }
 
 const toVerify: boolean = false
-
-const statusCodeMap: Map<string, number> = new Map()
-
-statusCodeMap.set('Query Validation Failed', 401)
-statusCodeMap.set('Schema Introspection Failed', 402)
-statusCodeMap.set('Internal Server Error', 503)
-statusCodeMap.set('Success', 200)
-statusCodeMap.set('Query Parsing Error', 403)
-statusCodeMap.set('Field Not Found', 404)
 
 let mockResponses: Map<string, MockResponseConfiguration> = new Map()
 const randomResponses: Map<string, number> = new Map()
@@ -76,7 +68,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       setRandomResponse(
         msg.data.operationType,
         msg.data.operationName,
-        msg.data.randomResponse,
         msg.data.responseDelay
       )
       break
@@ -90,7 +81,7 @@ async function handleInterceptedRequest(
   config: any,
   sendResponse: (response?: any) => void
 ) {
-  let reject = () => sendResponse({ response: null, statusCode: 404 })
+  let reject = () => sendResponse({ response: null, statusCode: setStatus })
   let resolve = (response: string, statusCode: number) =>
     sendResponse({ response, statusCode })
 
@@ -112,13 +103,15 @@ async function handleInterceptedRequest(
   const mockResponseConfig = mockResponses.get(key)
   if (mockResponseConfig !== undefined) {
     console.log('Found a mock response! Sending it as the response!')
-    let { mockResponse, responseDelay } = mockResponseConfig
+    const { mockResponse, responseDelay } = mockResponseConfig
+    const obj = JSON.parse(mockResponse)
+    obj.message = 'Success'
     if (responseDelay > 0) {
       setTimeout(() => {
-        resolve(mockResponse, 200)
+        resolve(JSON.stringify(obj, null, 2), setStatus)
       }, responseDelay)
     } else {
-      resolve(mockResponse, 200)
+      resolve(JSON.stringify(obj, null, 2), setStatus)
     }
     return
   }
@@ -136,11 +129,11 @@ async function handleInterceptedRequest(
 
     if (responseDelay > 0) {
       setTimeout(() => {
-        resolve(JSON.stringify(generatedResponse.data, null, 2), generatedResponse.statusCode)
+        resolve(JSON.stringify(generatedResponse, null, 2), setStatus)
       })
     }
     else{
-      resolve(JSON.stringify(generatedResponse.data, null, 2), generatedResponse.statusCode)
+      resolve(JSON.stringify(generatedResponse, null, 2), setStatus)
     }
 
     return
@@ -163,7 +156,6 @@ function setMockResponse(
 function setRandomResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  randomResponse: object,
   responseDelay: number
 ) {
   randomResponses.set(`${operationType}:${operationName}`, responseDelay)
@@ -202,9 +194,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     const introspectionResult = await response.json()
 
     if (introspectionResult.errors || introspectionResult.error) {
-      randomResponse.statusCode = statusCodeMap.get(
-        'Schema Introspection Failed'
-      )!
       randomResponse.message = 'Schema Introspection failed'
       return randomResponse
     }
@@ -216,13 +205,9 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     if (toVerify) {
       const res = await validateQuery(schema, graphqlQuery)
       if (res === 2) {
-        randomResponse.statusCode = statusCodeMap.get(
-          'Query Validation Failed'
-        )!
         randomResponse.message = 'Query Validation Failed'
         return randomResponse
       } else if (res === 3) {
-        randomResponse.statusCode = statusCodeMap.get('Internal Server Error')!
         randomResponse.message = 'Internal Server Error'
         return randomResponse
       }
@@ -294,7 +279,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
               generateRandomValue(typeName.replace('[', '').replace(']', ''))
             )
           } else {
-            randomResponse.statusCode = statusCodeMap.get('Field Not Found')!
             randomResponse.message = 'Field Not Found'
             return {}
           }
@@ -317,7 +301,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     ) => {
       const response: any = {}
       if (!selectionSet) {
-        randomResponse.statusCode = statusCodeMap.get('Field Not Found')!
         randomResponse.message = 'Field Not Found'
       }
       for (const field of selectionSet.selections) {
@@ -328,7 +311,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
           )
         } else {
           if (!typeMap.has(field.name.value)) {
-            randomResponse.statusCode = statusCodeMap.get('Field Not Found')!
             randomResponse.message = 'Field Not Found'
             return {}
           }
@@ -390,7 +372,6 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
         ) as OperationDefinitionNode
 
       if (!rootQuery) {
-        randomResponse.statusCode = statusCodeMap.get('Operation Not Found')!
         randomResponse.message = 'Operation Not Found'
         return randomResponse
       }
@@ -401,16 +382,13 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
       const data = generateNestedMockResponse(parse(graphqlQuery), fieldTypes)
 
       randomResponse.data = data
-      randomResponse.statusCode = statusCodeMap.get('Success')!
       randomResponse.message = 'Success'
       return randomResponse
     } catch {
-      randomResponse.statusCode = statusCodeMap.get('Query Parsing Error')!
       randomResponse.message = 'Query Parsing Error'
       return randomResponse
     }
   } catch (error) {
-    randomResponse.statusCode = statusCodeMap.get('Internal Server Error')!
     randomResponse.message = 'Internal Server Error'
     return randomResponse
   }
