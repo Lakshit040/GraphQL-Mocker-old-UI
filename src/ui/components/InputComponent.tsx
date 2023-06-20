@@ -17,6 +17,9 @@ const InputComponent = () => {
   const [statusCode, setStatusCode] = useState("200");
   const [shouldRandomizeResponse, setShouldRandomizeResponse] = useState(false);
 
+  const [isMockResponseTextAreaFocused, setIsMockResponseTextAreaFocused] =
+    useState(false);
+
   const handleOperationTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -29,6 +32,10 @@ const InputComponent = () => {
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setMockResponse(event.target.value);
+  };
+
+  const handleMockResponseTextAreaFocused = () => {
+    setIsMockResponseTextAreaFocused(true);
   };
 
   const handleOperationNameChange = (
@@ -55,10 +62,12 @@ const InputComponent = () => {
     setShouldRandomizeResponse(!shouldRandomizeResponse);
   };
 
+  const handlePrettifyButtonPressed = () => {};
+
   function handleMockButtonPressed() {
     const delay = +responseDelay;
     const status = +statusCode;
-    const randomize = shouldRandomizeResponse
+    const randomize = shouldRandomizeResponse;
     backgroundSetMockResponse(
       operationType,
       operationName,
@@ -74,7 +83,7 @@ const InputComponent = () => {
       <div className="flex items-stretch">
         <TopAlignedLabelAndInput
           htmlInputId="inputSelectOperationType"
-          label="OperationType"
+          label="Operation Type"
         >
           <select
             id="inputSelectOperationType"
@@ -139,19 +148,33 @@ const InputComponent = () => {
         ></input>
       </TopAlignedLabelAndInput>
 
-      <TopAlignedLabelAndInput
-        htmlInputId="inputMockResponse"
-        label="Mock Response"
-      >
+      <div className="flex flex-col-reverse">
         <textarea
           id="inputMockResponse"
           value={mockResponse}
-          className="my-1 py-3 px-4 w-full border border-gray-300 rounded-sm text-sm focus:border-blue-500 focus:ring-blue-500 peer"
+          className="my-1 py-3 px-4 w-full border border-gray-300 rounded-sm text-sm focus:border-blue-500 focus:ring-blue-500 input-mock-response"
           rows={4}
           onChange={handleMockResponseChange}
+          onFocus={handleMockResponseTextAreaFocused}
           disabled={shouldRandomizeResponse}
         ></textarea>
-      </TopAlignedLabelAndInput>
+        <div className="flex">
+          <label
+            htmlFor="inputMockResponse"
+            className={`text-xs ${
+              isMockResponseTextAreaFocused ? "text-blue-600" : "text-gray-500"
+            }`}
+          >
+            Mock Response
+          </label>
+          <button
+            className="px-1 h-auto ml-auto self-center tracking-wider rounded-sm text-xs text-gray-500 transition-colors duration-300 transform bg-white hover:bg-gray-200 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-80"
+            onClick={handlePrettifyButtonPressed}
+          >
+            {"{}"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
