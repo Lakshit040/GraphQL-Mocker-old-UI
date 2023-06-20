@@ -5,7 +5,8 @@ interface TopAlignedLabelAndInputProps {
   value?: string | number | readonly string[];
   placeholder?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  classOverride?: string;
+  divClassAppend?: string;
+  divClassOverride?: string;
   labelClassOverride?: string;
   children?: React.ReactNode;
 }
@@ -17,7 +18,8 @@ const TopAlignedLabelAndInput = ({
   value,
   placeholder,
   onChange,
-  classOverride,
+  divClassAppend,
+  divClassOverride,
   labelClassOverride,
   children,
 }: TopAlignedLabelAndInputProps) => {
@@ -31,9 +33,11 @@ const TopAlignedLabelAndInput = ({
   if (children === undefined) {
     return (
       <div
-        className={`flex flex-col-reverse ${
-          classOverride ? classOverride : ""
-        }`}
+        className={
+          divClassOverride
+            ? divClassOverride
+            : `flex flex-col-reverse ${divClassAppend ? divClassAppend : ""}`
+        }
       >
         <input
           type={type}
@@ -45,9 +49,7 @@ const TopAlignedLabelAndInput = ({
         />
         <label
           htmlFor={htmlInputId}
-          className={`text-xs text-gray-500 peer-focus:text-blue-600 ${
-            labelClassOverride ? labelClassOverride : ""
-          }`}
+          className="text-xs text-gray-500 peer-focus:text-blue-600"
         >
           {label}
         </label>
@@ -56,16 +58,16 @@ const TopAlignedLabelAndInput = ({
   } else {
     return (
       <div
-        className={`flex flex-col-reverse ${
-          classOverride ? classOverride : ""
-        }`}
+        className={
+          divClassOverride
+            ? divClassOverride
+            : `flex flex-col-reverse ${divClassAppend ? divClassAppend : ""}`
+        }
       >
         {children}
         <label
           htmlFor={htmlInputId}
-          className={`text-xs text-gray-500 peer-focus:text-blue-600 ${
-            labelClassOverride ? labelClassOverride : ""
-          }`}
+          className="text-xs text-gray-500 peer-focus:text-blue-600"
         >
           {label}
         </label>

@@ -94,7 +94,7 @@ const InputComponent = () => {
           type="text"
           label="Operation Name"
           value={operationName}
-          classOverride="mx-4"
+          divClassAppend="mx-4"
           onChange={handleOperationNameChange}
         />
 
@@ -112,7 +112,7 @@ const InputComponent = () => {
           type="number"
           label="Response Delay (ms)"
           value={responseDelay}
-          classOverride="my-2"
+          divClassAppend="my-2"
           onChange={handleResponseDelayChange}
         />
 
@@ -121,24 +121,23 @@ const InputComponent = () => {
           type="number"
           label="Status Code"
           value={statusCode}
-          classOverride="my-2 mx-4"
+          divClassAppend="my-2 mx-4"
           onChange={handleStatusCodeChange}
         />
-
-        <TopAlignedLabelAndInput
-          htmlInputId="inputShouldRandomizeResponse"
-          label="Randomize Response"
-          classOverride="my-2"
-          labelClassOverride="justify-self-end"
-        >
-          <input
-            type="checkbox"
-            className="border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
-            checked={shouldRandomizeResponse}
-            onChange={handleShouldRandomizeResponseChange}
-          ></input>
-        </TopAlignedLabelAndInput>
       </div>
+
+      <TopAlignedLabelAndInput
+        htmlInputId="inputShouldRandomizeResponse"
+        label="Randomize Response"
+        divClassOverride="mb-2 flex flex-row-reverse justify-end"
+      >
+        <input
+          type="checkbox"
+          className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
+          checked={shouldRandomizeResponse}
+          onChange={handleShouldRandomizeResponseChange}
+        ></input>
+      </TopAlignedLabelAndInput>
 
       <TopAlignedLabelAndInput
         htmlInputId="inputMockResponse"
@@ -150,6 +149,7 @@ const InputComponent = () => {
           className="my-1 py-3 px-4 w-full border border-gray-300 rounded-sm text-sm focus:border-blue-500 focus:ring-blue-500 peer"
           rows={4}
           onChange={handleMockResponseChange}
+          disabled={shouldRandomizeResponse}
         ></textarea>
       </TopAlignedLabelAndInput>
     </div>
