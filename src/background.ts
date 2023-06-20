@@ -37,7 +37,6 @@ const toVerify: boolean = false
 let mockResponses: Map<string, MockResponseConfiguration> = new Map()
 const randomResponses: Map<string, RandomResponseConfiguration> = new Map()
 
-let queryUrl: string = ''
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let isResponseAsync = true
@@ -50,7 +49,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case MessageType.RequestIntercepted: {
       let tabId = sender.tab?.id
-      queryUrl = msg.data.url
+      
       console.log(
         `${tabId}: Intercepted a request! ${msg.data.url} ${msg.data.config.method}`
       )
@@ -93,7 +92,7 @@ async function handleInterceptedRequest(
     return
   }
 
-  const [operationType, operationName] = parsed
+  const [operationType, operationName, query] = parsed
   console.log('Parse GraphQL operation', operationType, operationName)
 
   const key = `${operationType}:${operationName}`
@@ -103,10 +102,8 @@ async function handleInterceptedRequest(
     console.log(
       'Found a random response request! Generating and sending it the response'
     )
-    const url = new URL(queryUrl)
-    const endpoint = url.origin + url.pathname
-    const graphqlQuery = decodeURIComponent(url.searchParams.get('query')!)
-    const generatedResponse = await fetchData(endpoint, graphqlQuery)
+    const graphqlQuery = query;
+    const generatedResponse = await fetchData(`https://api.github.com/graphql`, graphqlQuery)
 
     const { responseDelay, responseStatus } = randomResponseConfig
 
@@ -186,7 +183,7 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
 
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `bearer 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` },
       body: JSON.stringify({ query: introspectionQuery }),
     })
 

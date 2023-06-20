@@ -4,7 +4,7 @@ import { GraphQLOperationType } from "./types";
 
 export function parseIfGraphQLRequest(
   config: any
-): [GraphQLOperationType, string] | undefined {
+): [GraphQLOperationType, string, string] | undefined {
   let body = config.body;
   if (body === undefined) {
     return undefined;
@@ -29,7 +29,7 @@ export function parseIfGraphQLRequest(
             : GraphQLOperationType.Mutation;
         operationName = firstDefinition.name?.value || operationName;
 
-        return [operationType, operationName];
+        return [operationType, operationName, query];
       }
     }
   } catch (err) {

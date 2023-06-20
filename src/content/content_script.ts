@@ -5,9 +5,9 @@ document.head.prepend(interceptScript);
 window.addEventListener("from-injected", (event) => {
   console.log("Content script received message from injected script");
   let { message, requestId } = (event as any).detail;
-  chrome.runtime.sendMessage(message).then(({ response, statusCode }) => {
+  chrome.runtime.sendMessage(message).then(({ response, statusCode}) => {
     let reply = new CustomEvent("from-content", {
-      detail: { requestId, response, statusCode },
+      detail: { requestId, response, statusCode},
     });
     window.dispatchEvent(reply);
   });
