@@ -15,6 +15,7 @@ const InputComponent = () => {
   const [mockResponse, setMockResponse] = useState("");
   const [responseDelay, setResponseDelay] = useState("");
   const [statusCode, setStatusCode] = useState("200");
+  const [shouldRandomizeResponse, setShouldRandomizeResponse] = useState(false);
 
   const handleOperationTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -46,6 +47,12 @@ const InputComponent = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setStatusCode(event.target.value.trim());
+  };
+
+  const handleShouldRandomizeResponseChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setShouldRandomizeResponse(!shouldRandomizeResponse);
   };
 
   function handleMockButtonPressed() {
@@ -115,6 +122,20 @@ const InputComponent = () => {
           classOverride="my-2 mx-4"
           onChange={handleStatusCodeChange}
         />
+
+        <TopAlignedLabelAndInput
+          htmlInputId="inputShouldRandomizeResponse"
+          label="Randomize Response"
+          classOverride="my-2"
+          labelClassOverride="justify-self-end"
+        >
+          <input
+            type="checkbox"
+            className="border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
+            checked={shouldRandomizeResponse}
+            onChange={handleShouldRandomizeResponseChange}
+          ></input>
+        </TopAlignedLabelAndInput>
       </div>
 
       <TopAlignedLabelAndInput

@@ -6,6 +6,7 @@ interface TopAlignedLabelAndInputProps {
   placeholder?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   classOverride?: string;
+  labelClassOverride?: string;
   children?: React.ReactNode;
 }
 
@@ -17,6 +18,7 @@ const TopAlignedLabelAndInput = ({
   placeholder,
   onChange,
   classOverride,
+  labelClassOverride,
   children,
 }: TopAlignedLabelAndInputProps) => {
   /**
@@ -43,7 +45,9 @@ const TopAlignedLabelAndInput = ({
         />
         <label
           htmlFor={htmlInputId}
-          className="text-xs text-gray-500 peer-focus:text-blue-600"
+          className={`text-xs text-gray-500 peer-focus:text-blue-600 ${
+            labelClassOverride ? labelClassOverride : ""
+          }`}
         >
           {label}
         </label>
@@ -59,7 +63,9 @@ const TopAlignedLabelAndInput = ({
         {children}
         <label
           htmlFor={htmlInputId}
-          className="text-xs text-gray-500 peer-focus:text-blue-600"
+          className={`text-xs text-gray-500 peer-focus:text-blue-600 ${
+            labelClassOverride ? labelClassOverride : ""
+          }`}
         >
           {label}
         </label>
