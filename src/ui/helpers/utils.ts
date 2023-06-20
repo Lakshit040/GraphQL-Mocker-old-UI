@@ -4,7 +4,8 @@ export function backgroundSetMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
   mockResponse: string,
-  responseDelay: number
+  responseDelay: number,
+  statusCode: number
 ) {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
@@ -13,6 +14,7 @@ export function backgroundSetMockResponse(
       operationName,
       mockResponse,
       responseDelay,
+      statusCode
     },
   });
 }

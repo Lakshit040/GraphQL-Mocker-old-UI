@@ -14,7 +14,7 @@ const InputComponent = () => {
   const [operationName, setOperationName] = useState("");
   const [mockResponse, setMockResponse] = useState("");
   const [responseDelay, setResponseDelay] = useState("");
-  const [statusCode, setStatusCode] = useState(200);
+  const [statusCode, setStatusCode] = useState("200");
 
   const handleOperationTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -45,16 +45,18 @@ const InputComponent = () => {
   const handleStatusCodeChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setStatusCode(Number(event.target.value.trim()));
+    setStatusCode(event.target.value.trim());
   };
 
   function handleMockButtonPressed() {
     const delay = +responseDelay;
+    const status = +statusCode;
     backgroundSetMockResponse(
       operationType,
       operationName,
       mockResponse,
-      isNaN(delay) ? 0 : delay
+      isNaN(delay) ? 0 : delay,
+      isNaN(status) ? 200 : status
     );
   }
 
