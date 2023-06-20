@@ -38,6 +38,10 @@ const InputComponent = () => {
     setIsMockResponseTextAreaFocused(true);
   };
 
+  const handleMockResponseTextAreaBlurred = () => {
+    setIsMockResponseTextAreaFocused(false);
+  };
+
   const handleOperationNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -62,7 +66,12 @@ const InputComponent = () => {
     setShouldRandomizeResponse(!shouldRandomizeResponse);
   };
 
-  const handlePrettifyButtonPressed = () => {};
+  const handlePrettifyButtonPressed = () => {
+    try {
+      const prettified = JSON.stringify(JSON.parse(mockResponse), null, 2);
+      setMockResponse(prettified);
+    } catch (err) {}
+  };
 
   function handleMockButtonPressed() {
     const delay = +responseDelay;
@@ -152,10 +161,11 @@ const InputComponent = () => {
         <textarea
           id="inputMockResponse"
           value={mockResponse}
-          className="my-1 py-3 px-4 w-full border border-gray-300 rounded-sm text-sm focus:border-blue-500 focus:ring-blue-500 input-mock-response"
+          className="my-1 py-1 px-1 w-full font-mono border border-gray-300 rounded-sm text-xs focus:border-blue-500 focus:ring-blue-500 input-mock-response"
           rows={4}
           onChange={handleMockResponseChange}
           onFocus={handleMockResponseTextAreaFocused}
+          onBlur={handleMockResponseTextAreaBlurred}
           disabled={shouldRandomizeResponse}
         ></textarea>
         <div className="flex">
