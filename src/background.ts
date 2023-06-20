@@ -20,9 +20,13 @@ import { GraphQLSchema } from 'graphql/type/schema'
 interface MockResponseConfiguration {
   mockResponse: string
   responseDelay: number
+  responseStatus: number
 }
 
-const setStatus = 200;
+interface RandomResponseConfiguration{
+  responseDelay: number
+  responseStatus: number
+}
 
 const randomResponse = {
   data: {},
@@ -32,7 +36,7 @@ const randomResponse = {
 const toVerify: boolean = false
 
 let mockResponses: Map<string, MockResponseConfiguration> = new Map()
-const randomResponses: Map<string, number> = new Map()
+const randomResponses: Map<string, RandomResponseConfiguration> = new Map()
 
 let queryUrl: string = ''
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -59,7 +63,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         msg.data.operationType,
         msg.data.operationName,
         msg.data.mockResponse,
-        msg.data.responseDelay
+        msg.data.responseDelay,
+        msg.data.statusCode
       )
       break
     }
@@ -68,7 +73,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       setRandomResponse(
         msg.data.operationType,
         msg.data.operationName,
-        msg.data.responseDelay
+        msg.data.responseDelay,
+        msg.data.statusCode
       )
       break
     }
@@ -81,7 +87,7 @@ async function handleInterceptedRequest(
   config: any,
   sendResponse: (response?: any) => void
 ) {
-  let reject = () => sendResponse({ response: null, statusCode: setStatus })
+  let reject = () => sendResponse({ response: null, statusCode: 200 })
   let resolve = (response: string, statusCode: number) =>
     sendResponse({ response, statusCode })
 
@@ -103,15 +109,15 @@ async function handleInterceptedRequest(
   const mockResponseConfig = mockResponses.get(key)
   if (mockResponseConfig !== undefined) {
     console.log('Found a mock response! Sending it as the response!')
-    const { mockResponse, responseDelay } = mockResponseConfig
+    const { mockResponse, responseDelay, responseStatus} = mockResponseConfig
     const obj = JSON.parse(mockResponse)
     obj.message = 'Success'
     if (responseDelay > 0) {
       setTimeout(() => {
-        resolve(JSON.stringify(obj, null, 2), setStatus)
+        resolve(JSON.stringify(obj, null, 2), responseStatus)
       }, responseDelay)
     } else {
-      resolve(JSON.stringify(obj, null, 2), setStatus)
+      resolve(JSON.stringify(obj, null, 2), responseStatus)
     }
     return
   }
@@ -125,15 +131,15 @@ async function handleInterceptedRequest(
     const graphqlQuery = decodeURIComponent(url.searchParams.get('query')!)
     const generatedResponse = await fetchData(endpoint, graphqlQuery)
 
-    const responseDelay = randomResponseConfig
-
+    const {responseDelay, responseStatus} = randomResponseConfig
+    
     if (responseDelay > 0) {
       setTimeout(() => {
-        resolve(JSON.stringify(generatedResponse, null, 2), setStatus)
+        resolve(JSON.stringify(generatedResponse, null, 2), responseStatus)
       })
     }
     else{
-      resolve(JSON.stringify(generatedResponse, null, 2), setStatus)
+      resolve(JSON.stringify(generatedResponse, null, 2), responseStatus)
     }
 
     return
@@ -145,20 +151,23 @@ function setMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
   mockResponse: string,
-  responseDelay: number
+  responseDelay: number,
+  responseStatus: number
 ) {
   mockResponses.set(`${operationType}:${operationName}`, {
     mockResponse,
     responseDelay,
+    responseStatus
   })
 }
 
 function setRandomResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  responseDelay: number
+  responseDelay: number,
+  responseStatus: number
 ) {
-  randomResponses.set(`${operationType}:${operationName}`, responseDelay)
+  randomResponses.set(`${operationType}:${operationName}`, {responseDelay, responseStatus})
 }
 
 async function validateQuery(
