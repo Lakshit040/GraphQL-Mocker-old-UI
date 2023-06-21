@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 
 import { GraphQLOperationType } from "../../common/types";
@@ -20,51 +20,57 @@ const InputComponent = () => {
   const [isMockResponseTextAreaFocused, setIsMockResponseTextAreaFocused] =
     useState(false);
 
-  const handleOperationTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    event.target.value === QUERY
-      ? setOperationType(GraphQLOperationType.Query)
-      : setOperationType(GraphQLOperationType.Mutation);
-  };
+  const handleOperationTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      event.target.value === QUERY
+        ? setOperationType(GraphQLOperationType.Query)
+        : setOperationType(GraphQLOperationType.Mutation);
+    },
+    []
+  );
 
-  const handleMockResponseChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setMockResponse(event.target.value);
-  };
+  const handleMockResponseChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setMockResponse(event.target.value);
+    },
+    []
+  );
 
-  const handleMockResponseTextAreaFocused = () => {
+  const handleMockResponseTextAreaFocused = useCallback(() => {
     setIsMockResponseTextAreaFocused(true);
-  };
+  }, []);
 
-  const handleMockResponseTextAreaBlurred = () => {
+  const handleMockResponseTextAreaBlurred = useCallback(() => {
     setIsMockResponseTextAreaFocused(false);
-  };
+  }, []);
 
-  const handleOperationNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setOperationName(event.target.value.trim());
-  };
+  const handleOperationNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setOperationName(event.target.value.trim());
+    },
+    []
+  );
 
-  const handleResponseDelayChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setResponseDelay(event.target.value.trim());
-  };
+  const handleResponseDelayChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setResponseDelay(event.target.value.trim());
+    },
+    []
+  );
 
-  const handleStatusCodeChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setStatusCode(event.target.value.trim());
-  };
+  const handleStatusCodeChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setStatusCode(event.target.value.trim());
+    },
+    []
+  );
 
-  const handleShouldRandomizeResponseChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setShouldRandomizeResponse(!shouldRandomizeResponse);
-  };
+  const handleShouldRandomizeResponseChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldRandomizeResponse((r) => !r);
+    },
+    []
+  );
 
   const handlePrettifyButtonPressed = () => {
     try {
@@ -73,19 +79,18 @@ const InputComponent = () => {
     } catch (err) {}
   };
 
-  function handleMockButtonPressed() {
+  const handleMockButtonPressed = () => {
     const delay = +responseDelay;
     const status = +statusCode;
-    const randomize = shouldRandomizeResponse;
     backgroundSetMockResponse(
       operationType,
       operationName,
       mockResponse,
       isNaN(delay) ? 0 : delay,
       isNaN(status) ? 200 : status,
-      randomize
+      shouldRandomizeResponse
     );
-  }
+  };
 
   return (
     <div className="flex flex-col">
