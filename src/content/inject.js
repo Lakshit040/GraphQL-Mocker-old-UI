@@ -8,8 +8,6 @@ function hijack(url, config) {
     if (!/.*graphql.*/.test(url) || config.method?.toLowerCase() !== "post")
       return reject();
 
-    console.log(`Hijacking possible graphql request ${config.method} ${url}`);
-
     let requestId = guidGenerator();
     hijackedRequests.set(requestId, [resolve, reject]);
 
@@ -56,17 +54,13 @@ if (window.fetch) {
 }
 
 window.addEventListener("from-content", (event) => {
-  console.log("Injected script received message from content script");
-
-  let { requestId, response, statusCode} = event.detail;
+  let { requestId, response, statusCode } = event.detail;
   if (!hijackedRequests.has(requestId)) return;
 
   let [resolve, reject] = hijackedRequests.get(requestId);
 
   if (response) {
-    console.log("Injected script got response", response);
-    console.log('Status code: ', statusCode)
-    resolve({response, statusCode});
+    resolve({ response, statusCode });
   } else {
     reject();
   }
