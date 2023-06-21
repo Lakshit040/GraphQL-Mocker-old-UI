@@ -7,7 +7,6 @@ interface TopAlignedLabelAndInputProps {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   divClassAppend?: string;
   divClassOverride?: string;
-  labelClassOverride?: string;
   children?: React.ReactNode;
 }
 
@@ -20,7 +19,6 @@ const TopAlignedLabelAndInput = ({
   onChange,
   divClassAppend,
   divClassOverride,
-  labelClassOverride,
   children,
 }: TopAlignedLabelAndInputProps) => {
   /**
