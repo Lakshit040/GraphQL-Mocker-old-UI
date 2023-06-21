@@ -7,7 +7,7 @@ import { backgroundSetMockResponse } from "../helpers/utils";
 const QUERY = "query";
 const MUTATION = "mutation";
 
-const InputComponent = () => {
+const MockResponseConfigComponent = () => {
   const [operationType, setOperationType] = useState(
     GraphQLOperationType.Query
   );
@@ -194,4 +194,4 @@ const InputComponent = () => {
   );
 };
 
-export default InputComponent;
+export default MockResponseConfigComponent;
