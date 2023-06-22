@@ -1,5 +1,5 @@
 import { MessageType, GraphQLOperationType } from '../../common/types'
-import { isEqual } from 'lodash'
+import _ from 'lodash'
 import {
   parse,
   DocumentNode,
@@ -46,6 +46,118 @@ export function backgroundSetMockResponse(
 
 const randomResponse = {
   data: {},
+}
+
+const ALL_CHARACTERS =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+const NORMAL_CHARACTERS =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+interface DynamicResponseConfiguration {
+  numberFrom?: number
+  numberTo?: number
+  noOfDecimals?: number
+  isSpecial?: boolean
+  stringLength?: number
+  arrayLength?: number
+  trueOrFalse?: boolean
+}
+
+const interfaceTypes: Map<string, any> = new Map()
+const fieldTypes: Map<string, any> = new Map()
+const enumTypes: Map<string, string[]> = new Map()
+const unionTypes: Map<string, any> = new Map()
+
+const dynamicDataMap: Map<string, DynamicResponseConfiguration> = new Map()
+
+const stringGenerator = (
+  rule: DynamicResponseConfiguration | undefined
+): string => {
+  if (rule === undefined) {
+    return _.sampleSize(NORMAL_CHARACTERS, 8).join('')
+  }
+  return _.sampleSize(ALL_CHARACTERS, rule.stringLength ?? 8).join('')
+}
+
+const intGenerator = (
+  rule: DynamicResponseConfiguration | undefined
+): number => {
+  if (rule === undefined) {
+    return _.random(1, 1000)
+  } else {
+    const start = rule.numberFrom ?? 1
+    const end = rule.numberTo ?? start + 1000
+    return _.random(start, end)
+  }
+}
+
+const floatGenerator = (
+  rule: DynamicResponseConfiguration | undefined
+): number => {
+  if (rule === undefined) {
+    return Number(_.random(1, 1000, true).toFixed(2))
+  } else {
+    const start = rule.numberFrom ?? 1
+    const end = rule.numberTo ?? start + 1000
+    const afterDecimals = rule.noOfDecimals ?? 2
+    return Number(_.random(start, end, true).toFixed(afterDecimals))
+  }
+}
+
+const booleanGenerator = (
+  rule: DynamicResponseConfiguration | undefined
+): boolean => {
+  if (rule === undefined || rule.trueOrFalse === undefined) {
+    return _.random() < 0.5
+  }
+  if (rule.trueOrFalse) {
+    return true
+  } else {
+    return false
+  }
+}
+
+const idGenerator = (
+  rule: DynamicResponseConfiguration | undefined
+): string => {
+  if (rule === undefined) {
+    return String(_.random(1, 1000))
+  } else {
+    const start = rule.numberFrom ?? 1
+    const end = rule.numberTo ?? start + 1000
+    return String(_.random(start, end))
+  }
+}
+
+const dynamicValueGenerator = (dataType: string): any => {
+  dataType = dataType.toLowerCase().replace(/!/g, '')
+
+  switch (dataType) {
+    case 'string':
+      return stringGenerator(dynamicDataMap.get('string'))
+    case 'number':
+    case 'int':
+      return intGenerator(dynamicDataMap.get('int'))
+    case 'id':
+      return idGenerator(dynamicDataMap.get('id'))
+    case 'float':
+      return floatGenerator(dynamicDataMap.get('float'))
+    case 'boolean':
+      return booleanGenerator(dynamicDataMap.get('boolean'))
+    default: {
+      if (dataType.startsWith('[')) {
+        const arrayRule = dynamicDataMap.get('array')
+        const arrayLen = arrayRule ? arrayRule.arrayLength ?? 4 : 4
+        return _.times(arrayLen, () =>
+          dynamicValueGenerator(dataType.replace('[', '').replace(']', ''))
+        )
+      } else if (enumTypes.has(dataType)) {
+        const enumValues = enumTypes.get(dataType)!
+        return enumValues[Math.floor(Math.random() * enumValues.length)]
+      } else {
+        return {}
+      }
+    }
+  }
 }
 
 const getFieldTypes = (
@@ -177,7 +289,7 @@ function getTypeInfo(obj: any): Record<string, any> {
 }
 
 const validate = (responseString: string, queryString: string): boolean => {
-  return isEqual(responseString, queryString)
+  return _.isEqual(responseString, queryString)
 }
 
 async function validateQuery(
@@ -199,7 +311,10 @@ async function validateQuery(
 const startDate = new Date(2000, 0, 1) // January 1, 2000
 const endDate = new Date(2023, 11, 31) // December 31, 2023
 
-export const fetchData = async (graphQLendpoint: string, graphqlQuery: string) => {
+export const fetchData = async (
+  graphQLendpoint: string,
+  graphqlQuery: string
+) => {
   try {
     const endpoint = graphQLendpoint
     const introspectionQuery = getIntrospectionQuery()
@@ -224,16 +339,9 @@ export const fetchData = async (graphQLendpoint: string, graphqlQuery: string) =
     const typeMap = schema.getTypeMap()
 
     const res = await validateQuery(schema, graphqlQuery)
-    if (res === 2) {
-      return randomResponse
-    } else if (res === 3) {
+    if (res === 2 || res === 3) {
       return randomResponse
     }
-
-    const interfaceTypes: Map<string, any> = new Map()
-    const fieldTypes: Map<string, any> = new Map()
-    const enumTypes: Map<string, string[]> = new Map()
-    const unionTypes: Map<string, any> = new Map()
 
     Object.values(typeMap).forEach((graphQLType: any) => {
       if (isEnumType(graphQLType) && !graphQLType.name.startsWith('__')) {
@@ -264,44 +372,6 @@ export const fetchData = async (graphQLendpoint: string, graphqlQuery: string) =
       }
     })
 
-    const generateRandomValue = (str: string): any => {
-      const typeName = str.replace('!', '')
-      switch (typeName) {
-        case 'ID':
-          return String(Math.floor(Math.random() * 1000) + 1)
-        case 'String':
-          return [...Array(10)]
-            .map(() => String.fromCharCode(97 + Math.floor(Math.random() * 26)))
-            .join('')
-        case 'Boolean':
-          return Math.random() < 0.5
-        case 'Number':
-          return Math.floor(Math.random() * 10000) + 1
-        case 'Float':
-          return Math.random() * 90 + 10
-        case 'Int':
-          return Math.floor(Math.random() * (1000 - 10 + 1)) + 10
-        case 'Date': {
-          const date = new Date(
-            startDate.getTime() +
-              Math.random() * (endDate.getTime() - startDate.getTime())
-          )
-          return date.toISOString().split('T')[0]
-        }
-        default: {
-          if (enumTypes.has(typeName)) {
-            const enumValues = enumTypes.get(typeName)!
-            return enumValues[Math.floor(Math.random() * enumValues.length)]
-          } else if (typeName.startsWith('[')) {
-            return Array.from({ length: 2 }, () =>
-              generateRandomValue(typeName.replace('[', '').replace(']', ''))
-            )
-          } else {
-            return {}
-          }
-        }
-      }
-    }
     const getObjectFieldMap = (
       objectType: GraphQLObjectType
     ): Map<string, string> => {
@@ -364,10 +434,10 @@ export const fetchData = async (graphQLendpoint: string, graphqlQuery: string) =
           } else {
             if (typeName?.includes('[')) {
               response[field.name.value] = Array.from({ length: 2 }, () =>
-                generateRandomValue(typeName!.replace('[', '').replace(']', ''))
+                dynamicValueGenerator(typeName!.replace('[', '').replace(']', ''))
               )
             } else {
-              response[field.name.value] = generateRandomValue(typeName!)
+              response[field.name.value] = dynamicValueGenerator(typeName!)
             }
           }
         }
