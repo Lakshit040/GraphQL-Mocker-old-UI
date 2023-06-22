@@ -308,14 +308,16 @@ async function validateQuery(
   }
 }
 
-const startDate = new Date(2000, 0, 1) // January 1, 2000
-const endDate = new Date(2023, 11, 31) // December 31, 2023
+const startDate = new Date(2000, 0, 1)
+const endDate = new Date(2023, 11, 31)
 
 export const fetchData = async (
   graphQLendpoint: string,
   graphqlQuery: string
 ) => {
   try {
+    const arrayRule = dynamicDataMap.get('array');
+    const arrayLen = arrayRule ? (arrayRule.arrayLength ?? 4) : 4;
     const endpoint = graphQLendpoint
     const introspectionQuery = getIntrospectionQuery()
 
@@ -402,7 +404,7 @@ export const fetchData = async (
 
           if ('selectionSet' in field && field.selectionSet !== undefined) {
             if (typeName?.includes('[')) {
-              response[field.name.value] = Array.from({ length: 2 }, () =>
+              response[field.name.value] = _.times(arrayLen, () =>
                 generateMockResponse(field.selectionSet!, typeMap)
               )
             } else if (unionTypes.has(typeName!)) {
@@ -433,7 +435,7 @@ export const fetchData = async (
             }
           } else {
             if (typeName?.includes('[')) {
-              response[field.name.value] = Array.from({ length: 2 }, () =>
+              response[field.name.value] = _.times(arrayLen, () =>
                 dynamicValueGenerator(typeName!.replace('[', '').replace(']', ''))
               )
             } else {
