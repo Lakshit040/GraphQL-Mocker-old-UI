@@ -15,8 +15,14 @@ import {
   isUnionType,
   GraphQLObjectType,
   isInterfaceType,
+  GraphQLList,
+  FieldNode,
+  visit,
+  buildSchema,
+    GraphQLNonNull,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
+import {isEqual} from 'lodash'
 interface MockResponseConfiguration {
   mockResponse: string;
   responseDelay: number;
@@ -367,3 +373,134 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
   }
 }
 
+function getFieldTypes(
+  parentType: GraphQLObjectType,
+  node: FieldNode
+): Record<string, any> {
+  let typeMap: Record<string, any> = {}
+
+  node.selectionSet?.selections.forEach((field) => {
+    const fieldName = (field as FieldNode).name.value
+    let fieldType = parentType.getFields()[fieldName]?.type
+
+    if (!fieldType) {
+      console.log(
+        `Field '${fieldName}' does not exist on type '${parentType.name}'.`
+      )
+      return
+    }
+
+    typeMap[fieldName] = fieldType.toString()
+
+    while (
+      fieldType instanceof GraphQLNonNull ||
+      fieldType instanceof GraphQLList
+    ) {
+      fieldType = fieldType.ofType
+    }
+
+    if (
+      fieldType instanceof GraphQLObjectType &&
+      (field as FieldNode).selectionSet
+    ) {
+      typeMap[fieldName] = {
+        type: formatter(typeMap[fieldName]),
+        fields: getFieldTypes(fieldType, field as FieldNode),
+      }
+    } else {
+      typeMap[fieldName] = {
+        type: formatter(typeMap[fieldName]),
+      }
+    }
+  })
+
+  return typeMap
+}
+
+const formatter = (str: string) => {
+  str = str.toLowerCase().replace(/!/g, '')
+  if (str.startsWith('[')) {
+    return 'array'
+  } else if (str === 'id' || str === 'date') {
+    return 'string'
+  } else if (str === 'int' || str === 'float') {
+    return 'number'
+  } else {
+    if (str !== 'string') return 'object'
+    else return 'string'
+  }
+}
+
+function generateQueryTypeMap(
+  schemaStr: string,
+  queryStr: string
+): Record<string, any> {
+  const schema: GraphQLSchema = buildSchema(schemaStr)
+  const query: DocumentNode = parse(queryStr)
+  let typeMap: Record<string, any> = {}
+
+  visit(query, {
+    OperationDefinition(node) {
+      const rootTypeName = 'Query'
+      const rootType = schema.getType(rootTypeName) as GraphQLObjectType
+
+      node.selectionSet?.selections.forEach((selection) => {
+        const fieldName = (selection as FieldNode).name.value
+        let fieldType = rootType.getFields()[fieldName]?.type
+
+        if (!fieldType) {
+          console.log(
+            `Field '${fieldName}' does not exist on type '${rootTypeName}'.`
+          )
+          return
+        }
+
+        while (
+          fieldType instanceof GraphQLNonNull ||
+          fieldType instanceof GraphQLList
+        ) {
+          fieldType = fieldType.ofType
+        }
+
+        if (!(fieldType instanceof GraphQLObjectType)) {
+          return
+        }
+
+        typeMap[fieldName] = {
+          type: formatter(rootType.getFields()[fieldName].type.toString()),
+          fields: getFieldTypes(fieldType, selection as FieldNode),
+        }
+      })
+    },
+  })
+  return typeMap
+}
+
+function getTypeInfo(obj: any): Record<string, any> {
+  const type = typeof obj
+
+  if (obj === null) {
+    return { type: 'null' }
+  } else if (Array.isArray(obj)) {
+    const first = obj[0]
+    let fields = first ? getTypeInfo(first) : { type: 'array' }
+
+    return { type: 'array', fields: fields.fields }
+  } else if (type === 'object') {
+    const fields: Record<string, any> = {}
+
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fields[key] = getTypeInfo(obj[key])
+      }
+    }
+
+    return { type, fields }
+  } else {
+    return { type }
+  }
+}
+
+const validate = (responseString: string, queryString: string) : boolean => {
+  return isEqual(responseString, queryString);
+}
