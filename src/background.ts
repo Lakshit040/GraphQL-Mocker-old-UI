@@ -366,3 +366,4 @@ async function fetchData(graphQLendpoint: string, graphqlQuery: string) {
     return randomResponse;
   }
 }
+
