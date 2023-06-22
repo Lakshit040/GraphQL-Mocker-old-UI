@@ -32,6 +32,7 @@ const INTERNAL_SERVER_ERROR = 'internal_server_error'
 const FIELD_NOT_FOUND = 'field_not_found'
 const ERROR_GENERATING_RANDOM_RESPONSE = 'error_generating_random_response'
 const SUCCESS = 'success'
+const SCHEMA_INTROSPECTION_ERROR = 'schema_introspection_error'
 interface DynamicResponseConfiguration {
   numberFrom?: number
   numberTo?: number
@@ -42,7 +43,13 @@ interface DynamicResponseConfiguration {
   trueOrFalse?: boolean
 }
 
+//////////// MAPS DECLARATIONS ////////////////
 const dynamicDataMap: Map<string, DynamicResponseConfiguration> = new Map()
+const schemaConfigurationMap: Map<string, GraphQLSchema> = new Map()
+const unionConfigurationMap: Map<string,Map<string, any>> = new Map()
+const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map()
+const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map()
+const fieldConfigurationMap: Map<string, Map<string, any>> = new Map()
 
 const stringGenerator = (
   rule: DynamicResponseConfiguration | undefined
@@ -59,9 +66,10 @@ const intGenerator = (
   if (rule === undefined) {
     return _.random(1, 1000)
   } else {
-    const start = rule.numberFrom ?? 1
-    const end = rule.numberTo ?? start + 1000
-    return _.random(start, end)
+    return _.random(
+      rule.numberFrom ?? 1,
+      rule.numberTo ?? (rule.numberFrom ?? 1) + 1000
+    )
   }
 }
 
@@ -71,10 +79,13 @@ const floatGenerator = (
   if (rule === undefined) {
     return Number(_.random(1, 1000, true).toFixed(2))
   } else {
-    const start = rule.numberFrom ?? 1
-    const end = rule.numberTo ?? start + 1000
-    const afterDecimals = rule.noOfDecimals ?? 2
-    return Number(_.random(start, end, true).toFixed(afterDecimals))
+    return Number(
+      _.random(
+        rule.numberFrom ?? 1,
+        rule.numberTo ?? (rule.numberFrom ?? 1) + 1000,
+        true
+      ).toFixed(rule.noOfDecimals ?? 2)
+    )
   }
 }
 
@@ -84,11 +95,7 @@ const booleanGenerator = (
   if (rule === undefined || rule.trueOrFalse === undefined) {
     return _.random() < 0.5
   }
-  if (rule.trueOrFalse) {
-    return true
-  } else {
-    return false
-  }
+  return rule.trueOrFalse
 }
 
 const idGenerator = (
@@ -97,9 +104,12 @@ const idGenerator = (
   if (rule === undefined) {
     return String(_.random(1, 1000))
   } else {
-    const start = rule.numberFrom ?? 1
-    const end = rule.numberTo ?? start + 1000
-    return String(_.random(start, end))
+    return String(
+      _.random(
+        rule.numberFrom ?? 1,
+        rule.numberTo ?? (rule.numberFrom ?? 1) + 1000
+      )
+    )
   }
 }
 
@@ -140,6 +150,17 @@ export function backgroundSetMockResponse(
   })
 }
 
+const getObjectFieldMap = (
+  objectType: GraphQLObjectType
+): Map<string, string> => {
+  const fieldMap: Map<string, string> = new Map()
+  const fields: GraphQLFieldMap<any, any> = objectType.getFields()
+  Object.values(fields).forEach((field) => {
+    fieldMap.set(field.name, String(field.type))
+  })
+  return fieldMap
+}
+
 export const fetchData = async (
   graphQLendpoint: string,
   graphqlQuery: string
@@ -147,39 +168,75 @@ export const fetchData = async (
   try {
     const arrayRule = dynamicDataMap.get('array')
     const arrayLen = arrayRule ? arrayRule.arrayLength ?? 4 : 4
-    const endpoint = graphQLendpoint
-    const introspectionQuery = getIntrospectionQuery()
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `bearer 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`,
-      },
-      body: JSON.stringify({ query: introspectionQuery }),
-    })
+    if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
+      const response = await fetch(graphQLendpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `bearer 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`,
+        },
+        body: JSON.stringify({ query: getIntrospectionQuery() }),
+      })
 
-    const introspectionResult = await response.json()
+      const introspectionResult = await response.json()
 
-    if (introspectionResult.errors || introspectionResult.error) {
-      return { data: {}, message: 'Schema introspection error' }
+      if (introspectionResult.errors || introspectionResult.error) {
+        return { data: {}, message: SCHEMA_INTROSPECTION_ERROR }
+      }
+      const schema = buildClientSchema(introspectionResult.data)
+      const typeMap = schema!.getTypeMap()
+
+      const res = await validateQuery(schema!, graphqlQuery)
+      if (res === INVALID_QUERY) {
+        return { data: {}, message: INVALID_QUERY }
+      } else if (res === INTERNAL_SERVER_ERROR) {
+        return { data: {}, message: INTERNAL_SERVER_ERROR }
+      }
+
+      const interfaceTypes: Map<string, any> = new Map()
+      const fieldTypes: Map<string, any> = new Map()
+      const enumTypes: Map<string, string[]> = new Map()
+      const unionTypes: Map<string, any> = new Map()
+
+      Object.values(typeMap).forEach((graphQLType: any) => {
+        if (isEnumType(graphQLType) && !graphQLType.name.startsWith('__')) {
+          enumTypes.set(
+            String(graphQLType),
+            graphQLType.getValues().map((value) => value.value)
+          )
+        }
+        if (isObjectType(graphQLType)) {
+          const fields: GraphQLFieldMap<any, any> = graphQLType.getFields()
+          Object.values(fields).forEach((field) => {
+            if (
+              !graphQLType.name.startsWith('__') &&
+              graphQLType.name !== 'Mutation'
+            ) {
+              fieldTypes.set(field.name, String(field.type).replace(/!/g, ''))
+            }
+          })
+        }
+        if (isUnionType(graphQLType) && !graphQLType.name.startsWith('__')) {
+          unionTypes.set(graphQLType.name, graphQLType)
+        }
+        if (isInterfaceType(graphQLType) && !graphQLType.name.startsWith('__')) {
+          interfaceTypes.set(graphQLType.name, graphQLType)
+        }
+      })
+
+      schemaConfigurationMap.set(graphQLendpoint, schema)
+      interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes)
+      unionConfigurationMap.set(graphQLendpoint, unionTypes)
+      enumConfigurationMap.set(graphQLendpoint, enumTypes)
+      fieldConfigurationMap.set(graphQLendpoint, fieldTypes);
     }
 
-    const schema = buildClientSchema(introspectionResult.data)
-
-    const typeMap = schema.getTypeMap()
-
-    const res = await validateQuery(schema, graphqlQuery)
-    if (res === INVALID_QUERY) {
-      return { data: {}, message: INVALID_QUERY }
-    } else if (res === INTERNAL_SERVER_ERROR) {
-      return { data: {}, message: INTERNAL_SERVER_ERROR }
-    }
-
-    const interfaceTypes: Map<string, any> = new Map()
-    const fieldTypes: Map<string, any> = new Map()
-    const enumTypes: Map<string, string[]> = new Map()
-    const unionTypes: Map<string, any> = new Map()
+    const schema = schemaConfigurationMap.get(graphQLendpoint)!
+    const fieldTypes = fieldConfigurationMap.get(graphQLendpoint)!
+    const unionTypes = unionConfigurationMap.get(graphQLendpoint)!
+    const enumTypes = enumConfigurationMap.get(graphQLendpoint)!
+    const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!
 
     const dynamicValueGenerator = (dataType: string): any => {
       dataType = dataType.toLowerCase().replace(/!/g, '')
@@ -212,43 +269,6 @@ export const fetchData = async (
       }
     }
 
-    Object.values(typeMap).forEach((graphQLType: any) => {
-      if (isEnumType(graphQLType) && !graphQLType.name.startsWith('__')) {
-        enumTypes.set(
-          String(graphQLType),
-          graphQLType.getValues().map((value) => value.value)
-        )
-      }
-      if (isObjectType(graphQLType)) {
-        const fields: GraphQLFieldMap<any, any> = graphQLType.getFields()
-        Object.values(fields).forEach((field) => {
-          if (
-            !graphQLType.name.startsWith('__') &&
-            graphQLType.name !== 'Mutation'
-          ) {
-            fieldTypes.set(field.name, String(field.type).replace(/!/g, ''))
-          }
-        })
-      }
-      if (isUnionType(graphQLType) && !graphQLType.name.startsWith('__')) {
-        unionTypes.set(graphQLType.name, graphQLType)
-      }
-      if (isInterfaceType(graphQLType) && !graphQLType.name.startsWith('__')) {
-        interfaceTypes.set(graphQLType.name, graphQLType)
-      }
-    })
-
-    const getObjectFieldMap = (
-      objectType: GraphQLObjectType
-    ): Map<string, string> => {
-      const fieldMap: Map<string, string> = new Map()
-      const fields: GraphQLFieldMap<any, any> = objectType.getFields()
-      Object.values(fields).forEach((field) => {
-        fieldMap.set(field.name, String(field.type))
-      })
-      return fieldMap
-    }
-
     const generateMockResponse = (
       selectionSet: SelectionSetNode,
       typeMap: Map<string, any>
@@ -273,7 +293,7 @@ export const fetchData = async (
                 generateMockResponse(field.selectionSet!, typeMap)
               )
             } else if (unionTypes.has(typeName!)) {
-              const possibleTypes = schema.getPossibleTypes(
+              const possibleTypes = schema!.getPossibleTypes(
                 unionTypes.get(typeName!)
               )
               const randomType =
@@ -283,7 +303,7 @@ export const fetchData = async (
                 getObjectFieldMap(randomType)
               )
             } else if (interfaceTypes.has(typeName)) {
-              const possibleTypes = schema.getPossibleTypes(
+              const possibleTypes = schema!.getPossibleTypes(
                 interfaceTypes.get(typeName)
               )
               const randomType =
@@ -380,7 +400,6 @@ const getFieldTypes = (
       }
     }
   })
-
   return typeMap
 }
 
@@ -398,7 +417,7 @@ const formatter = (str: string) => {
   }
 }
 
-const generateQueryTypeMap = (
+const generateTypeMapForQuery = (
   schemaStr: string,
   queryStr: string
 ): Record<string, any> => {
@@ -440,14 +459,14 @@ const generateQueryTypeMap = (
   return typeMap
 }
 
-const getTypeInfo = (obj: any): Record<string, any> => {
+const generateTypeMapForResponse = (obj: any): Record<string, any> => {
   const type = typeof obj
 
   if (obj === null) {
     return { type: 'null' }
   } else if (Array.isArray(obj)) {
     const first = obj[0]
-    let fields = first ? getTypeInfo(first) : { type: 'array' }
+    let fields = first ? generateTypeMapForResponse(first) : { type: 'array' }
 
     return { type: 'array', fields: fields.fields }
   } else if (type === 'object') {
@@ -455,7 +474,7 @@ const getTypeInfo = (obj: any): Record<string, any> => {
 
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fields[key] = getTypeInfo(obj[key])
+        fields[key] = generateTypeMapForResponse(obj[key])
       }
     }
 
