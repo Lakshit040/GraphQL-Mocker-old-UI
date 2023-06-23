@@ -46,10 +46,31 @@ interface DynamicResponseConfiguration {
 //////////// MAPS DECLARATIONS ////////////////
 const dynamicDataMap: Map<string, DynamicResponseConfiguration> = new Map()
 const schemaConfigurationMap: Map<string, GraphQLSchema> = new Map()
-const unionConfigurationMap: Map<string,Map<string, any>> = new Map()
+const unionConfigurationMap: Map<string, Map<string, any>> = new Map()
 const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map()
 const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map()
 const fieldConfigurationMap: Map<string, Map<string, any>> = new Map()
+
+export function backgroundSetMockResponse(
+  operationType: GraphQLOperationType,
+  operationName: string,
+  mockResponse: string,
+  responseDelay: number,
+  statusCode: number,
+  randomize: boolean
+) {
+  chrome.runtime.sendMessage({
+    type: MessageType.SetMockResponse,
+    data: {
+      operationType,
+      operationName,
+      mockResponse,
+      responseDelay,
+      statusCode,
+      randomize,
+    },
+  })
+}
 
 const stringGenerator = (
   rule: DynamicResponseConfiguration | undefined
@@ -113,7 +134,7 @@ const idGenerator = (
   }
 }
 
-const validateQuery = async (
+const queryValidator = async (
   schema: GraphQLSchema,
   query: string
 ): Promise<string> => {
@@ -127,27 +148,6 @@ const validateQuery = async (
   } catch (error) {
     return INTERNAL_SERVER_ERROR
   }
-}
-
-export function backgroundSetMockResponse(
-  operationType: GraphQLOperationType,
-  operationName: string,
-  mockResponse: string,
-  responseDelay: number,
-  statusCode: number,
-  randomize: boolean
-) {
-  chrome.runtime.sendMessage({
-    type: MessageType.SetMockResponse,
-    data: {
-      operationType,
-      operationName,
-      mockResponse,
-      responseDelay,
-      statusCode,
-      randomize,
-    },
-  })
 }
 
 const getObjectFieldMap = (
@@ -187,7 +187,7 @@ export const fetchData = async (
       const schema = buildClientSchema(introspectionResult.data)
       const typeMap = schema!.getTypeMap()
 
-      const res = await validateQuery(schema!, graphqlQuery)
+      const res = await queryValidator(schema!, graphqlQuery)
       if (res === INVALID_QUERY) {
         return { data: {}, message: INVALID_QUERY }
       } else if (res === INTERNAL_SERVER_ERROR) {
@@ -220,7 +220,10 @@ export const fetchData = async (
         if (isUnionType(graphQLType) && !graphQLType.name.startsWith('__')) {
           unionTypes.set(graphQLType.name, graphQLType)
         }
-        if (isInterfaceType(graphQLType) && !graphQLType.name.startsWith('__')) {
+        if (
+          isInterfaceType(graphQLType) &&
+          !graphQLType.name.startsWith('__')
+        ) {
           interfaceTypes.set(graphQLType.name, graphQLType)
         }
       })
@@ -229,7 +232,7 @@ export const fetchData = async (
       interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes)
       unionConfigurationMap.set(graphQLendpoint, unionTypes)
       enumConfigurationMap.set(graphQLendpoint, enumTypes)
-      fieldConfigurationMap.set(graphQLendpoint, fieldTypes);
+      fieldConfigurationMap.set(graphQLendpoint, fieldTypes)
     }
 
     const schema = schemaConfigurationMap.get(graphQLendpoint)!
