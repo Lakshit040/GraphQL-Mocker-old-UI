@@ -2,8 +2,12 @@ import MockResponseConfigComponent from "./components/MockResponseConfigComponen
 
 function App() {
   return (
-    <div className="h-full flex justify-center items-center">
-      <MockResponseConfigComponent />
+    <div className="h-full flex flex-col justify-center items-center">
+      {/* Toolbar should come here */}
+      <div className="h-full w-full flex flex-col items-center p-5">
+        <MockResponseConfigComponent />
+        <MockResponseConfigComponent />
+      </div>
     </div>
   );
 }
