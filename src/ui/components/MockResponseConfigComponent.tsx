@@ -3,6 +3,7 @@ import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 
 import { GraphQLOperationType } from '../../common/types'
 import { backgroundSetMockResponse } from '../helpers/utils'
+import DynamicExpressionInputComponent from './DynamicField'
 
 const QUERY = 'query'
 const MUTATION = 'mutation'
@@ -11,7 +12,7 @@ const FALSE = 0
 const RANDOM = -1
 const MockResponseConfigComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [isDynamicResponseExpanded, setIsDynamicResponseExpanded] =
+  const [isRandomResponseExpanded, setIsRandomResponseExpanded] =
     useState(false)
   const [operationType, setOperationType] = useState(GraphQLOperationType.Query)
   const [operationName, setOperationName] = useState('')
@@ -31,6 +32,8 @@ const MockResponseConfigComponent = () => {
   const [stringLength, setStringLength] = useState(8)
   const [specialCharactersAllowed, setSpecialCharactersAllowed] =
     useState(false)
+
+  const [dynamicRows, setDynamicRows] = useState([])
 
   const handleNumberRangeStartChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,8 +97,8 @@ const MockResponseConfigComponent = () => {
     setIsExpanded((e) => !e)
   }, [])
 
-  const handleDynamicResponseToggle = useCallback(() => {
-    setIsDynamicResponseExpanded((e) => !e)
+  const handleRandomResponseToggle = useCallback(() => {
+    setIsRandomResponseExpanded((e) => !e)
   }, [])
 
   const handleOperationTypeChange = useCallback(
@@ -172,7 +175,7 @@ const MockResponseConfigComponent = () => {
       numberRangeEnd,
       stringLength,
       arrayLength,
-      booleanTrue ? TRUE : (booleanFalse ? FALSE : RANDOM),
+      booleanTrue ? TRUE : booleanFalse ? FALSE : RANDOM,
       specialCharactersAllowed,
       afterDecimals
     )
@@ -297,6 +300,7 @@ const MockResponseConfigComponent = () => {
               ></input>
             </TopAlignedLabelAndInput>
           </div>
+          <DynamicExpressionInputComponent />
 
           <div className="mt-4">
             <button
@@ -305,12 +309,12 @@ const MockResponseConfigComponent = () => {
             >
               <svg
                 className={`w-6 h-6 shrink-0 ml-1 mr-2 ${
-                  isDynamicResponseExpanded ? 'rotate-180' : ''
+                  isRandomResponseExpanded ? 'rotate-180' : ''
                 }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
-                onClick={handleDynamicResponseToggle}
+                onClick={handleRandomResponseToggle}
               >
                 <path
                   fill-rule="evenodd"
@@ -318,11 +322,11 @@ const MockResponseConfigComponent = () => {
                   clip-rule="evenodd"
                 />
               </svg>
-              Set Dynamic Response
+              Random Response Configuration
             </button>
             <div
               className={
-                isDynamicResponseExpanded
+                isRandomResponseExpanded && shouldRandomizeResponse
                   ? 'p-4 border border-gray-200 focus:ring-blue-600'
                   : 'hidden'
               }
