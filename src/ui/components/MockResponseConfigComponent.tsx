@@ -3,8 +3,6 @@ import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 
 import { GraphQLOperationType } from '../../common/types'
 import { backgroundSetMockResponse } from '../helpers/utils'
-import { start } from 'repl'
-import { eventNames } from 'process'
 
 const QUERY = 'query'
 const MUTATION = 'mutation'
@@ -45,14 +43,20 @@ const MockResponseConfigComponent = () => {
     },
     []
   )
-  const handleBooleanTrueChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setBooleanTrue(event.target.checked)
-    setBooleanFalse(false);
-  }, [])
-  const handleBooleanFalseChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setBooleanFalse(event.target.checked)
-    setBooleanTrue(false)
-  }, [])
+  const handleBooleanTrueChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setBooleanTrue(event.target.checked)
+      setBooleanFalse(false)
+    },
+    []
+  )
+  const handleBooleanFalseChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setBooleanFalse(event.target.checked)
+      setBooleanTrue(false)
+    },
+    []
+  )
   const handleAfterDecimalsChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = Number(event.target.value.trim())
@@ -173,7 +177,7 @@ const MockResponseConfigComponent = () => {
   )
 
   return (
-    <div className="w-4/5 shadow-md my-1">
+    <div className="w-4/5 shadow-md my-1 rounded">
       {/* <h2> */}
       <button
         type="button"
@@ -310,7 +314,7 @@ const MockResponseConfigComponent = () => {
             <div
               className={
                 isDynamicResponseExpanded
-                  ? 'p-4 border border-gray-200'
+                  ? 'p-4 border border-gray-200 focus:ring-blue-600'
                   : 'hidden'
               }
             >
@@ -359,51 +363,42 @@ const MockResponseConfigComponent = () => {
                 />
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="flex items-center">
+                  <TopAlignedLabelAndInput
+                    htmlInputId="inputBooleansTrue"
+                    label="All Booleans True"
+                    divClassOverride="mb-2 flex flex-row-reverse justify-end ml-2"
+                  >
                     <input
                       type="checkbox"
-                      id="inputBooleansTrue"
-                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500"
+                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
                       checked={booleanTrue}
                       onChange={handleBooleanTrueChange}
-                    />
-                    <label
-                      htmlFor="inputBooleansTrue"
-                      className="text-xs text-gray-500"
-                    >
-                      All Booleans True
-                    </label>
-                  </div>
-                  <div className="flex items-center">
+                    ></input>
+                  </TopAlignedLabelAndInput>
+                  <TopAlignedLabelAndInput
+                    htmlInputId="inputBooleansFalse"
+                    label="All Booleans False"
+                    divClassOverride="mb-2 flex flex-row-reverse justify-end ml-2"
+                  >
                     <input
                       type="checkbox"
-                      id="inputBooleansFalse"
-                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500"
+                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
                       checked={booleanFalse}
                       onChange={handleBooleanFalseChange}
-                    />
-                    <label
-                      htmlFor="inputBooleansFalse"
-                      className="text-xs text-gray-500"
-                    >
-                      All Booleans False
-                    </label>
-                  </div>
-                  <div className="flex items-center">
+                    ></input>
+                  </TopAlignedLabelAndInput>
+                  <TopAlignedLabelAndInput
+                    htmlInputId="inputSpecialCharactersAllowed"
+                    label="Special Characters Allowed"
+                    divClassOverride="mb-2 flex flex-row-reverse justify-end ml-2"
+                  >
                     <input
                       type="checkbox"
-                      id="inputSpecialCharactersAllowed"
-                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500"
+                      className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
                       checked={specialCharactersAllowed}
                       onChange={handleSpecialCharactersAllowedChange}
-                    />
-                    <label
-                      htmlFor="inputSpecialCharactersAllowed"
-                      className="text-xs text-gray-500"
-                    >
-                      Special Characters Allowed
-                    </label>
-                  </div>
+                    ></input>
+                  </TopAlignedLabelAndInput>
                 </div>
               </div>
             </div>
