@@ -1,16 +1,24 @@
 import { parseIfGraphQLRequest } from './common/utils'
 import { MessageType, GraphQLOperationType } from './common/types'
-import { fetchData } from './ui/helpers/utils' 
+import { fetchData } from './ui/helpers/utils'
 
-interface GeneratedResponseConfiguration{
+interface GeneratedResponseConfiguration {
   mockResponse: string
   responseDelay: number
   responseStatus: number
-  randomize: boolean,
+  randomize: boolean
   shouldValidate: boolean
+  numRangeStart: number
+  numRangeEnd: number
+  stringLength: number
+  arrayLength: number
+  booleanValues: number
+  isSpecialAllowed: boolean
+  digitsAfterDecimal: number
 }
 
-const generatedResponses: Map<string, GeneratedResponseConfiguration> = new Map()
+const generatedResponses: Map<string, GeneratedResponseConfiguration> =
+  new Map()
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let isResponseAsync = true
@@ -29,7 +37,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         msg.data.responseDelay,
         msg.data.statusCode,
         msg.data.randomize,
-        msg.data.shouldValidate
+        msg.data.shouldValidate,
+        msg.data.numRangeStart,
+        msg.data.numRangeEnd,
+        msg.data.stringLength,
+        msg.data.arrayLength,
+        msg.data.booleanValues,
+        msg.data.isSpecialAllowed,
+        msg.data.digitsAfterDecimal
       )
       break
     }
@@ -60,24 +75,26 @@ async function handleInterceptedRequest(
   const [operationType, operationName, query] = parsed
   const key = `${operationType}_${operationName}`
 
-  const generatedResponseConfig = generatedResponses.get(key);
-  
-  if(generatedResponseConfig !== undefined){
-    const {mockResponse, responseDelay, responseStatus, randomize} = generatedResponseConfig;
-    if(randomize){
-      const randomResponse = await fetchData('', query);
-      if(responseDelay > 0){
-        setTimeout(() => resolve(JSON.stringify(randomResponse, null, 2), responseStatus))
-      }
-      else{
+  const generatedResponseConfig = generatedResponses.get(key)
+
+  if (generatedResponseConfig !== undefined) {
+    const { mockResponse, responseDelay, responseStatus, randomize, numRangeStart, numRangeEnd, isSpecialAllowed, shouldValidate, arrayLength, stringLength, booleanValues, digitsAfterDecimal} =
+      generatedResponseConfig
+    if (randomize) {
+      const randomResponse = await fetchData('', query, shouldValidate, numRangeStart, numRangeEnd, isSpecialAllowed, arrayLength, stringLength, booleanValues, digitsAfterDecimal)
+      if (responseDelay > 0) {
+        setTimeout(() =>
+          resolve(JSON.stringify(randomResponse, null, 2), responseStatus)
+        )
+      } else {
         resolve(JSON.stringify(randomResponse, null, 2), responseStatus)
       }
-    }
-    else{
-      if(responseDelay > 0){
-        setTimeout(() => resolve(JSON.stringify(mockResponse, null, 2), responseStatus))
-      }
-      else{
+    } else {
+      if (responseDelay > 0) {
+        setTimeout(() =>
+          resolve(JSON.stringify(mockResponse, null, 2), responseStatus)
+        )
+      } else {
         resolve(JSON.stringify(mockResponse, null, 2), responseStatus)
       }
     }
@@ -93,8 +110,27 @@ function setMockResponse(
   responseDelay: number,
   responseStatus: number,
   randomize: boolean,
-  shouldValidate: boolean
+  shouldValidate: boolean,
+  numRangeStart: number,
+  numRangeEnd: number,
+  stringLength: number,
+  arrayLength: number,
+  booleanValues: number,
+  isSpecialAllowed: boolean,
+  digitsAfterDecimal: number
 ) {
-    generatedResponses.set(`${operationType}_${operationName}`, {mockResponse, responseDelay, responseStatus, randomize, shouldValidate})
+  generatedResponses.set(`${operationType}_${operationName}`, {
+    mockResponse,
+    responseDelay,
+    responseStatus,
+    randomize,
+    shouldValidate,
+    numRangeStart,
+    numRangeEnd,
+    stringLength,
+    arrayLength,
+    booleanValues,
+    isSpecialAllowed,
+    digitsAfterDecimal,
+  })
 }
-

@@ -22,29 +22,21 @@ import {
   GraphQLNonNull,
 } from 'graphql'
 import { GraphQLSchema } from 'graphql/type/schema'
-
-const ALL_CHARACTERS =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
-const NORMAL_CHARACTERS =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-const INVALID_QUERY = 'invalid_query'
-const INTERNAL_SERVER_ERROR = 'internal_server_error'
-const FIELD_NOT_FOUND = 'field_not_found'
-const ERROR_GENERATING_RANDOM_RESPONSE = 'error_generating_random_response'
-const SUCCESS = 'success'
-const SCHEMA_INTROSPECTION_ERROR = 'schema_introspection_error'
-interface DynamicResponseConfiguration {
-  numberFrom?: number
-  numberTo?: number
-  noOfDecimals?: number
-  isSpecial?: boolean
-  stringLength?: number
-  arrayLength?: number
-  trueOrFalse?: boolean
-}
+import {
+  TRUE,
+  FALSE,
+  RANDOM,
+  INVALID_QUERY,
+  INTERNAL_SERVER_ERROR,
+  ERROR_GENERATING_RANDOM_RESPONSE,
+  SUCCESS,
+  SCHEMA_INTROSPECTION_ERROR,
+  FIELD_NOT_FOUND,
+  ALL_CHARACTERS,
+  NORMAL_CHARACTERS,
+} from '../../common/types'
 
 //////////// MAPS DECLARATIONS ////////////////
-const dynamicDataMap: Map<string, DynamicResponseConfiguration> = new Map()
 const schemaConfigurationMap: Map<string, GraphQLSchema> = new Map()
 const unionConfigurationMap: Map<string, Map<string, any>> = new Map()
 const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map()
@@ -58,7 +50,14 @@ export function backgroundSetMockResponse(
   responseDelay: number,
   statusCode: number,
   randomize: boolean,
-  shouldValidate: boolean
+  shouldValidate: boolean,
+  numRangeStart: number,
+  numRangeEnd: number,
+  stringLength: number,
+  arrayLength: number,
+  booleanValues: number,
+  isSpecialAllowed: boolean,
+  digitsAfterDecimal: number
 ) {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
@@ -69,71 +68,57 @@ export function backgroundSetMockResponse(
       responseDelay,
       statusCode,
       randomize,
-      shouldValidate
+      shouldValidate,
+      numRangeStart,
+      numRangeEnd,
+      stringLength,
+      arrayLength,
+      booleanValues,
+      isSpecialAllowed,
+      digitsAfterDecimal,
     },
   })
 }
 
 const stringGenerator = (
-  rule: DynamicResponseConfiguration | undefined
+  stringLength: number,
+  isSpecialAllowed: boolean
 ): string => {
-  if (rule === undefined) {
-    return _.sampleSize(NORMAL_CHARACTERS, 8).join('')
-  }
-  return _.sampleSize(ALL_CHARACTERS, rule.stringLength ?? 8).join('')
+  if (isSpecialAllowed)
+    return _.sampleSize(ALL_CHARACTERS, stringLength ?? 8).join('')
+  return _.sampleSize(NORMAL_CHARACTERS, stringLength ?? 8).join('')
 }
 
-const intGenerator = (
-  rule: DynamicResponseConfiguration | undefined
-): number => {
-  if (rule === undefined) {
-    return _.random(1, 1000)
-  } else {
-    return _.random(
-      rule.numberFrom ?? 1,
-      rule.numberTo ?? (rule.numberFrom ?? 1) + 1000
-    )
-  }
+const intGenerator = (numberFrom: number, numberTo: number): number => {
+  return _.random(numberFrom ?? 1, numberTo ?? (numberFrom ?? 1) + 1000)
 }
 
 const floatGenerator = (
-  rule: DynamicResponseConfiguration | undefined
+  numberFrom: number,
+  numberTo: number,
+  noOfDecimals: number
 ): number => {
-  if (rule === undefined) {
-    return Number(_.random(1, 1000, true).toFixed(2))
-  } else {
-    return Number(
-      _.random(
-        rule.numberFrom ?? 1,
-        rule.numberTo ?? (rule.numberFrom ?? 1) + 1000,
-        true
-      ).toFixed(rule.noOfDecimals ?? 2)
-    )
-  }
+  return Number(
+    _.random(
+      numberFrom ?? 1,
+      numberTo ?? (numberFrom ?? 1) + 1000,
+      true
+    ).toFixed(noOfDecimals ?? 2)
+  )
 }
 
-const booleanGenerator = (
-  rule: DynamicResponseConfiguration | undefined
-): boolean => {
-  if (rule === undefined || rule.trueOrFalse === undefined) {
+const booleanGenerator = (booleanValue: number): boolean => {
+  if (booleanValue === TRUE) {
+    return true
+  } else if (booleanValue === FALSE) {
+    return false
+  } else {
     return _.random() < 0.5
   }
-  return rule.trueOrFalse
 }
 
-const idGenerator = (
-  rule: DynamicResponseConfiguration | undefined
-): string => {
-  if (rule === undefined) {
-    return String(_.random(1, 1000))
-  } else {
-    return String(
-      _.random(
-        rule.numberFrom ?? 1,
-        rule.numberTo ?? (rule.numberFrom ?? 1) + 1000
-      )
-    )
-  }
+const idGenerator = (numberFrom: number, numberTo: number): string => {
+  return String(_.random(numberFrom ?? 1, numberTo ?? (numberFrom ?? 1) + 1000))
 }
 
 const queryValidator = async (
@@ -162,15 +147,20 @@ const getObjectFieldMap = (
   })
   return fieldMap
 }
-
+// fetchData('', query, shouldValidate, numRangeStart, numRangeEnd, isSpecialAllowed, arrayLength, stringLength, booleanValues, digitsAfterDecimal)
 export const fetchData = async (
   graphQLendpoint: string,
-  graphqlQuery: string
+  graphqlQuery: string,
+  shouldValidate: boolean,
+  numRangeStart: number,
+  numRangeEnd: number,
+  isSpecialAllowed: boolean,
+  arrayLength: number,
+  stringLength: number,
+  booleanValues: number,
+  digitsAfterDecimal: number
 ) => {
   try {
-    const arrayRule = dynamicDataMap.get('array')
-    const arrayLen = arrayRule ? arrayRule.arrayLength ?? 4 : 4
-
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
       const response = await fetch(graphQLendpoint, {
         method: 'POST',
@@ -247,21 +237,19 @@ export const fetchData = async (
       dataType = dataType.toLowerCase().replace(/!/g, '')
       switch (dataType) {
         case 'string':
-          return stringGenerator(dynamicDataMap.get('string'))
+          return stringGenerator(stringLength, isSpecialAllowed)
         case 'number':
         case 'int':
-          return intGenerator(dynamicDataMap.get('int'))
+          return intGenerator(numRangeStart, numRangeEnd)
         case 'id':
-          return idGenerator(dynamicDataMap.get('id'))
+          return idGenerator(numRangeStart, numRangeEnd)
         case 'float':
-          return floatGenerator(dynamicDataMap.get('float'))
+          return floatGenerator(numRangeStart, numRangeEnd, digitsAfterDecimal)
         case 'boolean':
-          return booleanGenerator(dynamicDataMap.get('boolean'))
+          return booleanGenerator(booleanValues)
         default: {
           if (dataType.startsWith('[')) {
-            const arrayRule = dynamicDataMap.get('array')
-            const arrayLen = arrayRule ? arrayRule.arrayLength ?? 4 : 4
-            return _.times(arrayLen, () =>
+            return _.times(arrayLength, () =>
               dynamicValueGenerator(dataType.replace('[', '').replace(']', ''))
             )
           } else if (enumTypes.has(dataType)) {
@@ -294,7 +282,7 @@ export const fetchData = async (
 
           if ('selectionSet' in field && field.selectionSet !== undefined) {
             if (typeName?.includes('[')) {
-              response[field.name.value] = _.times(arrayLen, () =>
+              response[field.name.value] = _.times(arrayLength, () =>
                 generateMockResponse(field.selectionSet!, typeMap)
               )
             } else if (unionTypes.has(typeName!)) {
@@ -325,7 +313,7 @@ export const fetchData = async (
             }
           } else {
             if (typeName?.includes('[')) {
-              response[field.name.value] = _.times(arrayLen, () =>
+              response[field.name.value] = _.times(arrayLength, () =>
                 dynamicValueGenerator(
                   typeName!.replace('[', '').replace(']', '')
                 )

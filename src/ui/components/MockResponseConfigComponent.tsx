@@ -6,7 +6,9 @@ import { backgroundSetMockResponse } from '../helpers/utils'
 
 const QUERY = 'query'
 const MUTATION = 'mutation'
-
+const TRUE = 1
+const FALSE = 0
+const RANDOM = -1
 const MockResponseConfigComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDynamicResponseExpanded, setIsDynamicResponseExpanded] =
@@ -165,7 +167,14 @@ const MockResponseConfigComponent = () => {
       isNaN(delay) ? 0 : delay,
       isNaN(status) ? 200 : status,
       shouldRandomizeResponse,
-      shouldValidateResponse
+      shouldValidateResponse,
+      numberRangeStart,
+      numberRangeEnd,
+      stringLength,
+      arrayLength,
+      booleanTrue ? TRUE : (booleanFalse ? FALSE : RANDOM),
+      specialCharactersAllowed,
+      afterDecimals
     )
   }
 
