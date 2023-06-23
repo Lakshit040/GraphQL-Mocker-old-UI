@@ -99,16 +99,14 @@ const MockResponseConfigComponent = () => {
   };
 
   return (
-    <div className="w-4/5 shadow-md my-1">
-      {/* <h2> */}
-      <button
-        type="button"
-        className={`flex items-center w-full p-2 text-gray-500 text-left border border-gray-200 ${
+    <div className="w-full shadow-md my-1">
+      <div
+        className={`flex items-center w-full p-2 text-left border border-gray-200 ${
           isExpanded ? "bg-gray-100" : ""
         }`}
       >
         <svg
-          className={`w-6 h-6 shrink-0 ml-1 mr-2 ${
+          className={`w-6 h-6 text-gray-500 shrink-0 ml-1 mr-2 ${
             isExpanded ? "rotate-180" : ""
           }`}
           fill="currentColor"
@@ -154,8 +152,7 @@ const MockResponseConfigComponent = () => {
         >
           Mock
         </button>
-      </button>
-      {/* </h2> */}
+      </div>
 
       <div
         className={
