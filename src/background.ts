@@ -6,7 +6,8 @@ interface GeneratedResponseConfiguration{
   mockResponse: string
   responseDelay: number
   responseStatus: number
-  randomize: boolean
+  randomize: boolean,
+  shouldValidate: boolean
 }
 
 const generatedResponses: Map<string, GeneratedResponseConfiguration> = new Map()
@@ -27,7 +28,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         msg.data.mockResponse,
         msg.data.responseDelay,
         msg.data.statusCode,
-        msg.data.randomize
+        msg.data.randomize,
+        msg.data.shouldValidate
       )
       break
     }
@@ -90,8 +92,9 @@ function setMockResponse(
   mockResponse: string,
   responseDelay: number,
   responseStatus: number,
-  randomize: boolean
+  randomize: boolean,
+  shouldValidate: boolean
 ) {
-    generatedResponses.set(`${operationType}_${operationName}`, {mockResponse, responseDelay, responseStatus, randomize})
+    generatedResponses.set(`${operationType}_${operationName}`, {mockResponse, responseDelay, responseStatus, randomize, shouldValidate})
 }
 

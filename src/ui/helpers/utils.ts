@@ -57,7 +57,8 @@ export function backgroundSetMockResponse(
   mockResponse: string,
   responseDelay: number,
   statusCode: number,
-  randomize: boolean
+  randomize: boolean,
+  shouldValidate: boolean
 ) {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
@@ -68,6 +69,7 @@ export function backgroundSetMockResponse(
       responseDelay,
       statusCode,
       randomize,
+      shouldValidate
     },
   })
 }
