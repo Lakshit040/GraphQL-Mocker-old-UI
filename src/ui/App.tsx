@@ -1,7 +1,16 @@
+import { useState, useCallback } from "react";
+
 import MockResponseConfigComponent from "./components/MockResponseConfigComponent";
+import { guidGenerator } from "../common/utils";
 
 function App() {
-  const handleAddButtonPressed = () => {};
+  const [mockResponseConfigKeys, setMockResponseConfigKeys] = useState(
+    [] as string[]
+  );
+
+  const handleAddButtonPressed = useCallback(() => {
+    setMockResponseConfigKeys((keys) => [...keys, guidGenerator()]);
+  }, []);
 
   return (
     <div className="h-full flex flex-col items-center">
@@ -21,8 +30,9 @@ function App() {
       </div>
 
       <div className="grow w-4/5 flex flex-col items-center p-2">
-        <MockResponseConfigComponent />
-        <MockResponseConfigComponent />
+        {mockResponseConfigKeys.map((key) => (
+          <MockResponseConfigComponent key={key} />
+        ))}
       </div>
     </div>
   );
