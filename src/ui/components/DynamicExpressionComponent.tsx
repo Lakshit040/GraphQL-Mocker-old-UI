@@ -4,13 +4,13 @@ import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 import SvgButtonComponent from './SvgButtonComponent'
 
 interface DynamicComponentProps {
-  expressionIndex: number
-  key: number
+  id: string
+  onDynamicExpressionDelete: (id: string) => void
 }
 
 const DynamicExpressionComponent = ({
-  key,
-  expressionIndex,
+  id,
+  onDynamicExpressionDelete,
 }: DynamicComponentProps) => {
   const [isRandomResponseExpanded, setIsRandomResponseExpanded] =
     useState(false)
@@ -145,7 +145,9 @@ const DynamicExpressionComponent = ({
   const handleMockResponseTextAreaBlurred = useCallback(() => {
     setIsMockResponseTextAreaFocused(false)
   }, [])
-  const handleDeleteButtonPressed = () => {}
+  const handleDeleteExpressionButtonPressed = useCallback(() => {
+    onDynamicExpressionDelete(id)
+  }, [id, onDynamicExpressionDelete])
   /*
   
   */
@@ -157,7 +159,7 @@ const DynamicExpressionComponent = ({
   }, [])
 
   return (
-    <div className="mb-4 border border-gray-200">
+    <div className="mb-4 border border-gray-200 shadow-sm">
       <div
         className={`flex items-center w-full p-2 text-left border border-gray-200 ${
           isExpressionExpanded ? 'bg-gray-100' : ''
@@ -178,7 +180,7 @@ const DynamicExpressionComponent = ({
         </SvgButtonComponent>
 
         <TopAlignedLabelAndInput
-          htmlInputId={`inputExpression ${expressionIndex}`}
+          htmlInputId={`inputExpression`}
           type="text"
           label={`Expression`}
           value={dynamicExpression}
@@ -191,7 +193,7 @@ const DynamicExpressionComponent = ({
           <SvgButtonComponent
             className="w-10 h-10 p-2 ml-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
             viewBox="0 0 32 32"
-            onClick={handleDeleteButtonPressed}
+            onClick={handleDeleteExpressionButtonPressed}
           >
             <path d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,9.1s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z" />
           </SvgButtonComponent>
@@ -255,11 +257,13 @@ const DynamicExpressionComponent = ({
         <div className="mt-4">
           <button
             type="button"
-            className="flex items-center w-full p-2 text-gray-500 text-left border border-gray-200 bg-gray-100"
+            className="flex items-center w-full p-2 text-gray-500 text-left border border-gray-200 bg-gray-100 rounded-lg shadow-sm"
           >
             <svg
               className={`w-6 h-6 shrink-0 ml-1 mr-2 ${
-                isRandomResponseExpanded && shouldRandomizeResponse ? 'rotate-180' : ''
+                isRandomResponseExpanded && shouldRandomizeResponse
+                  ? 'rotate-180'
+                  : ''
               }`}
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -277,7 +281,7 @@ const DynamicExpressionComponent = ({
           <div
             className={
               isRandomResponseExpanded && shouldRandomizeResponse
-                ? 'p-4 border border-gray-200 focus:ring-blue-600'
+                ? 'p-4 border border-gray-200 focus:ring-blue-600 rounded-lg shadow-sm'
                 : 'hidden pointer-events-none'
             }
           >

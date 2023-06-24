@@ -14,6 +14,10 @@ function App() {
     setMockResponseConfigKeys((keys) => [...keys, guidGenerator()]);
   }, []);
 
+  const handleDeleteMockResponseConfig = useCallback((id: string) => {
+    setMockResponseConfigKeys((keys) => keys.filter((key) => key !== id))
+  }, [])
+
   return (
     <div className="h-full flex flex-col items-center">
       <div className="w-4/5 shrink-0 flex py-2 px-2 pb-0">
@@ -31,7 +35,10 @@ function App() {
 
       <div className="grow w-4/5 flex flex-col items-center p-2">
         {mockResponseConfigKeys.map((key) => (
-          <MockResponseConfigComponent key={key} />
+          <MockResponseConfigComponent 
+          key={key}
+          id={key}
+          onDelete={handleDeleteMockResponseConfig} />
         ))}
       </div>
     </div>
