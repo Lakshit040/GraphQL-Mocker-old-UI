@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 import SvgButtonComponent from './SvgButtonComponent'
@@ -6,11 +6,35 @@ import SvgButtonComponent from './SvgButtonComponent'
 interface DynamicComponentProps {
   id: string
   onDynamicExpressionDelete: (id: string) => void
+  onReadyToReceiveDynamicData: boolean
+  sendDynamicDataToMockConfigComponent: (
+    id: string,
+    dynamicData: DynamicComponentData
+  ) => void
+}
+
+export interface DynamicComponentData {
+  capturedDynamicExpressionValue: string
+  capturedShouldRandomizeResponse: boolean
+  capturedShouldValidateResponse: boolean
+  capturedNumberRangeStart: number
+  capturedNumberRangeEnd: number
+  capturedArrayLength: number
+  capturedStringLength: number
+  capturedsSpecialCharactersAllowed: boolean
+  capturedMockResponse: string
+  capturedStatusCode: number
+  capturedresponseDelay: number
+  capturedAfterDecimals: number
+  capturedBooleansTrue: boolean
+  capturedBooleansFalse: boolean
 }
 
 const DynamicExpressionComponent = ({
   id,
   onDynamicExpressionDelete,
+  onReadyToReceiveDynamicData,
+  sendDynamicDataToMockConfigComponent,
 }: DynamicComponentProps) => {
   const [isRandomResponseExpanded, setIsRandomResponseExpanded] =
     useState(false)
@@ -148,9 +172,27 @@ const DynamicExpressionComponent = ({
   const handleDeleteExpressionButtonPressed = useCallback(() => {
     onDynamicExpressionDelete(id)
   }, [id, onDynamicExpressionDelete])
-  /*
-  
-  */
+
+  useEffect(() => {
+    if (onReadyToReceiveDynamicData) {
+      sendDynamicDataToMockConfigComponent(id, {
+        capturedDynamicExpressionValue: dynamicExpression,
+        capturedShouldRandomizeResponse: shouldRandomizeResponse,
+        capturedShouldValidateResponse: shouldValidateResponse,
+        capturedNumberRangeStart: numberRangeStart,
+        capturedNumberRangeEnd: numberRangeEnd,
+        capturedArrayLength: arrayLength,
+        capturedStringLength: stringLength,
+        capturedsSpecialCharactersAllowed: specialCharactersAllowed,
+        capturedMockResponse: mockResponse,
+        capturedStatusCode: +statusCode,
+        capturedresponseDelay: +responseDelay,
+        capturedAfterDecimals: afterDecimals,
+        capturedBooleansTrue: booleanTrue,
+        capturedBooleansFalse: booleanFalse,
+      })
+    }
+  }, [onReadyToReceiveDynamicData, sendDynamicDataToMockConfigComponent, id])
 
   const [isExpressionExpanded, setIsExpressionExpanded] = useState(false)
 

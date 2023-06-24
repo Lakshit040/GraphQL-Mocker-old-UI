@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 import SvgButtonComponent from './SvgButtonComponent'
@@ -7,6 +7,7 @@ import DynamicExpressionComponent from './DynamicExpressionComponent'
 import { GraphQLOperationType } from '../../common/types'
 import { backgroundSetMockResponse } from '../helpers/utils'
 import { guidGenerator } from '../../common/utils'
+import { DynamicComponentData } from './DynamicExpressionComponent'
 
 const QUERY = 'query'
 const MUTATION = 'mutation'
@@ -14,23 +15,6 @@ const MUTATION = 'mutation'
 interface MockResponseConfigProps {
   id: string
   onDelete: (id: string) => void
-}
-
-interface DynamicComponentData {
-  dynamicExpressionValue: string
-  shouldRandomizeResponse: boolean
-  shouldValidateResponse: boolean
-  numberRangeStart: number
-  numberRangeEnd: number
-  arrayLength: number
-  stringLength: number
-  specialCharactersAllowed: boolean
-  mockResponse: string
-  statusCode: number
-  responseDelay: number
-  afterDecimals: number
-  booleansTrue: boolean
-  booleansFalse: boolean
 }
 
 const MockResponseConfigComponent = ({
@@ -46,6 +30,8 @@ const MockResponseConfigComponent = ({
   const [dynamicResponseConfigKeys, setDynamicResponseConfigKeys] = useState(
     [] as string[]
   )
+
+  const [dynamicResponseData, setDynamicResponseData] = useState([] as {id: string, data: DynamicComponentData}[])
 
   const handleAddExpressionButtonPressed = useCallback(() => {
     setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()])
@@ -76,24 +62,26 @@ const MockResponseConfigComponent = ({
   )
 
   const handleMockButtonPressed = () => {
-    setAreMocking((m) => !m)
+    setDynamicResponseData([])
+    setAreMocking(true)
+  }
 
-    // const delay = +responseDelay
-    // const status = +statusCode
-    // backgroundSetMockResponse(
-    //   operationType,
-    //   operationName,
-    //   mockResponse,
-    //   isNaN(delay) ? 0 : delay,
-    //   isNaN(status) ? 200 : status,
-    //   shouldRandomizeResponse,
-    //   shouldValidateResponse,
-    // )
+  const receivedDynamicData = (
+    id: string,
+    dynamicData: DynamicComponentData
+  ) => {
+    setDynamicResponseData((prevState) => [...prevState, {id: id, data: dynamicData}])
   }
 
   const handleDeleteMockResponseConfig = useCallback(() => {
     onDelete(id)
   }, [id, onDelete])
+
+  useEffect(() => {
+    if (dynamicResponseConfigKeys.length === dynamicResponseData.length) {
+      setAreMocking(false)
+    }
+  }, [dynamicResponseData, dynamicResponseConfigKeys.length])
 
   return (
     <div className="w-full shadow-md my-1 mb-4">
@@ -169,7 +157,9 @@ const MockResponseConfigComponent = ({
           <DynamicExpressionComponent
             key={key}
             id={key}
+            onReadyToReceiveDynamicData={areMocking}
             onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
+            sendDynamicDataToMockConfigComponent={receivedDynamicData}
           />
         ))}
         <button

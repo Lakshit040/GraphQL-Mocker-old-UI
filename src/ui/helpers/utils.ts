@@ -80,6 +80,10 @@ export function backgroundSetMockResponse(
   })
 }
 
+const ResponseHelper = () => {
+  
+}
+
 const stringGenerator = (
   stringLength: number,
   isSpecialAllowed: boolean
