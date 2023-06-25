@@ -20,6 +20,9 @@ import {
   visit,
   buildSchema,
   GraphQLNonNull,
+  isInputObjectType,
+  GraphQLInputFieldMap,
+  GraphQLInputObjectType,
 } from 'graphql'
 import { GraphQLSchema } from 'graphql/type/schema'
 import {
@@ -27,6 +30,7 @@ import {
   FALSE,
   RANDOM,
   INVALID_QUERY,
+  INVALID_MUTATION,
   INTERNAL_SERVER_ERROR,
   ERROR_GENERATING_RANDOM_RESPONSE,
   SUCCESS,
@@ -34,7 +38,7 @@ import {
   FIELD_NOT_FOUND,
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
-  DynamicComponentData
+  DynamicComponentData,
 } from '../../common/types'
 
 //////////// MAPS DECLARATIONS ////////////////
@@ -54,7 +58,7 @@ export function backgroundSetMockResponse(
     data: {
       operationType,
       operationName,
-      dynamicResponseData
+      dynamicResponseData,
     },
   })
 }
@@ -137,7 +141,7 @@ export const fetchData = async (
   arrayLength: number,
   stringLength: number,
   booleanValues: number,
-  digitsAfterDecimal: number
+  digitsAfterDecimal: number,
 ) => {
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
@@ -170,6 +174,17 @@ export const fetchData = async (
       const enumTypes: Map<string, string[]> = new Map()
       const unionTypes: Map<string, any> = new Map()
 
+      const addInputFields = (inputType: GraphQLInputObjectType) => {
+        const fields = inputType.getFields()
+        Object.values(fields).forEach((field) => {
+          if (!inputType.name.startsWith('__')) {
+            fieldTypes.set(field.name, String(field.type).replace(/!/g, ''))
+          }
+          if (field.type instanceof GraphQLInputObjectType) {
+            addInputFields(field.type)
+          }
+        })
+      }
       Object.values(typeMap).forEach((graphQLType: any) => {
         if (isEnumType(graphQLType) && !graphQLType.name.startsWith('__')) {
           enumTypes.set(
@@ -178,15 +193,15 @@ export const fetchData = async (
           )
         }
         if (isObjectType(graphQLType)) {
-          const fields: GraphQLFieldMap<any, any> = graphQLType.getFields()
+          const fields = graphQLType.getFields()
           Object.values(fields).forEach((field) => {
-            if (
-              !graphQLType.name.startsWith('__') &&
-              graphQLType.name !== 'Mutation'
-            ) {
+            if (!graphQLType.name.startsWith('__')) {
               fieldTypes.set(field.name, String(field.type).replace(/!/g, ''))
             }
           })
+        }
+        if (isInputObjectType(graphQLType)) {
+          addInputFields(graphQLType)
         }
         if (isUnionType(graphQLType) && !graphQLType.name.startsWith('__')) {
           unionTypes.set(graphQLType.name, graphQLType)
@@ -310,22 +325,31 @@ export const fetchData = async (
       queryDocument: DocumentNode,
       typeMap: Map<string, any>
     ): any => {
-      const rootQuery: OperationDefinitionNode | undefined =
+      const operationDefinition: OperationDefinitionNode | undefined =
         queryDocument.definitions.find(
-          (def) =>
-            def.kind === 'OperationDefinition' && def.operation === 'query'
-        ) as OperationDefinitionNode
-
-      if (!rootQuery) {
-        return { data: {}, message: INVALID_QUERY }
+          (def) => def.kind === 'OperationDefinition'
+        ) as OperationDefinitionNode;
+    
+      if (!operationDefinition) {
+        return {}
       }
-      return generateMockResponse(rootQuery.selectionSet, typeMap)
-    }
+    
+      if (operationDefinition.operation === 'query') {
+        return generateMockResponse(operationDefinition.selectionSet, typeMap);
+      }
+    
+      if (operationDefinition.operation === 'mutation') {
+        // for a mutation operation, treat the output selection set just like a query
+        // no special handling for the input, as it would normally be specified by the user
+        return generateMockResponse(operationDefinition.selectionSet, typeMap);
+      }
+    
+      // fallback in case the operation is neither a query nor a mutation
+      return {}
+    };
 
     try {
-      const data = generateNestedMockResponse(parse(graphqlQuery), fieldTypes)
-
-      return { data: data, message: SUCCESS }
+      return {data: generateNestedMockResponse(parse(graphqlQuery), fieldTypes), message: SUCCESS}
     } catch {
       return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE }
     }

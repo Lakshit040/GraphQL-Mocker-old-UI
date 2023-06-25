@@ -17,6 +17,7 @@ const ALL_CHARACTERS =
 const NORMAL_CHARACTERS =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const INVALID_QUERY = 'invalid_query'
+const INVALID_MUTATION = 'invalid_mutation'
 const INTERNAL_SERVER_ERROR = 'internal_server_error'
 const FIELD_NOT_FOUND = 'field_not_found'
 const ERROR_GENERATING_RANDOM_RESPONSE = 'error_generating_random_response'
@@ -52,4 +53,5 @@ export {
   ERROR_GENERATING_RANDOM_RESPONSE,
   SCHEMA_INTROSPECTION_ERROR,
   SUCCESS,
+  INVALID_MUTATION
 }
