@@ -15,7 +15,8 @@ export function parseIfGraphQLRequest(
 
     let operationName: string = bodyObject.operationName || "";
     let query = bodyObject.query;
-
+    let variables = bodyObject.variables;
+    
     if (query !== undefined) {
       let { definitions } = gql(query);
       let firstDefinition = definitions.length > 0 ? definitions[0] : undefined;

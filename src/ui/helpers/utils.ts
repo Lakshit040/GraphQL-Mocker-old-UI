@@ -34,6 +34,7 @@ import {
   FIELD_NOT_FOUND,
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
+  DynamicComponentData
 } from '../../common/types'
 
 //////////// MAPS DECLARATIONS ////////////////
@@ -46,42 +47,16 @@ const fieldConfigurationMap: Map<string, Map<string, any>> = new Map()
 export function backgroundSetMockResponse(
   operationType: GraphQLOperationType,
   operationName: string,
-  mockResponse: string,
-  responseDelay: number,
-  statusCode: number,
-  randomize: boolean,
-  shouldValidate: boolean,
-  numRangeStart: number,
-  numRangeEnd: number,
-  stringLength: number,
-  arrayLength: number,
-  booleanValues: number,
-  isSpecialAllowed: boolean,
-  digitsAfterDecimal: number
+  dynamicResponseData: Record<string, DynamicComponentData>
 ) {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
     data: {
       operationType,
       operationName,
-      mockResponse,
-      responseDelay,
-      statusCode,
-      randomize,
-      shouldValidate,
-      numRangeStart,
-      numRangeEnd,
-      stringLength,
-      arrayLength,
-      booleanValues,
-      isSpecialAllowed,
-      digitsAfterDecimal,
+      dynamicResponseData
     },
   })
-}
-
-const ResponseHelper = () => {
-  
 }
 
 const stringGenerator = (

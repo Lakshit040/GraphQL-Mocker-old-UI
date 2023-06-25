@@ -1,7 +1,7 @@
 export enum MessageType {
   PanelMounted,
   RequestIntercepted,
-  SetMockResponse
+  SetMockResponse,
 }
 
 export enum GraphQLOperationType {
@@ -23,5 +23,33 @@ const ERROR_GENERATING_RANDOM_RESPONSE = 'error_generating_random_response'
 const SUCCESS = 'success'
 const SCHEMA_INTROSPECTION_ERROR = 'schema_introspection_error'
 
+export interface DynamicComponentData {
+  dynamicExpression: string
+  shouldRandomizeResponse: boolean
+  shouldValidateResponse: boolean
+  numberRangeStart: number
+  numberRangeEnd: number
+  arrayLength: number
+  stringLength: number
+  specialCharactersAllowed: boolean
+  mockResponse: string
+  statusCode: string
+  responseDelay: string
+  afterDecimals: number
+  booleanTrue: boolean
+  booleanFalse: boolean
+}
 
-export {TRUE, FALSE, RANDOM, ALL_CHARACTERS, NORMAL_CHARACTERS, INTERNAL_SERVER_ERROR, INVALID_QUERY, FIELD_NOT_FOUND, ERROR_GENERATING_RANDOM_RESPONSE, SCHEMA_INTROSPECTION_ERROR, SUCCESS}
+export {
+  TRUE,
+  FALSE,
+  RANDOM,
+  ALL_CHARACTERS,
+  NORMAL_CHARACTERS,
+  INTERNAL_SERVER_ERROR,
+  INVALID_QUERY,
+  FIELD_NOT_FOUND,
+  ERROR_GENERATING_RANDOM_RESPONSE,
+  SCHEMA_INTROSPECTION_ERROR,
+  SUCCESS,
+}

@@ -1,40 +1,17 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useContext } from 'react'
 
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 import SvgButtonComponent from './SvgButtonComponent'
-
+import { DynamicComponentData } from '../../common/types'
+import { MyContext } from './MockResponseConfigComponent'
 interface DynamicComponentProps {
   id: string
   onDynamicExpressionDelete: (id: string) => void
-  onReadyToReceiveDynamicData: boolean
-  sendDynamicDataToMockConfigComponent: (
-    id: string,
-    dynamicData: DynamicComponentData
-  ) => void
-}
-
-export interface DynamicComponentData {
-  capturedDynamicExpressionValue: string
-  capturedShouldRandomizeResponse: boolean
-  capturedShouldValidateResponse: boolean
-  capturedNumberRangeStart: number
-  capturedNumberRangeEnd: number
-  capturedArrayLength: number
-  capturedStringLength: number
-  capturedsSpecialCharactersAllowed: boolean
-  capturedMockResponse: string
-  capturedStatusCode: number
-  capturedresponseDelay: number
-  capturedAfterDecimals: number
-  capturedBooleansTrue: boolean
-  capturedBooleansFalse: boolean
 }
 
 const DynamicExpressionComponent = ({
   id,
   onDynamicExpressionDelete,
-  onReadyToReceiveDynamicData,
-  sendDynamicDataToMockConfigComponent,
 }: DynamicComponentProps) => {
   const [isRandomResponseExpanded, setIsRandomResponseExpanded] =
     useState(false)
@@ -55,6 +32,47 @@ const DynamicExpressionComponent = ({
   const [shouldRandomizeResponse, setShouldRandomizeResponse] = useState(false)
   const [shouldValidateResponse, setShouldValidateResponse] = useState(false)
   const [dynamicExpression, setDynamicExpression] = useState('')
+
+  const { register, unregister } = useContext(MyContext)
+
+  useEffect(() => {
+    register(id, {
+      dynamicExpression,
+      shouldRandomizeResponse,
+      shouldValidateResponse,
+      numberRangeStart,
+      numberRangeEnd,
+      arrayLength,
+      stringLength,
+      specialCharactersAllowed,
+      mockResponse,
+      statusCode,
+      responseDelay,
+      afterDecimals,
+      booleanTrue,
+      booleanFalse,
+    })
+    return () => unregister(id)
+  }, [
+    register,
+    unregister,
+    id,
+    dynamicExpression,
+    shouldRandomizeResponse,
+    shouldValidateResponse,
+    numberRangeStart,
+    numberRangeEnd,
+    arrayLength,
+    stringLength,
+    specialCharactersAllowed,
+    mockResponse,
+    statusCode,
+    responseDelay,
+    afterDecimals,
+    booleanTrue,
+    booleanFalse,
+  ])
+
   const handleNumberRangeStartChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setNumberRangeStart(Number(event.target.value.trim()))
@@ -172,27 +190,6 @@ const DynamicExpressionComponent = ({
   const handleDeleteExpressionButtonPressed = useCallback(() => {
     onDynamicExpressionDelete(id)
   }, [id, onDynamicExpressionDelete])
-
-  useEffect(() => {
-    if (onReadyToReceiveDynamicData) {
-      sendDynamicDataToMockConfigComponent(id, {
-        capturedDynamicExpressionValue: dynamicExpression,
-        capturedShouldRandomizeResponse: shouldRandomizeResponse,
-        capturedShouldValidateResponse: shouldValidateResponse,
-        capturedNumberRangeStart: numberRangeStart,
-        capturedNumberRangeEnd: numberRangeEnd,
-        capturedArrayLength: arrayLength,
-        capturedStringLength: stringLength,
-        capturedsSpecialCharactersAllowed: specialCharactersAllowed,
-        capturedMockResponse: mockResponse,
-        capturedStatusCode: +statusCode,
-        capturedresponseDelay: +responseDelay,
-        capturedAfterDecimals: afterDecimals,
-        capturedBooleansTrue: booleanTrue,
-        capturedBooleansFalse: booleanFalse,
-      })
-    }
-  }, [onReadyToReceiveDynamicData, sendDynamicDataToMockConfigComponent, id])
 
   const [isExpressionExpanded, setIsExpressionExpanded] = useState(false)
 
