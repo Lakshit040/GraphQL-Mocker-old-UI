@@ -27,8 +27,8 @@ const DynamicExpressionComponent = ({
   const [specialCharactersAllowed, setSpecialCharactersAllowed] =
     useState(false)
   const [mockResponse, setMockResponse] = useState('')
-  const [responseDelay, setResponseDelay] = useState('')
-  const [statusCode, setStatusCode] = useState('200')
+  const [responseDelay, setResponseDelay] = useState(0)
+  const [statusCode, setStatusCode] = useState(200)
   const [shouldRandomizeResponse, setShouldRandomizeResponse] = useState(false)
   const [shouldValidateResponse, setShouldValidateResponse] = useState(false)
   const [dynamicExpression, setDynamicExpression] = useState('')
@@ -147,14 +147,14 @@ const DynamicExpressionComponent = ({
   )
   const handleResponseDelayChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setResponseDelay(event.target.value.trim())
+      setResponseDelay(Number(event.target.value.trim()))
     },
     []
   )
 
   const handleStatusCodeChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setStatusCode(event.target.value.trim())
+      setStatusCode(Number(event.target.value.trim()))
     },
     []
   )

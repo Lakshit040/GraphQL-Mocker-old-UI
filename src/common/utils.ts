@@ -4,22 +4,21 @@ import { GraphQLOperationType } from "./types";
 
 export function parseIfGraphQLRequest(
   config: any
-): [GraphQLOperationType, string, string] | undefined {
-  let body = config.body;
+): [GraphQLOperationType, string, string, any] | undefined {
+  const body = config.body;
   if (body === undefined) {
     return undefined;
   }
 
   try {
-    let bodyObject = JSON.parse(body);
+    const bodyObject = JSON.parse(body);
 
     let operationName: string = bodyObject.operationName || "";
-    let query = bodyObject.query;
-    let variables = bodyObject.variables;
-    
+    const query = bodyObject.query;
+    const variables = bodyObject.variables || {}
     if (query !== undefined) {
-      let { definitions } = gql(query);
-      let firstDefinition = definitions.length > 0 ? definitions[0] : undefined;
+      const { definitions } = gql(query);
+      const firstDefinition = definitions.length > 0 ? definitions[0] : undefined;
       if (
         firstDefinition !== undefined &&
         firstDefinition.kind === "OperationDefinition"
@@ -30,7 +29,7 @@ export function parseIfGraphQLRequest(
             : GraphQLOperationType.Mutation;
         operationName = firstDefinition.name?.value || operationName;
 
-        return [operationType, operationName, query];
+        return [operationType, operationName, query, variables];
       }
     }
   } catch (err) {

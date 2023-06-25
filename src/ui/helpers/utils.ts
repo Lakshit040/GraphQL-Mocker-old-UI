@@ -459,3 +459,66 @@ const generateTypeMapForResponse = (obj: any): Record<string, any> => {
 const validate = (responseString: string, queryString: string): boolean => {
   return _.isEqual(responseString, queryString)
 }
+
+export const checkExpressionIsValid = (
+  dynamicExpression: string,
+  variableValues: any
+): boolean => {
+  const dynamicExpressionParts = dynamicExpression.split(/\s+(AND|OR)\s+/)
+  let isValid = true
+
+  for (let i = 0; i < dynamicExpressionParts.length; i += 4) {
+    const variable = dynamicExpressionParts[i]
+    const operator = dynamicExpressionParts[i + 1]
+    const value = dynamicExpressionParts[i + 2]
+    const logicalOperator = dynamicExpressionParts[i + 3]
+
+    const actualValue = variableValues[variable]
+
+    switch (operator) {
+      case '>':
+        if (!(actualValue > value)) {
+          isValid = false
+        }
+        break
+      case '<':
+        if (!(actualValue < value)) {
+          isValid = false
+        }
+        break
+      case '>=':
+        if (!(actualValue >= value)) {
+          isValid = false
+        }
+        break
+      case '<=':
+        if (!(actualValue <= value)) {
+          isValid = false
+        }
+        break
+      case '==':
+        if (!(actualValue == value)) {
+          isValid = false
+        }
+        break
+      case '!=':
+        if (!(actualValue != value)) {
+          isValid = false
+        }
+        break
+      default:
+        isValid = false
+        break
+    }
+
+    if (logicalOperator === 'AND' && !isValid) {
+      break
+    }
+
+    if (logicalOperator === 'OR' && isValid) {
+      break
+    }
+  }
+
+  return isValid
+}

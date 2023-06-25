@@ -1,7 +1,8 @@
 import { parseIfGraphQLRequest } from './common/utils'
 import { MessageType, GraphQLOperationType } from './common/types'
 import { fetchData } from './ui/helpers/utils'
-import { DynamicComponentData } from './common/types'
+import { DynamicComponentData, TRUE, FALSE, RANDOM } from './common/types'
+import { checkExpressionIsValid } from './ui/helpers/utils'
 
 const generatedResponses: Map<
   string,
@@ -49,17 +50,70 @@ async function handleInterceptedRequest(
     return
   }
 
-  const [operationType, operationName, query] = parsed
+  const [operationType, operationName, query, variables] = parsed
   const key = `${operationType}_${operationName}`
 
   const generatedResponseConfig = generatedResponses.get(key)
 
   if (generatedResponseConfig !== undefined) {
-    
-    for(const dataRecord in generatedResponseConfig){
-      if(generatedResponseConfig.hasOwnProperty(dataRecord)){
-        const responseDataRecord = generatedResponseConfig[dataRecord];
-        /// check for the expression here 
+    for (const dataRecord in generatedResponseConfig) {
+      if (generatedResponseConfig.hasOwnProperty(dataRecord)) {
+        const responseDataRecord = generatedResponseConfig[dataRecord]
+        if (
+          checkExpressionIsValid(
+            responseDataRecord.dynamicExpression,
+            variables
+          )
+        ) {
+          // match with the expression
+          if (responseDataRecord.shouldRandomizeResponse) {
+            const b = responseDataRecord.booleanTrue
+              ? TRUE
+              : responseDataRecord.booleanFalse
+              ? FALSE
+              : RANDOM
+            const generatedRandomResponse = await fetchData(
+              '',
+              query,
+              responseDataRecord.shouldValidateResponse,
+              responseDataRecord.numberRangeStart,
+              responseDataRecord.numberRangeEnd,
+              responseDataRecord.specialCharactersAllowed,
+              responseDataRecord.arrayLength,
+              responseDataRecord.stringLength,
+              b,
+              responseDataRecord.afterDecimals
+            )
+            if (responseDataRecord.responseDelay > 0) {
+              setTimeout(() =>
+                resolve(
+                  JSON.stringify(generatedRandomResponse, null, 2),
+                  responseDataRecord.statusCode
+                )
+              )
+            } else {
+              resolve(
+                JSON.stringify(generatedRandomResponse, null, 2),
+                responseDataRecord.statusCode
+              )
+            }
+          } else {
+            if (responseDataRecord.responseDelay > 0) {
+              setTimeout(() =>
+                resolve(
+                  responseDataRecord.mockResponse,
+                  responseDataRecord.statusCode
+                )
+              )
+            } else {
+              resolve(
+                JSON.stringify(responseDataRecord.mockResponse, null, 2),
+                responseDataRecord.statusCode
+              )
+            }
+          }
+          return
+        }
       }
     }
 
@@ -73,7 +127,7 @@ function setMockResponse(
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ) {
-  console.log('Received the data from the user inputs');
+  console.log('Received the data from the user inputs')
   generatedResponses.set(
     `${operationType}_${operationName}`,
     dynamicResponseData

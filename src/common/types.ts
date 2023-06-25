@@ -33,8 +33,8 @@ export interface DynamicComponentData {
   stringLength: number
   specialCharactersAllowed: boolean
   mockResponse: string
-  statusCode: string
-  responseDelay: string
+  statusCode: number
+  responseDelay: number
   afterDecimals: number
   booleanTrue: boolean
   booleanFalse: boolean
