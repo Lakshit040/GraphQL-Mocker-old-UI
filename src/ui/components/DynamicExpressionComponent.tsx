@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useContext } from 'react'
 
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
 import SvgButtonComponent from './SvgButtonComponent'
-import { DynamicComponentData } from '../../common/types'
+
 import { MyContext } from './MockResponseConfigComponent'
 interface DynamicComponentProps {
   id: string

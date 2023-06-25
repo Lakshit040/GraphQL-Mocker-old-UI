@@ -14,13 +14,11 @@ window.addEventListener("from-injected", async (event) => {
         }
       });
     });
-    // Handle the response and perform actions here
     let reply = new CustomEvent("from-content", {
       detail: { requestId, response, statusCode },
     });
     window.dispatchEvent(reply);
   } catch (error) {
-    // Handle any errors that occur during message passing
     console.error(error);
   }
 });

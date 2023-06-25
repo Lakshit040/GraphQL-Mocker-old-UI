@@ -4,6 +4,7 @@ import { fetchData } from './ui/helpers/utils'
 import { DynamicComponentData, TRUE, FALSE, RANDOM } from './common/types'
 import { checkExpressionIsValid } from './ui/helpers/utils'
 
+
 const generatedResponses: Map<
   string,
   Record<string, DynamicComponentData>
@@ -133,5 +134,5 @@ function setMockResponse(
     dynamicResponseData
   )
   console.log('Now, we have stored all the data in our data base!!')
-  // console.log('Our Storage: ', generatedResponses);
+  console.log('Our Storage: ', generatedResponses);
 }
