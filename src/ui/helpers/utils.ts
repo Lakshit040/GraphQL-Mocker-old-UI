@@ -1,5 +1,6 @@
 import { MessageType, GraphQLOperationType } from '../../common/types'
 import _ from 'lodash'
+import {Parser} from 'expr-eval'
 import {
   parse,
   DocumentNode,
@@ -141,7 +142,7 @@ export const fetchData = async (
   arrayLength: number,
   stringLength: number,
   booleanValues: number,
-  digitsAfterDecimal: number,
+  digitsAfterDecimal: number
 ) => {
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
@@ -149,7 +150,7 @@ export const fetchData = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `bearer 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`,
+          Authorization: `Bearer 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`,
         },
         body: JSON.stringify({ query: getIntrospectionQuery() }),
       })
@@ -162,12 +163,12 @@ export const fetchData = async (
       const schema = buildClientSchema(introspectionResult.data)
       const typeMap = schema!.getTypeMap()
 
-      const res = await queryValidator(schema!, graphqlQuery)
-      if (res === INVALID_QUERY) {
-        return { data: {}, message: INVALID_QUERY }
-      } else if (res === INTERNAL_SERVER_ERROR) {
-        return { data: {}, message: INTERNAL_SERVER_ERROR }
-      }
+      // const res = await queryValidator(schema!, graphqlQuery)
+      // if (res === INVALID_QUERY) {
+      //   return { data: {}, message: INVALID_QUERY }
+      // } else if (res === INTERNAL_SERVER_ERROR) {
+      //   return { data: {}, message: INTERNAL_SERVER_ERROR }
+      // }
 
       const interfaceTypes: Map<string, any> = new Map()
       const fieldTypes: Map<string, any> = new Map()
@@ -250,7 +251,7 @@ export const fetchData = async (
             const enumValues = enumTypes.get(dataType)!
             return enumValues[_.random(0, enumValues.length)]
           } else {
-            return {}
+            return stringGenerator(stringLength, isSpecialAllowed)
           }
         }
       }
@@ -328,33 +329,36 @@ export const fetchData = async (
       const operationDefinition: OperationDefinitionNode | undefined =
         queryDocument.definitions.find(
           (def) => def.kind === 'OperationDefinition'
-        ) as OperationDefinitionNode;
-    
+        ) as OperationDefinitionNode
+
       if (!operationDefinition) {
         return {}
       }
-    
+
       if (operationDefinition.operation === 'query') {
-        return generateMockResponse(operationDefinition.selectionSet, typeMap);
+        return generateMockResponse(operationDefinition.selectionSet, typeMap)
       }
-    
+
       if (operationDefinition.operation === 'mutation') {
         // for a mutation operation, treat the output selection set just like a query
         // no special handling for the input, as it would normally be specified by the user
-        return generateMockResponse(operationDefinition.selectionSet, typeMap);
+        return generateMockResponse(operationDefinition.selectionSet, typeMap)
       }
-    
+
       // fallback in case the operation is neither a query nor a mutation
       return {}
-    };
+    }
 
     try {
-      return {data: generateNestedMockResponse(parse(graphqlQuery), fieldTypes), message: SUCCESS}
+      return {
+        data: generateNestedMockResponse(parse(graphqlQuery), fieldTypes),
+        message: SUCCESS,
+      }
     } catch {
       return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE }
     }
   } catch (error) {
-    return { data: {}, message: INTERNAL_SERVER_ERROR }
+    return { data: {}, message: String(error) }
   }
 }
 
@@ -488,61 +492,6 @@ export const checkExpressionIsValid = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
-  const dynamicExpressionParts = dynamicExpression.split(/\s+(AND|OR)\s+/)
-  let isValid = true
-
-  for (let i = 0; i < dynamicExpressionParts.length; i += 4) {
-    const variable = dynamicExpressionParts[i]
-    const operator = dynamicExpressionParts[i + 1]
-    const value = dynamicExpressionParts[i + 2]
-    const logicalOperator = dynamicExpressionParts[i + 3]
-
-    const actualValue = variableValues[variable]
-
-    switch (operator) {
-      case '>':
-        if (!(actualValue > value)) {
-          isValid = false
-        }
-        break
-      case '<':
-        if (!(actualValue < value)) {
-          isValid = false
-        }
-        break
-      case '>=':
-        if (!(actualValue >= value)) {
-          isValid = false
-        }
-        break
-      case '<=':
-        if (!(actualValue <= value)) {
-          isValid = false
-        }
-        break
-      case '==':
-        if (!(actualValue == value)) {
-          isValid = false
-        }
-        break
-      case '!=':
-        if (!(actualValue != value)) {
-          isValid = false
-        }
-        break
-      default:
-        isValid = false
-        break
-    }
-
-    if (logicalOperator === 'AND' && !isValid) {
-      break
-    }
-
-    if (logicalOperator === 'OR' && isValid) {
-      break
-    }
-  }
-
-  return isValid
+  const parser = new Parser();
+  return Boolean(parser.evaluate(dynamicExpression, variableValues))
 }

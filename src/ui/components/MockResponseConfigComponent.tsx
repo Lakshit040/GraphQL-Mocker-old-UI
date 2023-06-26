@@ -58,8 +58,6 @@ const MockResponseConfigComponent = ({
   }
 
   const dynamicDataCollection = () => {
-    console.log(childrenData)
-    console.log('Sending the data to the background.ts file')
     backgroundSetMockResponse(operationType, operationName, childrenData)
   }
 

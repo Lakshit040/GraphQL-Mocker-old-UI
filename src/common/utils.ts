@@ -4,7 +4,7 @@ import { GraphQLOperationType } from "./types";
 
 export function parseIfGraphQLRequest(
   config: any
-): [GraphQLOperationType, string, string, any] | undefined {
+): [GraphQLOperationType, string, string, object] | undefined {
   const body = config.body;
   if (body === undefined) {
     return undefined;

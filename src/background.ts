@@ -57,6 +57,7 @@ async function handleInterceptedRequest(
   const generatedResponseConfig = generatedResponses.get(key)
 
   if (generatedResponseConfig !== undefined) {
+    console.log('Found a key with the response!!')
     for (const dataRecord in generatedResponseConfig) {
       if (generatedResponseConfig.hasOwnProperty(dataRecord)) {
         const responseDataRecord = generatedResponseConfig[dataRecord]
@@ -67,14 +68,15 @@ async function handleInterceptedRequest(
           )
         ) {
           // match with the expression
+          console.log('Valid expression found!!')
           if (responseDataRecord.shouldRandomizeResponse) {
-            const b = responseDataRecord.booleanTrue
+            const booleanValue = responseDataRecord.booleanTrue
               ? TRUE
               : responseDataRecord.booleanFalse
               ? FALSE
               : RANDOM
             const generatedRandomResponse = await fetchData(
-              '',
+              'https://api.github.com/graphql',
               query,
               responseDataRecord.shouldValidateResponse,
               responseDataRecord.numberRangeStart,
@@ -82,7 +84,7 @@ async function handleInterceptedRequest(
               responseDataRecord.specialCharactersAllowed,
               responseDataRecord.arrayLength,
               responseDataRecord.stringLength,
-              b,
+              booleanValue,
               responseDataRecord.afterDecimals
             )
             if (responseDataRecord.responseDelay > 0) {
@@ -102,7 +104,7 @@ async function handleInterceptedRequest(
             if (responseDataRecord.responseDelay > 0) {
               setTimeout(() =>
                 resolve(
-                  responseDataRecord.mockResponse,
+                  JSON.stringify(responseDataRecord.mockResponse, null, 2),
                   responseDataRecord.statusCode
                 )
               )
