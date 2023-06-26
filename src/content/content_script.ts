@@ -11,3 +11,8 @@ window.addEventListener("from-injected", (event) => {
     window.dispatchEvent(reply);
   });
 });
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("Content script received message from background script");
+  console.log(request);
+});

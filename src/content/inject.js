@@ -42,8 +42,10 @@ proxy({
   },
 });
 
+let __oldFetch__ = undefined;
 if (window.fetch) {
   const f = window.fetch;
+  __oldFetch__ = f;
   window.fetch = (req, config = undefined) => {
     return hijack(req, config)
       .then(({ response, statusCode }) => {
@@ -69,6 +71,10 @@ window.addEventListener("from-content", (event) => {
   }
 
   hijackedRequests.delete(requestId);
+});
+
+window.addEventListener("from-content-custom", (event) => {
+  console.log("Got custom event from content script");
 });
 
 function guidGenerator() {

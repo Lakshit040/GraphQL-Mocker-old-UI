@@ -13,9 +13,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   switch (msg.type) {
     case MessageType.RequestIntercepted: {
-      let tabId = sender.tab?.id;
+      const tabId = sender.tab?.id;
+      const frameId = sender.frameId;
       handleInterceptedRequest(
         tabId,
+        frameId,
         msg.data.url,
         msg.data.config,
         sendResponse
@@ -40,6 +42,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 async function handleInterceptedRequest(
   tabId: number | undefined,
+  frameId: number | undefined,
   url: string,
   config: any,
   sendResponse: (response?: any) => void
@@ -48,10 +51,12 @@ async function handleInterceptedRequest(
   let resolve = (response: string, statusCode: number) =>
     sendResponse({ response, statusCode });
 
-  if (tabId === undefined) {
+  if (tabId === undefined || frameId === undefined) {
     reject();
     return;
   }
+
+  chrome.tabs.sendMessage(tabId, { data: "something" }, { frameId });
 
   let parsed = parseIfGraphQLRequest(config);
   if (parsed === undefined) {
