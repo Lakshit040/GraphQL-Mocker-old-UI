@@ -1,6 +1,6 @@
 import { MessageType, GraphQLOperationType } from '../../common/types'
 import _ from 'lodash'
-import {Parser} from 'expr-eval'
+import { Parser } from 'expr-eval'
 import {
   parse,
   DocumentNode,
@@ -48,6 +48,7 @@ const unionConfigurationMap: Map<string, Map<string, any>> = new Map()
 const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map()
 const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map()
 const fieldConfigurationMap: Map<string, Map<string, any>> = new Map()
+const authToken = process.env.GITHUB_AUTH_TOKEN
 
 export function backgroundSetMockResponse(
   operationType: GraphQLOperationType,
@@ -61,6 +62,16 @@ export function backgroundSetMockResponse(
       operationName,
       dynamicResponseData,
     },
+  })
+}
+
+export function backgroundUnSetMockResponse(
+  operationType: GraphQLOperationType,
+  operationName: string
+) {
+  chrome.runtime.sendMessage({
+    type: MessageType.UnSetMockResponse,
+    data: { operationType, operationName },
   })
 }
 
@@ -131,7 +142,9 @@ const getObjectFieldMap = (
   })
   return fieldMap
 }
-// fetchData('', query, shouldValidate, numRangeStart, numRangeEnd, isSpecialAllowed, arrayLength, stringLength, booleanValues, digitsAfterDecimal)
+
+
+
 export const fetchData = async (
   graphQLendpoint: string,
   graphqlQuery: string,
@@ -150,7 +163,7 @@ export const fetchData = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ query: getIntrospectionQuery() }),
       })
@@ -492,6 +505,6 @@ export const checkExpressionIsValid = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
-  const parser = new Parser();
+  const parser = new Parser()
   return Boolean(parser.evaluate(dynamicExpression, variableValues))
 }

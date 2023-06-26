@@ -5,7 +5,7 @@ import SvgButtonComponent from './SvgButtonComponent'
 import DynamicExpressionComponent from './DynamicExpressionComponent'
 
 import { GraphQLOperationType } from '../../common/types'
-import { backgroundSetMockResponse } from '../helpers/utils'
+import { backgroundSetMockResponse, backgroundUnSetMockResponse} from '../helpers/utils'
 import { guidGenerator } from '../../common/utils'
 import { DynamicComponentData } from '../../common/types'
 
@@ -46,7 +46,6 @@ const MockResponseConfigComponent = ({
     [] as string[]
   )
 
-
   const register = (id: string, dynamicData: DynamicComponentData) => {
     childrenDataRef.current[id] = dynamicData
     setChildrenData({ ...childrenDataRef.current })
@@ -58,7 +57,14 @@ const MockResponseConfigComponent = ({
   }
 
   const dynamicDataCollection = () => {
-    backgroundSetMockResponse(operationType, operationName, childrenData)
+    if(areMocking){
+      backgroundUnSetMockResponse(operationType, operationName)
+      setAreMocking(false)
+    }
+    else{
+      backgroundSetMockResponse(operationType, operationName, childrenData)
+      setAreMocking(true)
+    }
   }
 
   const handleAddExpressionButtonPressed = useCallback(() => {
@@ -88,10 +94,6 @@ const MockResponseConfigComponent = ({
     },
     []
   )
-
-  const handleMockButtonPressed = useCallback(() => {
-    setAreMocking(m => !m)
-  }, [])
 
   const handleDeleteMockResponseConfig = useCallback(() => {
     onDelete(id)

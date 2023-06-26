@@ -4,7 +4,6 @@ import { fetchData } from './ui/helpers/utils'
 import { DynamicComponentData, TRUE, FALSE, RANDOM } from './common/types'
 import { checkExpressionIsValid } from './ui/helpers/utils'
 
-
 const generatedResponses: Map<
   string,
   Record<string, DynamicComponentData>
@@ -25,6 +24,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         msg.data.operationName,
         msg.data.dynamicResponseData
       )
+      break
+    }
+    case MessageType.UnSetMockResponse: {
+      unSetMockResponse(msg.data.operationType, msg.data.operationName)
       break
     }
   }
@@ -57,7 +60,7 @@ async function handleInterceptedRequest(
   const generatedResponseConfig = generatedResponses.get(key)
 
   if (generatedResponseConfig !== undefined) {
-    console.log('Found a key with the response!!')
+
     for (const dataRecord in generatedResponseConfig) {
       if (generatedResponseConfig.hasOwnProperty(dataRecord)) {
         const responseDataRecord = generatedResponseConfig[dataRecord]
@@ -67,8 +70,6 @@ async function handleInterceptedRequest(
             variables
           )
         ) {
-          // match with the expression
-          console.log('Valid expression found!!')
           if (responseDataRecord.shouldRandomizeResponse) {
             const booleanValue = responseDataRecord.booleanTrue
               ? TRUE
@@ -130,11 +131,21 @@ function setMockResponse(
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ) {
-  console.log('Received the data from the user inputs')
   generatedResponses.set(
     `${operationType}_${operationName}`,
     dynamicResponseData
   )
-  console.log('Now, we have stored all the data in our data base!!')
-  console.log('Our Storage: ', generatedResponses);
+  console.log('Our Storage: ', generatedResponses)
+}
+
+const unSetMockResponse = (
+  operationType: GraphQLOperationType,
+  operationName: string
+) => {
+  try {
+    generatedResponses.delete(`${operationType}_${operationName}`)
+  } catch {
+    return
+  }
+  console.log('Our Storage: ', generatedResponses)
 }
