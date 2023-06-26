@@ -124,6 +124,7 @@ const getObjectFieldMap = (
 
 export const fetchData = async (
   graphQLendpoint: string,
+  requestConfig: any,
   graphqlQuery: string,
   shouldValidate: boolean,
   numRangeStart: number,
@@ -134,16 +135,16 @@ export const fetchData = async (
   booleanValues: number,
   digitsAfterDecimal: number
 ) => {
+  console.log(graphQLendpoint);
+  console.log(requestConfig);
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
-      const response = await fetch(graphQLendpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer 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`,
-        },
-        body: JSON.stringify({ query: getIntrospectionQuery() }),
+      const requestConfigCopy = { ...requestConfig };
+      requestConfigCopy.body = JSON.stringify({
+        query: getIntrospectionQuery(),
       });
+
+      const response = await fetch(graphQLendpoint, requestConfigCopy);
 
       const introspectionResult = await response.json();
 

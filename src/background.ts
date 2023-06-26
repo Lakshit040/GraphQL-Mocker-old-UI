@@ -14,7 +14,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.type) {
     case MessageType.RequestIntercepted: {
       let tabId = sender.tab?.id;
-      handleInterceptedRequest(tabId, msg.data.config, sendResponse);
+      handleInterceptedRequest(
+        tabId,
+        msg.data.url,
+        msg.data.config,
+        sendResponse
+      );
       break;
     }
     case MessageType.SetMockResponse: {
@@ -35,6 +40,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 async function handleInterceptedRequest(
   tabId: number | undefined,
+  url: string,
   config: any,
   sendResponse: (response?: any) => void
 ) {
@@ -69,7 +75,8 @@ async function handleInterceptedRequest(
             ? FALSE
             : RANDOM;
           const generatedRandomResponse = await fetchData(
-            "https://api.github.com/graphql",
+            url,
+            config,
             query,
             mockingRule.shouldValidateResponse,
             mockingRule.numberRangeStart,

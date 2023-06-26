@@ -11,9 +11,12 @@ function hijack(url, config) {
     let requestId = guidGenerator();
     hijackedRequests.set(requestId, [resolve, reject]);
 
+    console.log("injected script got url: ", url);
+    console.log(window.location.origin);
+
     let message = {
       type: MessageType.RequestIntercepted,
-      data: { url, config },
+      data: { url: window.location.origin + url, config },
     };
     let event = new CustomEvent("from-injected", {
       detail: { message, requestId },
