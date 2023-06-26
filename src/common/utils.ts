@@ -15,10 +15,11 @@ export function parseIfGraphQLRequest(
 
     let operationName: string = bodyObject.operationName || "";
     const query = bodyObject.query;
-    const variables = bodyObject.variables || {}
+    const variables = bodyObject.variables || {};
     if (query !== undefined) {
       const { definitions } = gql(query);
-      const firstDefinition = definitions.length > 0 ? definitions[0] : undefined;
+      const firstDefinition =
+        definitions.length > 0 ? definitions[0] : undefined;
       if (
         firstDefinition !== undefined &&
         firstDefinition.kind === "OperationDefinition"
@@ -38,6 +39,17 @@ export function parseIfGraphQLRequest(
 
   return undefined;
 }
+
+export const doesMockingRuleHold = (
+  dynamicExpression: string,
+  variableValues: any
+): boolean => {
+  if (dynamicExpression.trim() === "*") {
+    return true;
+  }
+
+  return false;
+};
 
 export function guidGenerator() {
   let S4 = () =>

@@ -1,10 +1,9 @@
-import { parseIfGraphQLRequest } from './common/utils';
-import { MessageType, GraphQLOperationType } from './common/types';
-import { fetchData } from './ui/helpers/utils';
-import { DynamicComponentData, TRUE, FALSE, RANDOM } from './common/types';
-import { checkExpressionIsValid } from './ui/helpers/utils';
+import { parseIfGraphQLRequest, doesMockingRuleHold } from "./common/utils";
+import { MessageType, GraphQLOperationType } from "./common/types";
+import { fetchData } from "./ui/helpers/utils";
+import { DynamicComponentData, TRUE, FALSE, RANDOM } from "./common/types";
 
-const generatedResponses: Map<
+const mockResponseConfigMap: Map<
   string,
   Record<string, DynamicComponentData>
 > = new Map();
@@ -57,57 +56,55 @@ async function handleInterceptedRequest(
   const [operationType, operationName, query, variables] = parsed;
   const key = `${operationType}_${operationName}`;
 
-  const generatedResponseConfig = generatedResponses.get(key);
+  const mockResponseConfig = mockResponseConfigMap.get(key);
 
-  if (generatedResponseConfig !== undefined) {
-    for (const dataRecord in generatedResponseConfig) {
-      const responseDataRecord = generatedResponseConfig[dataRecord];
-      if (
-        checkExpressionIsValid(responseDataRecord.dynamicExpression, variables)
-      ) {
-        if (responseDataRecord.shouldRandomizeResponse) {
-          const booleanValue = responseDataRecord.booleanTrue
+  if (mockResponseConfig !== undefined) {
+    for (const mockingRuleKey in mockResponseConfig) {
+      const mockingRule = mockResponseConfig[mockingRuleKey];
+      if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
+        if (mockingRule.shouldRandomizeResponse) {
+          const booleanValue = mockingRule.booleanTrue
             ? TRUE
-            : responseDataRecord.booleanFalse
+            : mockingRule.booleanFalse
             ? FALSE
             : RANDOM;
           const generatedRandomResponse = await fetchData(
-            'https://api.github.com/graphql',
+            "https://api.github.com/graphql",
             query,
-            responseDataRecord.shouldValidateResponse,
-            responseDataRecord.numberRangeStart,
-            responseDataRecord.numberRangeEnd,
-            responseDataRecord.specialCharactersAllowed,
-            responseDataRecord.arrayLength,
-            responseDataRecord.stringLength,
+            mockingRule.shouldValidateResponse,
+            mockingRule.numberRangeStart,
+            mockingRule.numberRangeEnd,
+            mockingRule.specialCharactersAllowed,
+            mockingRule.arrayLength,
+            mockingRule.stringLength,
             booleanValue,
-            responseDataRecord.afterDecimals
+            mockingRule.afterDecimals
           );
-          if (responseDataRecord.responseDelay > 0) {
+          if (mockingRule.responseDelay > 0) {
             setTimeout(() =>
               resolve(
                 JSON.stringify(generatedRandomResponse, null, 2),
-                responseDataRecord.statusCode
+                mockingRule.statusCode
               )
             );
           } else {
             resolve(
               JSON.stringify(generatedRandomResponse, null, 2),
-              responseDataRecord.statusCode
+              mockingRule.statusCode
             );
           }
         } else {
-          if (responseDataRecord.responseDelay > 0) {
+          if (mockingRule.responseDelay > 0) {
             setTimeout(() =>
               resolve(
-                JSON.stringify(JSON.parse(responseDataRecord.mockResponse), null, 2),
-                responseDataRecord.statusCode
+                JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
+                mockingRule.statusCode
               )
             );
           } else {
             resolve(
-              JSON.stringify(JSON.parse(responseDataRecord.mockResponse), null, 2),
-              responseDataRecord.statusCode
+              JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
+              mockingRule.statusCode
             );
           }
         }
@@ -125,11 +122,11 @@ function setMockResponse(
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ) {
-  generatedResponses.set(
+  mockResponseConfigMap.set(
     `${operationType}_${operationName}`,
     dynamicResponseData
   );
-  console.log('Our Storage: ', generatedResponses);
+  console.log("Our Storage: ", mockResponseConfigMap);
 }
 
 const unSetMockResponse = (
@@ -137,9 +134,9 @@ const unSetMockResponse = (
   operationName: string
 ) => {
   try {
-    generatedResponses.delete(`${operationType}_${operationName}`);
+    mockResponseConfigMap.delete(`${operationType}_${operationName}`);
   } catch {
     return;
   }
-  console.log('Our Storage: ', generatedResponses);
+  console.log("Our Storage: ", mockResponseConfigMap);
 };

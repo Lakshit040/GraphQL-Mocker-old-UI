@@ -470,14 +470,3 @@ const generateTypeMapForResponse = (obj: any): Record<string, any> => {
 const validate = (responseString: string, queryString: string): boolean => {
   return _.isEqual(responseString, queryString);
 };
-
-export const checkExpressionIsValid = (
-  dynamicExpression: string,
-  variableValues: any
-): boolean => {
-  if (dynamicExpression.trim() === "*") {
-    return true;
-  }
-  const parser = new Parser();
-  return Boolean(parser.evaluate(dynamicExpression, variableValues));
-};
