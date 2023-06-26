@@ -1,116 +1,119 @@
-import { useState, useCallback, createContext, useRef } from 'react'
+import { useState, useCallback, createContext, useRef } from "react";
 
-import TopAlignedLabelAndInput from './TopAlignedLabelAndInput'
-import SvgButtonComponent from './SvgButtonComponent'
-import DynamicExpressionComponent from './DynamicExpressionComponent'
+import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
+import SvgButtonComponent from "./SvgButtonComponent";
+import DynamicExpressionComponent from "./DynamicExpressionComponent";
 
-import { GraphQLOperationType } from '../../common/types'
-import { backgroundSetMockResponse, backgroundUnSetMockResponse} from '../helpers/utils'
-import { guidGenerator } from '../../common/utils'
-import { DynamicComponentData } from '../../common/types'
+import { GraphQLOperationType } from "../../common/types";
+import {
+  backgroundSetMockResponse,
+  backgroundUnSetMockResponse,
+} from "../helpers/utils";
+import { guidGenerator } from "../../common/utils";
+import { DynamicComponentData } from "../../common/types";
 
-const QUERY = 'query'
-const MUTATION = 'mutation'
+const QUERY = "query";
+const MUTATION = "mutation";
 
 interface MockResponseConfigProps {
-  id: string
-  onDelete: (id: string) => void
+  id: string;
+  onDelete: (id: string) => void;
 }
 
 interface MyContextProps {
-  register: (id: string, dynamicData: DynamicComponentData) => void
-  unregister: (id: string) => void
-  onMockingRuleStarted: () => void
+  register: (id: string, dynamicData: DynamicComponentData) => void;
+  unregister: (id: string) => void;
+  onMockingRuleStarted: () => void;
 }
 
 export const MyContext = createContext<MyContextProps>({
   register: () => {},
   unregister: () => {},
   onMockingRuleStarted: () => {},
-})
+});
 
 const MockResponseConfigComponent = ({
   id,
   onDelete,
 }: MockResponseConfigProps) => {
-  const [operationType, setOperationType] = useState(GraphQLOperationType.Query)
-  const [operationName, setOperationName] = useState('')
+  const [operationType, setOperationType] = useState(
+    GraphQLOperationType.Query
+  );
+  const [operationName, setOperationName] = useState("");
 
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [areMocking, setAreMocking] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [areMocking, setAreMocking] = useState(false);
   const [childrenData, setChildrenData] = useState<
     Record<string, DynamicComponentData>
-  >({})
-  const childrenDataRef = useRef<Record<string, DynamicComponentData>>({})
-  const [dynamicResponseConfigKeys, setDynamicResponseConfigKeys] = useState(
-    [] as string[]
-  )
+  >({});
+  const childrenDataRef = useRef<Record<string, DynamicComponentData>>({});
+  const [dynamicResponseConfigKeys, setDynamicResponseConfigKeys] = useState([
+    guidGenerator(),
+  ]);
 
   const register = (id: string, dynamicData: DynamicComponentData) => {
-    childrenDataRef.current[id] = dynamicData
-    setChildrenData({ ...childrenDataRef.current })
-  }
+    childrenDataRef.current[id] = dynamicData;
+    setChildrenData({ ...childrenDataRef.current });
+  };
 
   const unregister = (id: string) => {
-    delete childrenDataRef.current[id]
-    setChildrenData({ ...childrenDataRef.current })
-  }
+    delete childrenDataRef.current[id];
+    setChildrenData({ ...childrenDataRef.current });
+  };
 
   const onMockingRuleStarted = () => {
-    if(areMocking){
-      backgroundUnSetMockResponse(operationType, operationName)
-      setAreMocking(false)
+    if (areMocking) {
+      backgroundUnSetMockResponse(operationType, operationName);
+      setAreMocking(false);
+    } else {
+      backgroundSetMockResponse(operationType, operationName, childrenData);
+      setAreMocking(true);
     }
-    else{
-      backgroundSetMockResponse(operationType, operationName, childrenData)
-      setAreMocking(true)
-    }
-  }
+  };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
-    setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()])
-  }, [])
+    setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()]);
+  }, []);
 
   const handleDeleteDynamicExpressionConfig = useCallback((id: string) => {
-    setDynamicResponseConfigKeys((keys) => keys.filter((key) => key !== id))
-  }, [])
+    setDynamicResponseConfigKeys((keys) => keys.filter((key) => key !== id));
+  }, []);
 
   const handleHeadingClick = useCallback(() => {
-    setIsExpanded((e) => !e)
-  }, [])
+    setIsExpanded((e) => !e);
+  }, []);
 
   const handleOperationTypeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       event.target.value === QUERY
         ? setOperationType(GraphQLOperationType.Query)
-        : setOperationType(GraphQLOperationType.Mutation)
+        : setOperationType(GraphQLOperationType.Mutation);
     },
     []
-  )
+  );
 
   const handleOperationNameChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setOperationName(event.target.value.trim())
+      setOperationName(event.target.value.trim());
     },
     []
-  )
+  );
 
   const handleDeleteMockResponseConfig = useCallback(() => {
-    onDelete(id)
-  }, [id, onDelete])
-
+    onDelete(id);
+  }, [id, onDelete]);
 
   return (
     <MyContext.Provider value={{ register, unregister, onMockingRuleStarted }}>
       <div className="w-full shadow-md my-1 mb-4">
         <div
           className={`flex items-center w-full p-2 text-left border border-gray-200 ${
-            isExpanded ? 'bg-gray-100' : ''
+            isExpanded ? "bg-gray-100" : ""
           }`}
         >
           <SvgButtonComponent
             className={`w-6 h-6 text-gray-500 shrink-0 ml-1 mr-2 ${
-              isExpanded ? 'rotate-180' : ''
+              isExpanded ? "rotate-180" : ""
             }`}
             viewBox="0 0 20 20"
             onClick={handleHeadingClick}
@@ -170,7 +173,7 @@ const MockResponseConfigComponent = ({
           </div>
         </div>
 
-        <div className={isExpanded ? 'p-5 border border-t-0' : 'hidden'}>
+        <div className={isExpanded ? "p-5 border border-t-0" : "hidden"}>
           {dynamicResponseConfigKeys.map((key) => (
             <DynamicExpressionComponent
               key={key}
@@ -187,7 +190,7 @@ const MockResponseConfigComponent = ({
         </div>
       </div>
     </MyContext.Provider>
-  )
-}
+  );
+};
 
-export default MockResponseConfigComponent
+export default MockResponseConfigComponent;
