@@ -10,8 +10,6 @@ import {
   isObjectType,
   getIntrospectionQuery,
   buildClientSchema,
-  graphql,
-  ExecutionResult,
   isEnumType,
   isUnionType,
   GraphQLObjectType,
@@ -22,16 +20,12 @@ import {
   buildSchema,
   GraphQLNonNull,
   isInputObjectType,
-  GraphQLInputFieldMap,
   GraphQLInputObjectType,
 } from 'graphql'
 import { GraphQLSchema } from 'graphql/type/schema'
 import {
   TRUE,
   FALSE,
-  RANDOM,
-  INVALID_QUERY,
-  INVALID_MUTATION,
   INTERNAL_SERVER_ERROR,
   ERROR_GENERATING_RANDOM_RESPONSE,
   SUCCESS,
@@ -48,7 +42,6 @@ const unionConfigurationMap: Map<string, Map<string, any>> = new Map()
 const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map()
 const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map()
 const fieldConfigurationMap: Map<string, Map<string, any>> = new Map()
-const authToken = process.env.GITHUB_AUTH_TOKEN
 
 export function backgroundSetMockResponse(
   operationType: GraphQLOperationType,
@@ -116,22 +109,6 @@ const idGenerator = (numberFrom: number, numberTo: number): string => {
   return String(_.random(numberFrom ?? 1, numberTo ?? (numberFrom ?? 1) + 1000))
 }
 
-const queryValidator = async (
-  schema: GraphQLSchema,
-  query: string
-): Promise<string> => {
-  try {
-    const result: ExecutionResult = await graphql({ schema, source: query })
-    if (result.errors) {
-      return INVALID_QUERY
-    } else {
-      return ''
-    }
-  } catch (error) {
-    return INTERNAL_SERVER_ERROR
-  }
-}
-
 const getObjectFieldMap = (
   objectType: GraphQLObjectType
 ): Map<string, string> => {
@@ -142,8 +119,6 @@ const getObjectFieldMap = (
   })
   return fieldMap
 }
-
-
 
 export const fetchData = async (
   graphQLendpoint: string,
@@ -163,7 +138,7 @@ export const fetchData = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer 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`,
         },
         body: JSON.stringify({ query: getIntrospectionQuery() }),
       })
@@ -175,13 +150,6 @@ export const fetchData = async (
       }
       const schema = buildClientSchema(introspectionResult.data)
       const typeMap = schema!.getTypeMap()
-
-      // const res = await queryValidator(schema!, graphqlQuery)
-      // if (res === INVALID_QUERY) {
-      //   return { data: {}, message: INVALID_QUERY }
-      // } else if (res === INTERNAL_SERVER_ERROR) {
-      //   return { data: {}, message: INTERNAL_SERVER_ERROR }
-      // }
 
       const interfaceTypes: Map<string, any> = new Map()
       const fieldTypes: Map<string, any> = new Map()
@@ -371,7 +339,7 @@ export const fetchData = async (
       return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE }
     }
   } catch (error) {
-    return { data: {}, message: String(error) }
+    return { data: {}, message: INTERNAL_SERVER_ERROR }
   }
 }
 
@@ -505,6 +473,9 @@ export const checkExpressionIsValid = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
+  if(dynamicExpression.length === 0){
+    return true;
+  }
   const parser = new Parser()
   return Boolean(parser.evaluate(dynamicExpression, variableValues))
 }

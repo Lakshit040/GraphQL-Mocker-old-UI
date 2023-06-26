@@ -20,13 +20,13 @@ interface MockResponseConfigProps {
 interface MyContextProps {
   register: (id: string, dynamicData: DynamicComponentData) => void
   unregister: (id: string) => void
-  dynamicDataCollection: () => void
+  onMockingRuleStarted: () => void
 }
 
 export const MyContext = createContext<MyContextProps>({
   register: () => {},
   unregister: () => {},
-  dynamicDataCollection: () => {},
+  onMockingRuleStarted: () => {},
 })
 
 const MockResponseConfigComponent = ({
@@ -56,7 +56,7 @@ const MockResponseConfigComponent = ({
     setChildrenData({ ...childrenDataRef.current })
   }
 
-  const dynamicDataCollection = () => {
+  const onMockingRuleStarted = () => {
     if(areMocking){
       backgroundUnSetMockResponse(operationType, operationName)
       setAreMocking(false)
@@ -101,7 +101,7 @@ const MockResponseConfigComponent = ({
 
 
   return (
-    <MyContext.Provider value={{ register, unregister, dynamicDataCollection }}>
+    <MyContext.Provider value={{ register, unregister, onMockingRuleStarted }}>
       <div className="w-full shadow-md my-1 mb-4">
         <div
           className={`flex items-center w-full p-2 text-left border border-gray-200 ${
@@ -159,7 +159,7 @@ const MockResponseConfigComponent = ({
             <SvgButtonComponent
               className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
               viewBox="0 0 32 32"
-              onClick={dynamicDataCollection}
+              onClick={onMockingRuleStarted}
             >
               {areMocking ? (
                 <path d="M5.92 24.096q0 0.832 0.576 1.408t1.44 0.608h4.032q0.832 0 1.44-0.608t0.576-1.408v-16.16q0-0.832-0.576-1.44t-1.44-0.576h-4.032q-0.832 0-1.44 0.576t-0.576 1.44v16.16zM18.016 24.096q0 0.832 0.608 1.408t1.408 0.608h4.032q0.832 0 1.44-0.608t0.576-1.408v-16.16q0-0.832-0.576-1.44t-1.44-0.576h-4.032q-0.832 0-1.408 0.576t-0.608 1.44v16.16z"></path>
