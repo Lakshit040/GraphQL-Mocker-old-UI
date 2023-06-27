@@ -18,9 +18,6 @@ window.addEventListener("from-injected", (event) => {
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  console.log("Content script received message from background script");
-  console.log(msg);
-
   switch (msg.type) {
     case MessageType.DoFetch: {
       const requestId = guidGenerator();

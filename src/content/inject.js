@@ -12,8 +12,6 @@ function hijack(url, config) {
     let requestId = guidGenerator();
     hijackedRequests.set(requestId, [resolve, reject]);
 
-    console.log("injected script got url: ", url);
-
     let message = {
       type: MessageType.RequestIntercepted,
       data: { url, config },
@@ -74,14 +72,11 @@ window.addEventListener("from-content", (event) => {
 });
 
 window.addEventListener("do-fetch", async (event) => {
-  console.log("Got custom event from content script", event.detail);
   const { requestId, data } = event.detail;
-  console.log("requestId in do-fetch", requestId);
   const { url, config } = data;
 
   const response = await __oldFetch__(url, config);
   const responseJSON = await response.json();
-  console.log("Got response from fetch", responseJSON);
 
   const reply = new CustomEvent("fetch-response", {
     detail: { requestId, data: responseJSON },
