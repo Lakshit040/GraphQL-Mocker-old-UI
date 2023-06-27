@@ -1,5 +1,6 @@
 import { proxy } from "ajax-hook";
 import { MessageType } from "../common/types";
+import { guidGenerator } from "../common/utils";
 
 let hijackedRequests = new Map();
 
@@ -12,11 +13,10 @@ function hijack(url, config) {
     hijackedRequests.set(requestId, [resolve, reject]);
 
     console.log("injected script got url: ", url);
-    console.log(window.location.origin);
 
     let message = {
       type: MessageType.RequestIntercepted,
-      data: { url: window.location.origin + url, config },
+      data: { url, config },
     };
     let event = new CustomEvent("from-injected", {
       detail: { message, requestId },
@@ -73,13 +73,18 @@ window.addEventListener("from-content", (event) => {
   hijackedRequests.delete(requestId);
 });
 
-window.addEventListener("from-content-custom", (event) => {
-  console.log("Got custom event from content script");
+window.addEventListener("do-fetch", async (event) => {
+  console.log("Got custom event from content script", event.detail);
+  const { requestId, data } = event.detail;
+  console.log("requestId in do-fetch", requestId);
+  const { url, config } = data;
+
+  const response = await __oldFetch__(url, config);
+  const responseJSON = await response.json();
+  console.log("Got response from fetch", responseJSON);
+
+  const reply = new CustomEvent("fetch-response", {
+    detail: { requestId, data: responseJSON },
+  });
+  window.dispatchEvent(reply);
 });
-
-function guidGenerator() {
-  let S4 = () =>
-    (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-
-  return `${S4()}${S4()}-${S4()}-${S4()}-${S4()}-${S4()}${S4()}${S4()}`;
-}

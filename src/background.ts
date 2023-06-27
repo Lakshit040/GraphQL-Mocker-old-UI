@@ -80,6 +80,8 @@ async function handleInterceptedRequest(
             ? FALSE
             : RANDOM;
           const generatedRandomResponse = await fetchData(
+            tabId,
+            frameId,
             url,
             config,
             query,

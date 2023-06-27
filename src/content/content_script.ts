@@ -1,3 +1,8 @@
+import { MessageType } from "../common/types";
+import { guidGenerator } from "../common/utils";
+
+const fetchRequestsMap: Map<string, (response?: any) => void> = new Map();
+
 const interceptScript = document.createElement("script");
 interceptScript.src = chrome.runtime.getURL("js/inject.js");
 document.head.prepend(interceptScript);
@@ -12,7 +17,31 @@ window.addEventListener("from-injected", (event) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   console.log("Content script received message from background script");
-  console.log(request);
+  console.log(msg);
+
+  switch (msg.type) {
+    case MessageType.DoFetch: {
+      const requestId = guidGenerator();
+      fetchRequestsMap.set(requestId, sendResponse);
+      const forward = new CustomEvent("do-fetch", {
+        detail: { requestId, data: msg.data },
+      });
+      window.dispatchEvent(forward);
+      break;
+    }
+  }
+
+  const isResponseAsync = true;
+  return isResponseAsync;
+});
+
+window.addEventListener("fetch-response", (event) => {
+  const { requestId, data } = (event as any).detail;
+  const sendResponse = fetchRequestsMap.get(requestId);
+  if (sendResponse !== undefined) {
+    sendResponse(data);
+    fetchRequestsMap.delete(requestId);
+  }
 });

@@ -122,7 +122,26 @@ const getObjectFieldMap = (
   return fieldMap;
 };
 
+async function fetchJSONFromInjectedScript(
+  tabId: number,
+  frameId: number,
+  url: string,
+  config: any
+) {
+  const msg = {
+    type: MessageType.DoFetch,
+    data: { url, config },
+  };
+  const responseJSONData = await chrome.tabs.sendMessage(tabId, msg, {
+    frameId,
+  });
+  console.log("fetch response in bg script", responseJSONData);
+  return responseJSONData;
+}
+
 export const fetchData = async (
+  tabId: number,
+  frameId: number,
   graphQLendpoint: string,
   requestConfig: any,
   graphqlQuery: string,
@@ -144,9 +163,12 @@ export const fetchData = async (
         query: getIntrospectionQuery(),
       });
 
-      const response = await fetch(graphQLendpoint, requestConfigCopy);
-
-      const introspectionResult = await response.json();
+      const introspectionResult = await fetchJSONFromInjectedScript(
+        tabId,
+        frameId,
+        graphQLendpoint,
+        requestConfigCopy
+      );
 
       if (introspectionResult.errors || introspectionResult.error) {
         return { data: {}, message: SCHEMA_INTROSPECTION_ERROR };
