@@ -2,7 +2,7 @@ import { proxy } from "ajax-hook";
 import { MessageType } from "../common/types";
 import { guidGenerator } from "../common/utils";
 
-interface HijackedResponse {
+interface CapturedResponse {
   response: string | null;
   statusCode: number;
 }
@@ -23,8 +23,8 @@ interface DoFetchEventDetail {
 
 const hijackedRequests = new Map();
 
-function hijack(url: string, config?: RequestInit) {
-  return new Promise<HijackedResponse>((resolve, reject) => {
+function capture(url: string, config?: RequestInit) {
+  return new Promise<CapturedResponse>((resolve, reject) => {
     if (!/.*graphql.*/.test(url) || config?.method?.toLowerCase() !== "post")
       return reject();
 
@@ -45,7 +45,7 @@ function hijack(url: string, config?: RequestInit) {
 // Capture XMLHttpRequests
 proxy({
   onRequest: (config, handler) =>
-    hijack(config.url, config)
+    capture(config.url, config)
       .then(({ response, statusCode }) => {
         return handler.resolve({
           config,
@@ -66,7 +66,7 @@ const __oldFetch__: (
   init?: RequestInit
 ) => Promise<Response> = window.fetch;
 window.fetch = (req, config = undefined) => {
-  return hijack(req as string, config)
+  return capture(req as string, config)
     .then(({ response, statusCode }) => {
       return new Response(response, {
         headers: new Headers([]),
