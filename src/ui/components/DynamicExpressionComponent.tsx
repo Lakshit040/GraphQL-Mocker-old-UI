@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useContext } from 'react';
 import { TRUE, FALSE, RANDOM, BooleanType } from '../../common/types'
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput';
 import SvgButtonComponent from './SvgButtonComponent';
-import { MyContext } from './MockResponseConfigComponent';
+import { ContextForDynamicComponents } from './MockResponseConfigComponent';
 interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
@@ -33,7 +33,7 @@ const DynamicExpressionComponent = ({
   const [dynamicExpression, setDynamicExpression] = useState('');
   const [isExpressionMocking, setIsExpressionMocking] = useState(false);
 
-  const { register, unregister } = useContext(MyContext);
+  const { register, unregister } = useContext(ContextForDynamicComponents);
 
   useEffect(() => {
     if (isExpressionMocking) {

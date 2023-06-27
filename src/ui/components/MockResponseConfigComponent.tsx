@@ -1,15 +1,13 @@
 import { useState, useCallback, createContext, useRef } from 'react';
-
 import TopAlignedLabelAndInput from './TopAlignedLabelAndInput';
 import SvgButtonComponent from './SvgButtonComponent';
 import DynamicExpressionComponent from './DynamicExpressionComponent';
-import { GraphQLOperationType} from '../../common/types';
+import { GraphQLOperationType, DynamicComponentData} from '../../common/types';
 import {
   backgroundSetMockResponse,
   backgroundUnSetMockResponse,
 } from '../helpers/utils';
 import { guidGenerator } from '../../common/utils';
-import { DynamicComponentData } from '../../common/types';
 
 const QUERY = 'query';
 const MUTATION = 'mutation';
@@ -19,13 +17,13 @@ interface MockResponseConfigProps {
   onDelete: (id: string) => void;
 }
 
-interface MyContextProps {
+interface ContextDynamicComponentProps {
   register: (id: string, dynamicData: DynamicComponentData) => void;
   unregister: (id: string) => void;
   onMockingRuleStarted: () => void;
 }
 
-export const MyContext = createContext<MyContextProps>({
+export const ContextForDynamicComponents = createContext<ContextDynamicComponentProps>({
   register: () => {},
   unregister: () => {},
   onMockingRuleStarted: () => {},
@@ -105,7 +103,7 @@ const MockResponseConfigComponent = ({
   }, [id, onDelete]);
 
   return (
-    <MyContext.Provider value={{ register, unregister, onMockingRuleStarted }}>
+    <ContextForDynamicComponents.Provider value={{ register, unregister, onMockingRuleStarted }}>
       <div className="w-full my-1 mb-4 border-none">
         <div
           className={`flex items-center w-full p-2 text-left border border-gray-400 rounded-xl ${
@@ -195,7 +193,7 @@ const MockResponseConfigComponent = ({
           </button>
         </div>
       </div>
-    </MyContext.Provider>
+    </ContextForDynamicComponents.Provider>
   );
 };
 
