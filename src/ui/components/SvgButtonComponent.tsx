@@ -1,4 +1,5 @@
 interface SvgButtonComponentProps {
+  title: string
   className?: string;
   viewBox?: string;
   onClick?: () => void;
@@ -6,6 +7,7 @@ interface SvgButtonComponentProps {
 }
 
 const SvgButtonComponent = ({
+  title,
   className,
   viewBox,
   onClick,
@@ -19,6 +21,7 @@ const SvgButtonComponent = ({
       xmlns="http://www.w3.org/2000/svg"
       onClick={onClick}
     >
+      <title>{title}</title>
       {children}
     </svg>
   );

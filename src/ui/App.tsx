@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 
 import MockResponseConfigComponent from "./components/MockResponseConfigComponent";
 import SvgButtonComponent from "./components/SvgButtonComponent";
-
 import { guidGenerator } from "../common/utils";
 
 function App() {
@@ -19,12 +18,13 @@ function App() {
   }, [])
 
   return (
-    <div className="h-full flex flex-col items-center">
+    <div className="h-full flex m-4 flex-col items-center">
       <div className="w-4/5 shrink-0 flex py-2 px-2 pb-0">
         <h2 className="text-gray-900 self-center text-lg tracking-wide">
           Mock GraphQL Requests
         </h2>
         <SvgButtonComponent
+          title="Add new mock config"
           className="w-8 h-8 p-2 shrink-0 rounded-full ml-auto text-gray-500 hover:bg-gray-100"
           viewBox="0 0 24 24"
           onClick={handleAddButtonPressed}

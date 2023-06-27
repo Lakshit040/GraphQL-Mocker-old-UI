@@ -23,7 +23,7 @@ interface DoFetchEventDetail {
 
 const hijackedRequests = new Map();
 
-function capture(url: string, config?: RequestInit) {
+const capture = (url: string, config?: RequestInit) => {
   return new Promise<CapturedResponse>((resolve, reject) => {
     if (!/.*graphql.*/.test(url) || config?.method?.toLowerCase() !== "post")
       return reject();
@@ -40,7 +40,7 @@ function capture(url: string, config?: RequestInit) {
     });
     window.dispatchEvent(event);
   });
-}
+};
 
 // Capture XMLHttpRequests
 proxy({

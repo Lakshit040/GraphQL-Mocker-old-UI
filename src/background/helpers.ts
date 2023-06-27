@@ -1,6 +1,4 @@
-import { MessageType } from "../common/types";
 import _ from "lodash";
-import { Parser } from "expr-eval";
 import {
   parse,
   DocumentNode,
@@ -21,11 +19,15 @@ import {
   GraphQLNonNull,
   isInputObjectType,
   GraphQLInputObjectType,
+  printSchema,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
+  MessageType,
   TRUE,
   FALSE,
+  INVALID_MUTATION,
+  INVALID_QUERY,
   INTERNAL_SERVER_ERROR,
   ERROR_GENERATING_RANDOM_RESPONSE,
   SUCCESS,
@@ -33,11 +35,18 @@ import {
   FIELD_NOT_FOUND,
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
-  DynamicComponentData,
 } from "../common/types";
 
-//////////// MAPS DECLARATIONS ////////////////
-const schemaConfigurationMap: Map<string, GraphQLSchema> = new Map();
+interface SchemaConfig {
+  schemaSDL: GraphQLSchema;
+  schemaString: string;
+}
+interface GeneratedResponseConfig {
+  data: object;
+  message: string;
+}
+
+const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
 const unionConfigurationMap: Map<string, Map<string, any>> = new Map();
 const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map();
 const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map();
@@ -47,9 +56,10 @@ const stringGenerator = (
   stringLength: number,
   isSpecialAllowed: boolean
 ): string => {
-  if (isSpecialAllowed)
-    return _.sampleSize(ALL_CHARACTERS, stringLength ?? 8).join("");
-  return _.sampleSize(NORMAL_CHARACTERS, stringLength ?? 8).join("");
+  return _.sampleSize(
+    isSpecialAllowed ? ALL_CHARACTERS : NORMAL_CHARACTERS,
+    stringLength ?? 8
+  ).join("");
 };
 
 const intGenerator = (numberFrom: number, numberTo: number): number => {
@@ -70,20 +80,19 @@ const floatGenerator = (
   );
 };
 
-const booleanGenerator = (booleanValue: number): boolean => {
-  if (booleanValue === TRUE) {
-    return true;
-  } else if (booleanValue === FALSE) {
-    return false;
-  } else {
-    return _.random() < 0.5;
-  }
+const booleanGenerator = (booleanValue: string): boolean => {
+  return booleanValue === TRUE
+    ? true
+    : booleanValue === FALSE
+    ? false
+    : _.random() < 0.5;
 };
 
 const idGenerator = (numberFrom: number, numberTo: number): string => {
-  return String(
-    _.random(numberFrom ?? 1, numberTo ?? (numberFrom ?? 1) + 1000)
-  );
+  return _.random(
+    numberFrom ?? 1,
+    numberTo ?? (numberFrom ?? 1) + 1000
+  ).toString();
 };
 
 const getObjectFieldMap = (
@@ -97,12 +106,12 @@ const getObjectFieldMap = (
   return fieldMap;
 };
 
-async function fetchJSONFromInjectedScript(
+const fetchJSONFromInjectedScript = async (
   tabId: number,
   frameId: number,
   url: string,
   config: any
-) {
+) => {
   const msg = {
     type: MessageType.DoFetch,
     data: { url, config },
@@ -111,7 +120,7 @@ async function fetchJSONFromInjectedScript(
     frameId,
   });
   return responseJSONData;
-}
+};
 
 export const generateRandomizedResponse = async (
   tabId: number,
@@ -125,9 +134,10 @@ export const generateRandomizedResponse = async (
   isSpecialAllowed: boolean,
   arrayLength: number,
   stringLength: number,
-  booleanValues: number,
-  digitsAfterDecimal: number
-) => {
+  booleanValues: string,
+  digitsAfterDecimal: number,
+  mockResponse: string
+): Promise<GeneratedResponseConfig> => {
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
       const requestConfigCopy = { ...requestConfig };
@@ -145,15 +155,17 @@ export const generateRandomizedResponse = async (
       if (introspectionResult.errors || introspectionResult.error) {
         return { data: {}, message: SCHEMA_INTROSPECTION_ERROR };
       }
-      const schema = buildClientSchema(introspectionResult.data);
-      const typeMap = schema!.getTypeMap();
+      const schemaSDL = buildClientSchema(introspectionResult.data);
+      const schemaString = printSchema(schemaSDL);
+
+      const typeMap = schemaSDL!.getTypeMap();
 
       const interfaceTypes: Map<string, any> = new Map();
       const fieldTypes: Map<string, any> = new Map();
       const enumTypes: Map<string, string[]> = new Map();
       const unionTypes: Map<string, any> = new Map();
 
-      const addInputFields = (inputType: GraphQLInputObjectType) => {
+      const addInputFields = (inputType: GraphQLInputObjectType): void => {
         const fields = inputType.getFields();
         Object.values(fields).forEach((field) => {
           if (!inputType.name.startsWith("__")) {
@@ -192,276 +204,309 @@ export const generateRandomizedResponse = async (
           interfaceTypes.set(graphQLType.name, graphQLType);
         }
       });
-
-      schemaConfigurationMap.set(graphQLendpoint, schema);
+      schemaConfigurationMap.set(graphQLendpoint, { schemaSDL, schemaString });
       interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes);
       unionConfigurationMap.set(graphQLendpoint, unionTypes);
       enumConfigurationMap.set(graphQLendpoint, enumTypes);
       fieldConfigurationMap.set(graphQLendpoint, fieldTypes);
     }
 
-    const schema = schemaConfigurationMap.get(graphQLendpoint)!;
+    const { schemaSDL, schemaString } =
+      schemaConfigurationMap.get(graphQLendpoint)!;
     const fieldTypes = fieldConfigurationMap.get(graphQLendpoint)!;
     const unionTypes = unionConfigurationMap.get(graphQLendpoint)!;
     const enumTypes = enumConfigurationMap.get(graphQLendpoint)!;
     const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!;
 
-    const dynamicValueGenerator = (dataType: string): any => {
-      dataType = dataType.toLowerCase().replace(/!/g, "");
-      switch (dataType) {
-        case "string":
-          return stringGenerator(stringLength, isSpecialAllowed);
-        case "number":
-        case "int":
-          return intGenerator(numRangeStart, numRangeEnd);
-        case "id":
-          return idGenerator(numRangeStart, numRangeEnd);
-        case "float":
-          return floatGenerator(numRangeStart, numRangeEnd, digitsAfterDecimal);
-        case "boolean":
-          return booleanGenerator(booleanValues);
-        default: {
-          if (dataType.startsWith("[")) {
-            return _.times(arrayLength, () =>
-              dynamicValueGenerator(dataType.replace("[", "").replace("]", ""))
-            );
-          } else if (enumTypes.has(dataType)) {
-            const enumValues = enumTypes.get(dataType)!;
-            return enumValues[_.random(0, enumValues.length)];
-          } else {
-            return stringGenerator(stringLength, isSpecialAllowed);
+    if (shouldValidate) {
+      const getFieldTypes = (
+        parentType: GraphQLObjectType,
+        node: FieldNode
+      ): Record<string, any> => {
+        let typeMap: Record<string, any> = {};
+
+        node.selectionSet?.selections.forEach((field) => {
+          const fieldName = (field as FieldNode).name.value;
+          let fieldType = parentType.getFields()[fieldName]?.type;
+
+          if (!fieldType) {
+            return;
           }
-        }
-      }
-    };
 
-    const generateMockResponse = (
-      selectionSet: SelectionSetNode,
-      typeMap: Map<string, any>
-    ) => {
-      const response: any = {};
+          typeMap[fieldName] = fieldType.toString();
 
-      for (const field of selectionSet.selections) {
-        if (field.kind === "InlineFragment") {
-          response[field.typeCondition!.name.value] = generateMockResponse(
-            field.selectionSet!,
-            typeMap
-          );
+          while (
+            fieldType instanceof GraphQLNonNull ||
+            fieldType instanceof GraphQLList
+          ) {
+            fieldType = fieldType.ofType;
+          }
+
+          if (
+            fieldType instanceof GraphQLObjectType &&
+            (field as FieldNode).selectionSet
+          ) {
+            typeMap[fieldName] = {
+              type: dataTypeFormatter(typeMap[fieldName]),
+              fields: getFieldTypes(fieldType, field as FieldNode),
+            };
+          } else {
+            typeMap[fieldName] = {
+              type: dataTypeFormatter(typeMap[fieldName]),
+            };
+          }
+        });
+        return typeMap;
+      };
+
+      const dataTypeFormatter = (str: string): string => {
+        str = str.toLowerCase().replace(/!/g, "");
+        if (str.startsWith("[")) {
+          return "array";
+        } else if (str === "id" || str === "date") {
+          return "string";
+        } else if (str === "int" || str === "float") {
+          return "number";
         } else {
-          if (!typeMap.has(field.name.value)) {
-            return { data: {}, message: FIELD_NOT_FOUND };
-          }
-          const typeName = typeMap.get(field.name.value);
+          if (str !== "string") return "object";
+          else return "string";
+        }
+      };
 
-          if ("selectionSet" in field && field.selectionSet !== undefined) {
-            if (typeName?.includes("[")) {
-              response[field.name.value] = _.times(arrayLength, () =>
-                generateMockResponse(field.selectionSet!, typeMap)
-              );
-            } else if (unionTypes.has(typeName!)) {
-              const possibleTypes = schema!.getPossibleTypes(
-                unionTypes.get(typeName!)
-              );
-              const randomType =
-                possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
-              response[field.name.value] = generateMockResponse(
-                field.selectionSet!,
-                getObjectFieldMap(randomType)
-              );
-            } else if (interfaceTypes.has(typeName)) {
-              const possibleTypes = schema!.getPossibleTypes(
-                interfaceTypes.get(typeName)
-              );
-              const randomType =
-                possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
-              response[field.name.value] = generateMockResponse(
-                field.selectionSet,
-                getObjectFieldMap(randomType)
-              );
-            } else {
-              response[field.name.value] = generateMockResponse(
-                field.selectionSet!,
-                typeMap
-              );
+      const generateTypeMapForQuery = (
+        schemaStr: string,
+        queryStr: string
+      ): Record<string, any> => {
+        const schema: GraphQLSchema = buildSchema(schemaStr);
+        const query: DocumentNode = parse(queryStr);
+        const typeMap: Record<string, any> = {};
+
+        visit(query, {
+          OperationDefinition(node) {
+            const rootTypeName = "Query";
+            const rootType = schema.getType(rootTypeName) as GraphQLObjectType;
+
+            node.selectionSet?.selections.forEach((selection) => {
+              const fieldName = (selection as FieldNode).name.value;
+              let fieldType = rootType.getFields()[fieldName]?.type;
+
+              if (!fieldType) {
+                return;
+              }
+
+              while (
+                fieldType instanceof GraphQLNonNull ||
+                fieldType instanceof GraphQLList
+              ) {
+                fieldType = fieldType.ofType;
+              }
+
+              if (!(fieldType instanceof GraphQLObjectType)) {
+                return;
+              }
+
+              typeMap[fieldName] = {
+                type: dataTypeFormatter(
+                  rootType.getFields()[fieldName].type.toString()
+                ),
+                fields: getFieldTypes(fieldType, selection as FieldNode),
+              };
+            });
+          },
+        });
+        return typeMap;
+      };
+
+      const generateTypeMapForResponse = (obj: any): Record<string, any> => {
+        const type = typeof obj;
+
+        if (obj === null) {
+          return { type: "null" };
+        } else if (Array.isArray(obj)) {
+          const first = obj[0];
+          let fields = first
+            ? generateTypeMapForResponse(first)
+            : { type: "array" };
+
+          return { type: "array", fields: fields.fields };
+        } else if (type === "object") {
+          const fields: Record<string, any> = {};
+
+          for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+              fields[key] = generateTypeMapForResponse(obj[key]);
             }
-          } else {
-            if (typeName?.includes("[")) {
-              response[field.name.value] = _.times(arrayLength, () =>
+          }
+          return { type, fields };
+        } else {
+          return { type };
+        }
+      };
+
+      const queryResponseValidator = (
+        responseString: Record<string, any>,
+        queryString: Record<string, any>
+      ): boolean => {
+        return _.isEqual(responseString, queryString);
+      };
+
+      try {
+        const queryMap = generateTypeMapForQuery(schemaString, graphqlQuery);
+        const responseMap = generateTypeMapForResponse(
+          JSON.parse(mockResponse).data
+        );
+        const isValid = queryResponseValidator(responseMap.fields, queryMap);
+        return {
+          data: JSON.parse(mockResponse).data,
+          message: isValid ? SUCCESS : INVALID_QUERY + "/" + INVALID_MUTATION,
+        };
+      } catch {
+        return {
+          data: JSON.parse(mockResponse).data,
+          message: INTERNAL_SERVER_ERROR,
+        };
+      }
+    } else {
+      const dynamicValueGenerator = (dataType: string): any => {
+        dataType = dataType.toLowerCase().replace(/!/g, "");
+        switch (dataType) {
+          case "string":
+            return stringGenerator(stringLength, isSpecialAllowed);
+          case "number":
+          case "int":
+            return intGenerator(numRangeStart, numRangeEnd);
+          case "id":
+            return idGenerator(numRangeStart, numRangeEnd);
+          case "float":
+            return floatGenerator(
+              numRangeStart,
+              numRangeEnd,
+              digitsAfterDecimal
+            );
+          case "boolean":
+            return booleanGenerator(booleanValues);
+          default: {
+            if (dataType.startsWith("[")) {
+              return _.times(arrayLength, () =>
                 dynamicValueGenerator(
-                  typeName!.replace("[", "").replace("]", "")
+                  dataType.replace("[", "").replace("]", "")
                 )
               );
+            } else if (enumTypes.has(dataType)) {
+              const enumValues = enumTypes.get(dataType)!;
+              return enumValues[_.random(0, enumValues.length)];
             } else {
-              response[field.name.value] = dynamicValueGenerator(typeName!);
+              return stringGenerator(stringLength, isSpecialAllowed);
             }
           }
         }
-      }
-      return response;
-    };
-
-    const generateNestedMockResponse = (
-      queryDocument: DocumentNode,
-      typeMap: Map<string, any>
-    ): any => {
-      const operationDefinition: OperationDefinitionNode | undefined =
-        queryDocument.definitions.find(
-          (def) => def.kind === "OperationDefinition"
-        ) as OperationDefinitionNode;
-
-      if (!operationDefinition) {
-        return {};
-      }
-
-      if (operationDefinition.operation === "query") {
-        return generateMockResponse(operationDefinition.selectionSet, typeMap);
-      }
-
-      if (operationDefinition.operation === "mutation") {
-        // for a mutation operation, treat the output selection set just like a query
-        // no special handling for the input, as it would normally be specified by the user
-        return generateMockResponse(operationDefinition.selectionSet, typeMap);
-      }
-
-      // fallback in case the operation is neither a query nor a mutation
-      return {};
-    };
-
-    try {
-      return {
-        data: generateNestedMockResponse(parse(graphqlQuery), fieldTypes),
-        message: SUCCESS,
       };
-    } catch {
-      return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
+
+      const generateMockResponse = (
+        selectionSet: SelectionSetNode,
+        typeMap: Map<string, any>
+      ) => {
+        const response: any = {};
+
+        for (const field of selectionSet.selections) {
+          if (field.kind === "InlineFragment") {
+            response[field.typeCondition!.name.value] = generateMockResponse(
+              field.selectionSet!,
+              typeMap
+            );
+          } else {
+            if (!typeMap.has(field.name.value)) {
+              return { data: {}, message: FIELD_NOT_FOUND };
+            }
+            const typeName = typeMap.get(field.name.value);
+
+            if ("selectionSet" in field && field.selectionSet !== undefined) {
+              if (typeName?.includes("[")) {
+                response[field.name.value] = _.times(arrayLength, () =>
+                  generateMockResponse(field.selectionSet!, typeMap)
+                );
+              } else if (unionTypes.has(typeName!)) {
+                const possibleTypes = schemaSDL!.getPossibleTypes(
+                  unionTypes.get(typeName!)
+                );
+                const randomType =
+                  possibleTypes[
+                    Math.floor(Math.random() * possibleTypes.length)
+                  ];
+                response[field.name.value] = generateMockResponse(
+                  field.selectionSet!,
+                  getObjectFieldMap(randomType)
+                );
+              } else if (interfaceTypes.has(typeName)) {
+                const possibleTypes = schemaSDL!.getPossibleTypes(
+                  interfaceTypes.get(typeName)
+                );
+                const randomType =
+                  possibleTypes[
+                    Math.floor(Math.random() * possibleTypes.length)
+                  ];
+                response[field.name.value] = generateMockResponse(
+                  field.selectionSet,
+                  getObjectFieldMap(randomType)
+                );
+              } else {
+                response[field.name.value] = generateMockResponse(
+                  field.selectionSet!,
+                  typeMap
+                );
+              }
+            } else {
+              if (typeName?.includes("[")) {
+                response[field.name.value] = _.times(arrayLength, () =>
+                  dynamicValueGenerator(
+                    typeName!.replace("[", "").replace("]", "")
+                  )
+                );
+              } else {
+                response[field.name.value] = dynamicValueGenerator(typeName!);
+              }
+            }
+          }
+        }
+        return response;
+      };
+
+      const generateNestedMockResponse = (
+        queryDocument: DocumentNode,
+        typeMap: Map<string, any>
+      ): any => {
+        const operationDefinition: OperationDefinitionNode | undefined =
+          queryDocument.definitions.find(
+            (def) => def.kind === "OperationDefinition"
+          ) as OperationDefinitionNode;
+
+        if (!operationDefinition) {
+          return {};
+        }
+        if (operationDefinition.operation === "query") {
+          return generateMockResponse(
+            operationDefinition.selectionSet,
+            typeMap
+          );
+        }
+        if (operationDefinition.operation === "mutation") {
+          return generateMockResponse(
+            operationDefinition.selectionSet,
+            typeMap
+          );
+        }
+        return {};
+      };
+      try {
+        return {
+          data: generateNestedMockResponse(parse(graphqlQuery), fieldTypes),
+          message: SUCCESS,
+        };
+      } catch {
+        return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
+      }
     }
   } catch (error) {
     return { data: {}, message: INTERNAL_SERVER_ERROR };
   }
-};
-
-////////////////QUERY VALIDATION PART////////////////
-const getFieldTypes = (
-  parentType: GraphQLObjectType,
-  node: FieldNode
-): Record<string, any> => {
-  let typeMap: Record<string, any> = {};
-
-  node.selectionSet?.selections.forEach((field) => {
-    const fieldName = (field as FieldNode).name.value;
-    let fieldType = parentType.getFields()[fieldName]?.type;
-
-    if (!fieldType) {
-      return;
-    }
-
-    typeMap[fieldName] = fieldType.toString();
-
-    while (
-      fieldType instanceof GraphQLNonNull ||
-      fieldType instanceof GraphQLList
-    ) {
-      fieldType = fieldType.ofType;
-    }
-
-    if (
-      fieldType instanceof GraphQLObjectType &&
-      (field as FieldNode).selectionSet
-    ) {
-      typeMap[fieldName] = {
-        type: formatter(typeMap[fieldName]),
-        fields: getFieldTypes(fieldType, field as FieldNode),
-      };
-    } else {
-      typeMap[fieldName] = {
-        type: formatter(typeMap[fieldName]),
-      };
-    }
-  });
-  return typeMap;
-};
-
-const formatter = (str: string) => {
-  str = str.toLowerCase().replace(/!/g, "");
-  if (str.startsWith("[")) {
-    return "array";
-  } else if (str === "id" || str === "date") {
-    return "string";
-  } else if (str === "int" || str === "float") {
-    return "number";
-  } else {
-    if (str !== "string") return "object";
-    else return "string";
-  }
-};
-
-const generateTypeMapForQuery = (
-  schemaStr: string,
-  queryStr: string
-): Record<string, any> => {
-  const schema: GraphQLSchema = buildSchema(schemaStr);
-  const query: DocumentNode = parse(queryStr);
-  let typeMap: Record<string, any> = {};
-
-  visit(query, {
-    OperationDefinition(node) {
-      const rootTypeName = "Query";
-      const rootType = schema.getType(rootTypeName) as GraphQLObjectType;
-
-      node.selectionSet?.selections.forEach((selection) => {
-        const fieldName = (selection as FieldNode).name.value;
-        let fieldType = rootType.getFields()[fieldName]?.type;
-
-        if (!fieldType) {
-          return;
-        }
-
-        while (
-          fieldType instanceof GraphQLNonNull ||
-          fieldType instanceof GraphQLList
-        ) {
-          fieldType = fieldType.ofType;
-        }
-
-        if (!(fieldType instanceof GraphQLObjectType)) {
-          return;
-        }
-
-        typeMap[fieldName] = {
-          type: formatter(rootType.getFields()[fieldName].type.toString()),
-          fields: getFieldTypes(fieldType, selection as FieldNode),
-        };
-      });
-    },
-  });
-  return typeMap;
-};
-
-const generateTypeMapForResponse = (obj: any): Record<string, any> => {
-  const type = typeof obj;
-
-  if (obj === null) {
-    return { type: "null" };
-  } else if (Array.isArray(obj)) {
-    const first = obj[0];
-    let fields = first ? generateTypeMapForResponse(first) : { type: "array" };
-
-    return { type: "array", fields: fields.fields };
-  } else if (type === "object") {
-    const fields: Record<string, any> = {};
-
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fields[key] = generateTypeMapForResponse(obj[key]);
-      }
-    }
-
-    return { type, fields };
-  } else {
-    return { type };
-  }
-};
-
-const validate = (responseString: string, queryString: string): boolean => {
-  return _.isEqual(responseString, queryString);
 };

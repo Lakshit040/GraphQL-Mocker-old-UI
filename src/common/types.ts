@@ -3,7 +3,6 @@ export enum MessageType {
   RequestIntercepted,
   SetMockResponse,
   UnSetMockResponse,
-
   DoFetch,
   FetchResponse,
 }
@@ -13,9 +12,15 @@ export enum GraphQLOperationType {
   Mutation,
 }
 
-const TRUE = 1;
-const FALSE = 0;
-const RANDOM = -1;
+export enum BooleanType {
+  True,
+  False,
+  Random,
+}
+
+const TRUE = "true";
+const FALSE = "false";
+const RANDOM = "random";
 const ALL_CHARACTERS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
 const NORMAL_CHARACTERS =
@@ -41,8 +46,7 @@ export interface DynamicComponentData {
   statusCode: number;
   responseDelay: number;
   afterDecimals: number;
-  booleanTrue: boolean;
-  booleanFalse: boolean;
+  booleanType: BooleanType;
 }
 
 export {

@@ -4,11 +4,11 @@ import {
   DynamicComponentData,
 } from "../../common/types";
 
-export function backgroundSetMockResponse(
+export const backgroundSetMockResponse = (
   operationType: GraphQLOperationType,
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
-) {
+): void => {
   chrome.runtime.sendMessage({
     type: MessageType.SetMockResponse,
     data: {
@@ -17,14 +17,14 @@ export function backgroundSetMockResponse(
       dynamicResponseData,
     },
   });
-}
+};
 
-export function backgroundUnSetMockResponse(
+export const backgroundUnSetMockResponse = (
   operationType: GraphQLOperationType,
   operationName: string
-) {
+): void => {
   chrome.runtime.sendMessage({
     type: MessageType.UnSetMockResponse,
     data: { operationType, operationName },
   });
-}
+};

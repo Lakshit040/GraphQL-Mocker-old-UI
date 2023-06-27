@@ -6,6 +6,7 @@ import {
   TRUE,
   FALSE,
   RANDOM,
+  BooleanType,
 } from "../common/types";
 import { generateRandomizedResponse } from "./helpers";
 
@@ -46,13 +47,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return isResponseAsync;
 });
 
-async function handleInterceptedRequest(
+const handleInterceptedRequest = async (
   tabId: number | undefined,
   frameId: number | undefined,
   url: string,
   config: any,
   sendResponse: (response?: any) => void
-) {
+): Promise<void> => {
   const reject = () => sendResponse({ response: null, statusCode: 200 });
   const resolve = (response: string, statusCode: number) =>
     sendResponse({ response, statusCode });
@@ -79,13 +80,17 @@ async function handleInterceptedRequest(
     for (const mockingRuleKey in mockResponseConfig) {
       const mockingRule = mockResponseConfig[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
-        if (mockingRule.shouldRandomizeResponse) {
-          const booleanValue = mockingRule.booleanTrue
-            ? TRUE
-            : mockingRule.booleanFalse
-            ? FALSE
-            : RANDOM;
-          const randomlyGeneratedResponse = await generateRandomizedResponse(
+        if (
+          mockingRule.shouldRandomizeResponse ||
+          mockingRule.shouldValidateResponse
+        ) {
+          const booleanValue =
+            mockingRule.booleanType === BooleanType.True
+              ? TRUE
+              : mockingRule.booleanType === BooleanType.False
+              ? FALSE
+              : RANDOM;
+          const generatedRandomResponse = await generateRandomizedResponse(
             tabId,
             frameId,
             url,
@@ -98,28 +103,33 @@ async function handleInterceptedRequest(
             mockingRule.arrayLength,
             mockingRule.stringLength,
             booleanValue,
-            mockingRule.afterDecimals
+            mockingRule.afterDecimals,
+            mockingRule.mockResponse
           );
           if (mockingRule.responseDelay > 0) {
-            setTimeout(() =>
-              resolve(
-                JSON.stringify(randomlyGeneratedResponse, null, 2),
-                mockingRule.statusCode
-              )
+            setTimeout(
+              () =>
+                resolve(
+                  JSON.stringify(generatedRandomResponse, null, 2),
+                  mockingRule.statusCode
+                ),
+              mockingRule.responseDelay
             );
           } else {
             resolve(
-              JSON.stringify(randomlyGeneratedResponse, null, 2),
+              JSON.stringify(generatedRandomResponse, null, 2),
               mockingRule.statusCode
             );
           }
         } else {
           if (mockingRule.responseDelay > 0) {
-            setTimeout(() =>
-              resolve(
-                JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
-                mockingRule.statusCode
-              )
+            setTimeout(
+              () =>
+                resolve(
+                  JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
+                  mockingRule.statusCode
+                ),
+              mockingRule.responseDelay
             );
           } else {
             resolve(
@@ -131,27 +141,27 @@ async function handleInterceptedRequest(
         return;
       }
     }
-
     return;
   }
-  reject();
-}
 
-function setMockResponse(
+  reject();
+};
+
+const setMockResponse = (
   operationType: GraphQLOperationType,
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
-) {
+): void => {
   mockResponseConfigMap.set(
     `${operationType}_${operationName}`,
     dynamicResponseData
   );
-}
+};
 
 const unSetMockResponse = (
   operationType: GraphQLOperationType,
   operationName: string
-) => {
+): void => {
   try {
     mockResponseConfigMap.delete(`${operationType}_${operationName}`);
   } catch {

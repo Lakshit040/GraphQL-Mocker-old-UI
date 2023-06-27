@@ -7,6 +7,7 @@ interface TopAlignedLabelAndInputProps {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   divClassAppend?: string;
   divClassOverride?: string;
+  isImportant?: boolean
   children?: React.ReactNode;
 }
 
@@ -19,6 +20,7 @@ const TopAlignedLabelAndInput = ({
   onChange,
   divClassAppend,
   divClassOverride,
+  isImportant,
   children,
 }: TopAlignedLabelAndInputProps) => {
   /**
@@ -41,9 +43,10 @@ const TopAlignedLabelAndInput = ({
           type={type}
           id={htmlInputId}
           value={value}
-          className="py-0 px-0 my-1 h-8 w-full text-sm text-gray-900 bg-transparent border-0 border-b border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder={placeholder}
+          className="p-2.5 my-1 h-8 flex-grow w-96 text-sm text-gray-900 bg-gray-100 bg-transparent border rounded-xl border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder={placeholder} 
           onChange={onChange}
+          required={isImportant}
         />
         <label
           htmlFor={htmlInputId}
