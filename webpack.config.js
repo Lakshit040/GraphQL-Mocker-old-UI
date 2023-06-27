@@ -8,7 +8,7 @@ module.exports = {
     background: "./src/background/background.ts",
     devtools: "./src/devtools.ts",
     content_script: "./src/content/content_script.ts",
-    inject: "./src/content/inject.js",
+    inject: "./src/content/inject.ts",
   },
   mode: "production",
   module: {

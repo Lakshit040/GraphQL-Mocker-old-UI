@@ -1,16 +1,21 @@
 import { MessageType } from "../common/types";
 import { guidGenerator } from "../common/utils";
 
+interface CustomEventDetail {
+  requestId: string;
+  data: any;
+}
+
 const fetchRequestsMap: Map<string, (response?: any) => void> = new Map();
 
 const interceptScript = document.createElement("script");
 interceptScript.src = chrome.runtime.getURL("js/inject.js");
 document.head.prepend(interceptScript);
 
-window.addEventListener("from-injected", (event) => {
-  let { message, requestId } = (event as any).detail;
-  chrome.runtime.sendMessage(message).then(({ response, statusCode }) => {
-    let reply = new CustomEvent("from-content", {
+window.addEventListener("request-intercepted", (event) => {
+  let { data, requestId } = (event as any).detail as CustomEventDetail;
+  chrome.runtime.sendMessage(data).then(({ response, statusCode }) => {
+    let reply = new CustomEvent("mock-response", {
       detail: { requestId, response, statusCode },
     });
     window.dispatchEvent(reply);
@@ -35,7 +40,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 window.addEventListener("fetch-response", (event) => {
-  const { requestId, data } = (event as any).detail;
+  const { requestId, data } = (event as any).detail as CustomEventDetail;
   const sendResponse = fetchRequestsMap.get(requestId);
   if (sendResponse !== undefined) {
     sendResponse(data);
