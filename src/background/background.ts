@@ -7,7 +7,7 @@ import {
   FALSE,
   RANDOM,
 } from "../common/types";
-import { fetchData } from "./helpers";
+import { generateRandomizedResponse } from "./helpers";
 
 const mockResponseConfigMap: Map<
   string,
@@ -15,8 +15,6 @@ const mockResponseConfigMap: Map<
 > = new Map();
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  let isResponseAsync = true;
-
   switch (msg.type) {
     case MessageType.RequestIntercepted: {
       const tabId = sender.tab?.id;
@@ -43,6 +41,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break;
     }
   }
+
+  const isResponseAsync = true;
   return isResponseAsync;
 });
 
@@ -53,8 +53,8 @@ async function handleInterceptedRequest(
   config: any,
   sendResponse: (response?: any) => void
 ) {
-  let reject = () => sendResponse({ response: null, statusCode: 200 });
-  let resolve = (response: string, statusCode: number) =>
+  const reject = () => sendResponse({ response: null, statusCode: 200 });
+  const resolve = (response: string, statusCode: number) =>
     sendResponse({ response, statusCode });
 
   if (tabId === undefined || frameId === undefined) {
@@ -64,7 +64,7 @@ async function handleInterceptedRequest(
 
   chrome.tabs.sendMessage(tabId, { data: "something" }, { frameId });
 
-  let parsed = parseIfGraphQLRequest(config);
+  const parsed = parseIfGraphQLRequest(config);
   if (parsed === undefined) {
     reject();
     return;
@@ -85,7 +85,7 @@ async function handleInterceptedRequest(
             : mockingRule.booleanFalse
             ? FALSE
             : RANDOM;
-          const generatedRandomResponse = await fetchData(
+          const randomlyGeneratedResponse = await generateRandomizedResponse(
             tabId,
             frameId,
             url,
@@ -103,13 +103,13 @@ async function handleInterceptedRequest(
           if (mockingRule.responseDelay > 0) {
             setTimeout(() =>
               resolve(
-                JSON.stringify(generatedRandomResponse, null, 2),
+                JSON.stringify(randomlyGeneratedResponse, null, 2),
                 mockingRule.statusCode
               )
             );
           } else {
             resolve(
-              JSON.stringify(generatedRandomResponse, null, 2),
+              JSON.stringify(randomlyGeneratedResponse, null, 2),
               mockingRule.statusCode
             );
           }
@@ -146,7 +146,6 @@ function setMockResponse(
     `${operationType}_${operationName}`,
     dynamicResponseData
   );
-  console.log("Our Storage: ", mockResponseConfigMap);
 }
 
 const unSetMockResponse = (
@@ -158,5 +157,4 @@ const unSetMockResponse = (
   } catch {
     return;
   }
-  console.log("Our Storage: ", mockResponseConfigMap);
 };

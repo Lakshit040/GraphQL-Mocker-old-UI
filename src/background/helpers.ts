@@ -110,11 +110,10 @@ async function fetchJSONFromInjectedScript(
   const responseJSONData = await chrome.tabs.sendMessage(tabId, msg, {
     frameId,
   });
-  console.log("fetch response in bg script", responseJSONData);
   return responseJSONData;
 }
 
-export const fetchData = async (
+export const generateRandomizedResponse = async (
   tabId: number,
   frameId: number,
   graphQLendpoint: string,
@@ -129,8 +128,6 @@ export const fetchData = async (
   booleanValues: number,
   digitsAfterDecimal: number
 ) => {
-  console.log(graphQLendpoint);
-  console.log(requestConfig);
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
       const requestConfigCopy = { ...requestConfig };
