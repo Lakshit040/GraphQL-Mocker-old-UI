@@ -1,7 +1,13 @@
-import { parseIfGraphQLRequest, doesMockingRuleHold } from "./common/utils";
-import { MessageType, GraphQLOperationType } from "./common/types";
-import { fetchData } from "./ui/helpers/utils";
-import { DynamicComponentData, TRUE, FALSE, RANDOM } from "./common/types";
+import { parseIfGraphQLRequest, doesMockingRuleHold } from "../common/utils";
+import {
+  MessageType,
+  GraphQLOperationType,
+  DynamicComponentData,
+  TRUE,
+  FALSE,
+  RANDOM,
+} from "../common/types";
+import { fetchData } from "./helpers";
 
 const mockResponseConfigMap: Map<
   string,
