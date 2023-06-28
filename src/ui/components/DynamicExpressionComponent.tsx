@@ -206,8 +206,7 @@ const DynamicExpressionComponent = ({
               type="text"
               label={`Rule`}
               value={dynamicExpression}
-              placeholder={`id == "22", *, age > 18 && (count == 5 || visible == true)`}
-              divClassAppend="mx-4"
+              placeholder={`id == "22", *, age > 18 && count == 5`}
               onChange={handleDynamicExpressionChange}
             />
 
