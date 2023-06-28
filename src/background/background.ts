@@ -27,7 +27,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         msg.data.config,
         sendResponse
       );
-      break;
+      const isResponseAsync = true;
+      return isResponseAsync;
     }
     case MessageType.SetMockResponse: {
       setMockResponse(
@@ -43,7 +44,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
   }
 
-  const isResponseAsync = true;
+  const isResponseAsync = false;
   return isResponseAsync;
 });
 
@@ -62,8 +63,6 @@ const handleInterceptedRequest = async (
     reject();
     return;
   }
-
-  chrome.tabs.sendMessage(tabId, { data: "something" }, { frameId });
 
   const parsed = parseIfGraphQLRequest(config);
   if (parsed === undefined) {
@@ -155,7 +154,6 @@ const setMockResponse = (
     `${operationType}_${operationName}`,
     dynamicResponseData
   );
-  console.log(mockResponseConfigMap)
 };
 
 const unSetMockResponse = (
@@ -164,8 +162,5 @@ const unSetMockResponse = (
 ): void => {
   try {
     mockResponseConfigMap.delete(`${operationType}_${operationName}`);
-    console.log(mockResponseConfigMap)
-  } catch {
-    return;
-  }
+  } catch {}
 };
