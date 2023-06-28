@@ -162,5 +162,7 @@ const unSetMockResponse = (
 ): void => {
   try {
     mockResponseConfigMap.delete(`${operationType}_${operationName}`);
-  } catch {}
+  } catch {
+    return;
+  }
 };
