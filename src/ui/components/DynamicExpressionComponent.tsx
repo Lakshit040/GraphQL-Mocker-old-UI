@@ -100,10 +100,20 @@ const DynamicExpressionComponent = ({
 
   const handleShouldValidateResponseChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldRandomizeResponse(false)
       setShouldValidateResponse((r) => !r);
     },
     []
   );
+
+  const handleShouldRandomizeResponseChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldValidateResponse(false)
+      setShouldRandomizeResponse((r) => !r);
+    },
+    []
+  );
+
   const handleNumberRangeEndChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setNumberRangeEnd(Number(event.target.value.trim()));
@@ -165,13 +175,6 @@ const DynamicExpressionComponent = ({
   const handleStatusCodeChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setStatusCode(Number(event.target.value.trim()));
-    },
-    []
-  );
-
-  const handleShouldRandomizeResponseChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShouldRandomizeResponse((r) => !r);
     },
     []
   );
@@ -287,7 +290,7 @@ const DynamicExpressionComponent = ({
             </TopAlignedLabelAndInput>
           </div>
 
-          <div className="mt-4">
+          <div className={shouldRandomizeResponse ? 'mt-4' : 'hidden'}>
             <AccordionComponent
               heading={
                 <span className="text-gray-500">
