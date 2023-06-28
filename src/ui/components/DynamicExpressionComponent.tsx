@@ -198,9 +198,9 @@ const DynamicExpressionComponent = ({
   }, []);
 
   return (
-    <div className="mb-4 border-none rounded-xl shadow-sm">
+    <div className="mb-4 border-none rounded-xl shadow-sm overflow-auto">
       <div
-        className={`flex items-center w-full p-2 text-left border border-gray-300 rounded-xl ${isExpressionExpanded ? 'bg-gray-100' : ''
+        className={`flex items-center w-full p-2 text-left border border-gray-300 rounded-xl overflow-auto ${isExpressionExpanded ? 'bg-gray-100' : ''
           }`}
       >
         <SvgButtonComponent
@@ -257,11 +257,11 @@ const DynamicExpressionComponent = ({
       <div
         className={
           isExpressionExpanded
-            ? 'flex flex-col border border-gray-300 rounded-xl p-4'
+            ? 'flex flex-col border border-gray-300 overflow-auto rounded-xl p-4'
             : 'hidden'
         }
       >
-        <div className="flex items-stretch">
+        <div className="flex mr-4 xs:w-20 lg:w-80 md:w-60 sm:w-40">
           <TopAlignedLabelAndInput
             htmlInputId="inputResponseDelay"
             type="number"
@@ -276,7 +276,7 @@ const DynamicExpressionComponent = ({
             type="number"
             label="Status Code"
             value={statusCode}
-            divClassAppend="my-2 mx-4"
+            divClassAppend="my-2 mx-4 mr-2"
             onChange={handleStatusCodeChange}
           />
         </div>
@@ -335,7 +335,7 @@ const DynamicExpressionComponent = ({
           <div
             className={
               isRandomResponseExpanded && shouldRandomizeResponse
-                ? 'p-4 border border-gray-300 focus:ring-blue-600 rounded-xl shadow-sm'
+                ? 'p-4 border border-gray-300 focus:ring-blue-600 overflow-auto rounded-xl shadow-sm'
                 : 'hidden pointer-events-none'
             }
           >
@@ -381,9 +381,9 @@ const DynamicExpressionComponent = ({
                 onChange={handleStringLengthChange}
               />
 
-              <div className="grid grid-cols-2 gap-4  items-center">
+              <div className="grid grid-cols-2 gap-4 overflow-auto items-center">
                 <TopAlignedLabelAndInput
-                  divClassAppend='mr-12'
+                  divClassAppend='mr-12 w-[50%]'
                   htmlInputId="inputSelectBooleanType"
                   label="Booleans Type"
                 >
@@ -392,7 +392,7 @@ const DynamicExpressionComponent = ({
                     value={
                       (booleanType === BooleanType.True ? TRUE : (booleanType === BooleanType.False ? FALSE : RANDOM))
                     }
-                    className="h-8 flex-grow w-64 my-1 py-0 px-1 bg-gray-100 border rounded-xl border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-blue-500 focus:border-blue-500  peer"
+                    className="h-8 flex-grow w-auto my-1 py-0 px-1 bg-gray-100 border rounded-xl border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-blue-500 focus:border-blue-500  peer"
                     onChange={handleBooleanTypeChange}
                   >
                     <option value={TRUE}>True</option>
@@ -403,7 +403,7 @@ const DynamicExpressionComponent = ({
                 <TopAlignedLabelAndInput
                   htmlInputId="inputSpecialCharactersAllowed"
                   label="Special Characters Allowed"
-                  divClassOverride="mb-2 mt-4 flex flex-row-reverse justify-end ml-2"
+                  divClassOverride="mb-2 mt-4 w-[50%] flex flex-row-reverse justify-end ml-2"
                 >
                   <input
                     type="checkbox"

@@ -104,9 +104,9 @@ const MockResponseConfigComponent = ({
 
   return (
     <ContextForDynamicComponents.Provider value={{ register, unregister, onMockingRuleStarted }}>
-      <div className="w-full my-1 mb-4 border-none">
+      <div className="w-full my-1 mb-4 border-none overflow-auto">
         <div
-          className={`flex items-center w-full p-2 text-left border border-gray-400 rounded-xl ${
+          className={`flex items-center w-full p-2 text-left border border-gray-400 overflow-auto rounded-xl ${
             isExpanded ? 'bg-gray-100' : ''
           }`}
         >
@@ -126,7 +126,7 @@ const MockResponseConfigComponent = ({
           </SvgButtonComponent>
 
           <TopAlignedLabelAndInput
-            divClassAppend='mr-12'
+            divClassAppend='lg:mr-12 sm:mr-4'
             htmlInputId="inputSelectOperationType"
             label="Operation Type"
           >
@@ -135,7 +135,7 @@ const MockResponseConfigComponent = ({
               value={
                 operationType === GraphQLOperationType.Query ? QUERY : MUTATION
               }
-              className="h-8 flex-grow w-64 my-1 py-0 px-1 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 text-sm rounded-sm focus:ring-blue-500 focus:border-blue-500  peer"
+              className="h-8 flex-grow xs:w-16 md:w-32 lg:w-64 my-1 py-0 px-1 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 text-sm rounded-sm focus:ring-blue-500 focus:border-blue-500  peer"
               onChange={handleOperationTypeChange}
             >
               <option value={QUERY}>Query</option>
