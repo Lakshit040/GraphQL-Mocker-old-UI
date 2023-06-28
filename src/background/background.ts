@@ -141,7 +141,6 @@ const handleInterceptedRequest = async (
         return;
       }
     }
-    return;
   }
 
   reject();
