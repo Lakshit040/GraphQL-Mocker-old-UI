@@ -10,11 +10,13 @@ import { TRUE, FALSE, RANDOM, BooleanType } from "../../common/types";
 interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
+  onDynamicExpressionPause: (id: string) => void;
 }
 
 const DynamicExpressionComponent = ({
   id,
   onDynamicExpressionDelete,
+  onDynamicExpressionPause
 }: DynamicComponentProps) => {
   const [isMockResponseTextAreaFocused, setIsMockResponseTextAreaFocused] =
     useState(false);
@@ -77,8 +79,11 @@ const DynamicExpressionComponent = ({
   ]);
 
   const handleExpressionMockingPlayPause = useCallback(() => {
+    if(isExpressionMocking){
+      onDynamicExpressionPause(id);
+    }
     setIsExpressionMocking((e) => !e);
-  }, []);
+  }, [isExpressionMocking, id, onDynamicExpressionPause]);
 
   const handleNumberRangeStartChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

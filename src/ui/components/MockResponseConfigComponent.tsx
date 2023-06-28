@@ -105,6 +105,11 @@ const MockResponseConfigComponent = ({
     onDelete(id);
   }, [id, onDelete, operationName, operationType]);
 
+  const handlePauseDynamicExpressionConfig = useCallback(() => {
+    backgroundUnSetMockResponse(operationType, operationName);
+    backgroundSetMockResponse(operationType, operationName, childrenData)
+  }, [])
+
   return (
     <ContextForDynamicComponents.Provider
       value={{ register, unregister, onMockingRuleStarted }}
@@ -172,6 +177,7 @@ const MockResponseConfigComponent = ({
                 key={key}
                 id={key}
                 onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
+                onDynamicExpressionPause={handlePauseDynamicExpressionConfig}
               />
             ))}
             <button
