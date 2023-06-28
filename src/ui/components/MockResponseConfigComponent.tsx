@@ -110,7 +110,7 @@ const MockResponseConfigComponent = ({
   const handlePlayPauseDynamicExpressionConfig = useCallback(() => {
     backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
-  }, []);
+  }, [operationType, operationName]);
 
   return (
     <ContextForDynamicComponents.Provider
