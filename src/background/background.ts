@@ -154,7 +154,6 @@ const setMockResponse = (
     `${operationType}_${operationName}`,
     dynamicResponseData
   );
-  console.log(mockResponseConfigMap)
 };
 
 const unSetMockResponse = (
@@ -163,7 +162,6 @@ const unSetMockResponse = (
 ): void => {
   try {
     mockResponseConfigMap.delete(`${operationType}_${operationName}`);
-    console.log(mockResponseConfigMap)
   } catch {
     return;
   }
