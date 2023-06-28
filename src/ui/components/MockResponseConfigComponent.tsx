@@ -72,10 +72,10 @@ const MockResponseConfigComponent = ({
   };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
-    backgroundUnSetMockResponse(operationType, operationName)
+    backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
     setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()]);
-  }, []);
+  }, [operationType, operationName]);
 
   const handleDeleteDynamicExpressionConfig = useCallback(
     (id: string) => {
@@ -179,7 +179,9 @@ const MockResponseConfigComponent = ({
                 key={key}
                 id={key}
                 onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
-                onDynamicExpressionPlayPause={handlePlayPauseDynamicExpressionConfig}
+                onDynamicExpressionPlayPause={
+                  handlePlayPauseDynamicExpressionConfig
+                }
               />
             ))}
             <button

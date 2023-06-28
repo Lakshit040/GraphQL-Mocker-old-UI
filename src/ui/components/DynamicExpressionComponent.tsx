@@ -11,7 +11,6 @@ interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
   onDynamicExpressionPlayPause: (id: string) => void;
-
 }
 
 const DynamicExpressionComponent = ({
@@ -80,9 +79,9 @@ const DynamicExpressionComponent = ({
   ]);
 
   const handleExpressionMockingPlayPause = useCallback(() => {
-    onDynamicExpressionPlayPause(id)
+    onDynamicExpressionPlayPause(id);
     setIsExpressionMocking((e) => !e);
-  }, [isExpressionMocking, id, onDynamicExpressionPlayPause]);
+  }, [id, onDynamicExpressionPlayPause]);
 
   const handleNumberRangeStartChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +98,7 @@ const DynamicExpressionComponent = ({
 
   const handleShouldValidateResponseChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShouldRandomizeResponse(false)
+      setShouldRandomizeResponse(false);
       setShouldValidateResponse((r) => !r);
     },
     []
@@ -107,7 +106,7 @@ const DynamicExpressionComponent = ({
 
   const handleShouldRandomizeResponseChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShouldValidateResponse(false)
+      setShouldValidateResponse(false);
       setShouldRandomizeResponse((r) => !r);
     },
     []
@@ -289,7 +288,7 @@ const DynamicExpressionComponent = ({
             </TopAlignedLabelAndInput>
           </div>
 
-          <div className={shouldRandomizeResponse ? 'mt-4' : 'hidden'}>
+          <div className={shouldRandomizeResponse ? "mt-4" : "hidden"}>
             <AccordionComponent
               heading={
                 <span className="text-gray-500">
