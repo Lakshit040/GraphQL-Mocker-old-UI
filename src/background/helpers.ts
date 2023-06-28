@@ -104,7 +104,6 @@ export const generateRandomizedResponse = async (
 
       const [fieldTypes, enumTypes, interfaceTypes, unionTypes] = typeMaps;
 
-      
       schemaConfigurationMap.set(graphQLendpoint, { schemaSDL, schemaString });
       interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes);
       unionConfigurationMap.set(graphQLendpoint, unionTypes);
