@@ -72,6 +72,8 @@ const MockResponseConfigComponent = ({
   };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
+    backgroundUnSetMockResponse(operationType, operationName)
+    setAreMocking(false);
     setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()]);
   }, []);
 
@@ -105,10 +107,10 @@ const MockResponseConfigComponent = ({
     onDelete(id);
   }, [id, onDelete, operationName, operationType]);
 
-  const handlePauseDynamicExpressionConfig = useCallback(() => {
+  const handlePlayPauseDynamicExpressionConfig = useCallback(() => {
     backgroundUnSetMockResponse(operationType, operationName);
-    backgroundSetMockResponse(operationType, operationName, childrenData)
-  }, [])
+    setAreMocking(false);
+  }, []);
 
   return (
     <ContextForDynamicComponents.Provider
@@ -177,7 +179,7 @@ const MockResponseConfigComponent = ({
                 key={key}
                 id={key}
                 onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
-                onDynamicExpressionPause={handlePauseDynamicExpressionConfig}
+                onDynamicExpressionPlayPause={handlePlayPauseDynamicExpressionConfig}
               />
             ))}
             <button
