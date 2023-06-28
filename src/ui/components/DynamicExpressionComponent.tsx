@@ -202,7 +202,7 @@ const DynamicExpressionComponent = ({
   }, [id, onDynamicExpressionDelete]);
 
   return (
-    <div className="mb-4 border-none rounded-xl overflow-auto">
+    <div className="my-2 border-none rounded-xl overflow-auto">
       <AccordionComponent
         heading={
           <>
