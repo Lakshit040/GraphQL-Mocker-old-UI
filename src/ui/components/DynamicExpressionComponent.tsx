@@ -262,7 +262,7 @@ const DynamicExpressionComponent = ({
             />
           </div>
 
-          <div className="flex mt-4">
+          <div className="flex mt-2">
             <TopAlignedLabelAndInput
               htmlInputId="inputShouldRandomizeResponse"
               label="Randomize Response"
@@ -298,13 +298,13 @@ const DynamicExpressionComponent = ({
                 </span>
               }
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="border rounded-xl p-4 grid grid-cols-2 gap-4">
                 <TopAlignedLabelAndInput
                   htmlInputId="inputRangeOfNumbersStart"
                   label="Numbers Range Start"
                   value={numberRangeStart}
                   type="number"
-                  divClassAppend="my-2"
+                  divClassAppend="my-1"
                   onChange={handleNumberRangeStartChange}
                 />
                 <TopAlignedLabelAndInput
@@ -312,7 +312,7 @@ const DynamicExpressionComponent = ({
                   label="Numbers Range End"
                   value={numberRangeEnd}
                   type="number"
-                  divClassAppend="my-2"
+                  divClassAppend="my-1"
                   onChange={handleNumberRangeEndChange}
                 />
                 <TopAlignedLabelAndInput
@@ -320,7 +320,7 @@ const DynamicExpressionComponent = ({
                   label="Digits After Decimal"
                   value={afterDecimals}
                   type="number"
-                  divClassAppend="my-2"
+                  divClassAppend="my-1"
                   onChange={handleAfterDecimalsChange}
                 />
                 <TopAlignedLabelAndInput
@@ -328,7 +328,7 @@ const DynamicExpressionComponent = ({
                   label="Array Length"
                   value={arrayLength}
                   type="number"
-                  divClassAppend="my-2"
+                  divClassAppend="my-1"
                   onChange={handleArrayLengthChange}
                 />
                 <TopAlignedLabelAndInput
@@ -336,7 +336,7 @@ const DynamicExpressionComponent = ({
                   label="String Length"
                   value={stringLength}
                   type="number"
-                  divClassAppend="my-2"
+                  divClassAppend="my-1"
                   onChange={handleStringLengthChange}
                 />
 
