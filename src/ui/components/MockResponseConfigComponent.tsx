@@ -72,7 +72,7 @@ const MockResponseConfigComponent = ({
   };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
-    backgroundUnSetMockResponse(operationType, operationName)
+    backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
     setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()]);
   }, []);
@@ -156,19 +156,11 @@ const MockResponseConfigComponent = ({
                   onClick={handleDeleteMockResponseConfig}
                 />
 
-                {areMocking ? (
-                  <PauseIcon
-                    title="Stop mocking"
-                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
-                    onClick={onMockingRuleStarted}
-                  />
-                ) : (
-                  <PlayIcon
-                    title="Start mocking"
-                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
-                    onClick={onMockingRuleStarted}
-                  />
-                )}
+                <PauseIcon
+                  title={areMocking ? "Stop mocking" : "Start mocking"}
+                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+                  onClick={onMockingRuleStarted}
+                />
               </div>
             </>
           }
@@ -179,7 +171,9 @@ const MockResponseConfigComponent = ({
                 key={key}
                 id={key}
                 onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
-                onDynamicExpressionPlayPause={handlePlayPauseDynamicExpressionConfig}
+                onDynamicExpressionPlayPause={
+                  handlePlayPauseDynamicExpressionConfig
+                }
               />
             ))}
             <button
