@@ -163,7 +163,7 @@ const MockResponseConfigComponent = ({
                   onClick={onMockingRuleStarted}
                 />
                 ) : (
-                  <PauseIcon
+                  <PlayIcon
                   title="Start mocking"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                   onClick={onMockingRuleStarted}
