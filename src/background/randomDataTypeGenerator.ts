@@ -5,8 +5,9 @@ import {
   FALSE,
 } from "../common/types";
 import _ from "lodash";
+import { specificFieldGenerator } from "./specificFieldGenerator";
 
-export const stringGenerator = (
+const stringGenerator = (
   stringLength: number,
   isSpecialAllowed: boolean
 ): string => {
@@ -16,11 +17,11 @@ export const stringGenerator = (
   ).join("");
 };
 
-export const intGenerator = (numberFrom: number, numberTo: number): number => {
+const intGenerator = (numberFrom: number, numberTo: number): number => {
   return _.random(numberFrom, numberTo);
 };
 
-export const floatGenerator = (
+const floatGenerator = (
   numberFrom: number,
   numberTo: number,
   noOfDecimals: number
@@ -28,7 +29,7 @@ export const floatGenerator = (
   return Number(_.random(numberFrom, numberTo, true).toFixed(noOfDecimals));
 };
 
-export const booleanGenerator = (booleanValue: string): boolean => {
+const booleanGenerator = (booleanValue: string): boolean => {
   return booleanValue === TRUE
     ? true
     : booleanValue === FALSE
@@ -36,8 +37,8 @@ export const booleanGenerator = (booleanValue: string): boolean => {
     : _.random() < 0.5;
 };
 
-export const idGenerator = (): string => {
-  return _.uniqueId("id");
+const idGenerator = (): string => {
+  return _.uniqueId();
 };
 
 export interface DataSet {
@@ -47,14 +48,28 @@ export interface DataSet {
   numRangeEnd: number;
   digitsAfterDecimal: number;
   booleanValues: string;
-  isSpecialAllowed: boolean
+  isSpecialAllowed: boolean;
 }
+
+const baseTypes = ["String", "Int", "Float", "Boolean", "Number"];
 
 export const dynamicValueGenerator = (
   dataType: string,
   enumTypes: Map<string, any>,
-  dataSet: DataSet
+  dataSet: DataSet,
+  fieldName: string
 ): any => {
+  fieldName = fieldName.toLowerCase();
+
+  try {
+    if (baseTypes.includes(dataType)) {
+      const result = specificFieldGenerator(fieldName);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+  } catch {}
+
   dataType = dataType.replace(/!/g, "");
   switch (dataType) {
     case "String":
@@ -65,13 +80,22 @@ export const dynamicValueGenerator = (
     case "ID":
       return idGenerator();
     case "Float":
-      return floatGenerator(dataSet.numRangeStart, dataSet.numRangeEnd, dataSet.digitsAfterDecimal);
+      return floatGenerator(
+        dataSet.numRangeStart,
+        dataSet.numRangeEnd,
+        dataSet.digitsAfterDecimal
+      );
     case "Boolean":
       return booleanGenerator(dataSet.booleanValues);
     default: {
       if (dataType.startsWith("[")) {
         return _.times(dataSet.arrayLength, () =>
-          dynamicValueGenerator(dataType.replace("[", "").replace("]", ""), enumTypes, dataSet)
+          dynamicValueGenerator(
+            dataType.replace("[", "").replace("]", ""),
+            enumTypes,
+            dataSet,
+            fieldName
+          )
         );
       } else if (enumTypes.has(dataType)) {
         const enumValues = enumTypes.get(dataType)!;

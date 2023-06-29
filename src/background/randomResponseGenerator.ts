@@ -69,14 +69,16 @@ const giveRandomResponse = (
               dynamicValueGenerator(
                 typeName!.replace("[", "").replace("]", ""),
                 enumTypes,
-                dataSet
+                dataSet,
+                field.name.value
               )
             );
           } else {
             response[field.name.value] = dynamicValueGenerator(
               typeName!,
               enumTypes,
-              dataSet
+              dataSet,
+              field.name.value
             );
           }
         }
