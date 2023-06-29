@@ -15,6 +15,7 @@ import {
   isInputObjectType,
   isInterfaceType,
   isObjectType,
+  GraphQLInterfaceType,
 } from "graphql";
 
 export const getObjectFieldMap = (
@@ -151,13 +152,12 @@ export const generateTypeMapForQuery = (
 };
 
 export const giveTypeMaps = (typeMap: any) => {
-
   const interfaceTypes: Map<string, any> = new Map();
   const fieldTypes: Map<string, any> = new Map();
   const enumTypes: Map<string, string[]> = new Map();
   const unionTypes: Map<string, any> = new Map();
 
-  const addInputFields = (inputType: GraphQLInputObjectType): void => {
+  const addInputFields = (inputType: GraphQLInputObjectType) => {
     const fields = inputType.getFields();
     Object.values(fields).forEach((field) => {
       if (!inputType.name.startsWith("__")) {
@@ -166,6 +166,18 @@ export const giveTypeMaps = (typeMap: any) => {
       if (field.type instanceof GraphQLInputObjectType) {
         addInputFields(field.type);
       }
+    });
+  };
+
+  const addInterfaceFields = (interfaceType: GraphQLInterfaceType) => {
+    const fields = interfaceType.getFields();
+    Object.values(fields).forEach((field) => {
+      if (
+        "ofType" in field.type &&
+        field.type.ofType !== undefined &&
+        "name" in field.type.ofType
+      )
+        fieldTypes.set(field.name, field.type.ofType.name);
     });
   };
 
@@ -192,7 +204,8 @@ export const giveTypeMaps = (typeMap: any) => {
     }
     if (isInterfaceType(graphQLType) && !graphQLType.name.startsWith("__")) {
       interfaceTypes.set(graphQLType.name, graphQLType);
+      addInterfaceFields(graphQLType);
     }
   });
-  return [fieldTypes, enumTypes, unionTypes, interfaceTypes]
+  return [fieldTypes, enumTypes, unionTypes, interfaceTypes];
 };

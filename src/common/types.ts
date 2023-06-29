@@ -32,6 +32,7 @@ const FIELD_NOT_FOUND = "field_not_found";
 const ERROR_GENERATING_RANDOM_RESPONSE = "error_generating_random_response";
 const SUCCESS = "success";
 const SCHEMA_INTROSPECTION_ERROR = "schema_introspection_error";
+const INVALID_MOCK_RESPONSE = "invalid_mock_response";
 
 export interface DynamicComponentData {
   dynamicExpression: string;
@@ -62,4 +63,5 @@ export {
   SCHEMA_INTROSPECTION_ERROR,
   SUCCESS,
   INVALID_MUTATION,
+  INVALID_MOCK_RESPONSE
 };

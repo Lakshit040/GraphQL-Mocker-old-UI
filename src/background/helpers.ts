@@ -7,6 +7,7 @@ import {
   getIntrospectionQuery,
   buildClientSchema,
   printSchema,
+  FragmentDefinitionNode
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
@@ -18,6 +19,7 @@ import {
   SUCCESS,
   SCHEMA_INTROSPECTION_ERROR,
   FIELD_NOT_FOUND,
+  INVALID_MOCK_RESPONSE
 } from "../common/types";
 import {
   stringGenerator,
@@ -29,7 +31,6 @@ import {
 import {
   generateTypeMapForQuery,
   generateTypeMapForResponse,
-  getObjectFieldMap,
   giveTypeMaps
 } from "./gqlFieldMapHelper";
 interface SchemaConfig {
@@ -126,7 +127,7 @@ export const generateRandomizedResponse = async (
         );
         return {
           data: JSON.parse(mockResponse).data,
-          message: isValid ? SUCCESS : INVALID_QUERY + "/" + INVALID_MUTATION,
+          message: isValid ? SUCCESS : INVALID_MOCK_RESPONSE,
         };
       } catch {
         return {
@@ -136,22 +137,22 @@ export const generateRandomizedResponse = async (
       }
     } else {
       const dynamicValueGenerator = (dataType: string): any => {
-        dataType = dataType.toLowerCase().replace(/!/g, "");
+        dataType = dataType.replace(/!/g, "");
         switch (dataType) {
-          case "string":
+          case "String":
             return stringGenerator(stringLength, isSpecialAllowed);
-          case "number":
-          case "int":
+          case "Number":
+          case "Int":
             return intGenerator(numRangeStart, numRangeEnd);
-          case "id":
+          case "ID":
             return idGenerator(numRangeStart, numRangeEnd);
-          case "float":
+          case "Float":
             return floatGenerator(
               numRangeStart,
               numRangeEnd,
               digitsAfterDecimal
             );
-          case "boolean":
+          case "Boolean":
             return booleanGenerator(booleanValues);
           default: {
             if (dataType.startsWith("[")) {
@@ -162,7 +163,7 @@ export const generateRandomizedResponse = async (
               );
             } else if (enumTypes.has(dataType)) {
               const enumValues = enumTypes.get(dataType)!;
-              return enumValues[_.random(0, enumValues.length)];
+              return enumValues[_.random(0, enumValues.length - 1)];
             } else {
               return stringGenerator(stringLength, isSpecialAllowed);
             }
@@ -175,47 +176,40 @@ export const generateRandomizedResponse = async (
         typeMap: Map<string, any>
       ) => {
         const response: any = {};
-
+  
         for (const field of selectionSet.selections) {
           if (field.kind === "InlineFragment") {
             response[field.typeCondition!.name.value] = generateMockResponse(
               field.selectionSet!,
               typeMap
             );
+          } else if (field.kind === "FragmentSpread") {
+            const fragmentName = field.name.value;
+            response[field.name.value] = generateMockResponse(
+              typeMap.get(fragmentName).selectionSet,
+              typeMap
+            );
           } else {
             if (!typeMap.has(field.name.value)) {
+              console.log(field.name.value);
               return { data: {}, message: FIELD_NOT_FOUND };
             }
             const typeName = typeMap.get(field.name.value);
-
+  
             if ("selectionSet" in field && field.selectionSet !== undefined) {
               if (typeName?.includes("[")) {
                 response[field.name.value] = _.times(arrayLength, () =>
                   generateMockResponse(field.selectionSet!, typeMap)
                 );
               } else if (unionTypes.has(typeName!)) {
-                const possibleTypes = schemaSDL!.getPossibleTypes(
-                  unionTypes.get(typeName!)
-                );
-                const randomType =
-                  possibleTypes[
-                    Math.floor(Math.random() * possibleTypes.length)
-                  ];
                 response[field.name.value] = generateMockResponse(
                   field.selectionSet!,
-                  getObjectFieldMap(randomType)
+                  typeMap
                 );
               } else if (interfaceTypes.has(typeName)) {
-                const possibleTypes = schemaSDL!.getPossibleTypes(
-                  interfaceTypes.get(typeName)
-                );
-                const randomType =
-                  possibleTypes[
-                    Math.floor(Math.random() * possibleTypes.length)
-                  ];
                 response[field.name.value] = generateMockResponse(
                   field.selectionSet,
-                  getObjectFieldMap(randomType)
+                  typeMap
                 );
               } else {
                 response[field.name.value] = generateMockResponse(
@@ -238,11 +232,23 @@ export const generateRandomizedResponse = async (
         }
         return response;
       };
+  
+      const addFragmentToTypeMap = (fragment: FragmentDefinitionNode) => {
+        const fragmentName = fragment.name.value;
+        fieldTypes.set(fragmentName, fragment);
+      };
 
       const generateNestedMockResponse = (
         queryDocument: DocumentNode,
         typeMap: Map<string, any>
       ): any => {
+        const fragments = queryDocument.definitions.filter(
+          (def) => def.kind === "FragmentDefinition"
+        );
+  
+        fragments.forEach((fragment) => {
+          addFragmentToTypeMap(fragment as FragmentDefinitionNode);
+        });
         const operationDefinition: OperationDefinitionNode | undefined =
           queryDocument.definitions.find(
             (def) => def.kind === "OperationDefinition"
