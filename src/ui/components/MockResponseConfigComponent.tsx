@@ -156,11 +156,19 @@ const MockResponseConfigComponent = ({
                   onClick={handleDeleteMockResponseConfig}
                 />
 
-                <PauseIcon
-                  title={areMocking ? "Stop mocking" : "Start mocking"}
+                {areMocking ? (
+                  <PauseIcon
+                  title="Stop mocking"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                   onClick={onMockingRuleStarted}
                 />
+                ) : (
+                  <PauseIcon
+                  title="Start mocking"
+                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+                  onClick={onMockingRuleStarted}
+                />
+                )}
               </div>
             </>
           }
