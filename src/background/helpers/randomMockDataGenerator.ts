@@ -31,10 +31,13 @@ const giveRandomResponse = (
         );
       } else if (field.kind === "FragmentSpread") {
         const fragmentName = field.name.value;
-        response[field.name.value] = generateMockResponse(
+        const fragmentResponse = generateMockResponse(
           typeMap.get(fragmentName).selectionSet,
           typeMap
         );
+        for (const fragmentKey in fragmentResponse) {
+          response[fragmentKey] = fragmentResponse[fragmentKey];
+        }
       } else {
         if (!typeMap.has(field.name.value)) {
           console.log(field.name.value);
