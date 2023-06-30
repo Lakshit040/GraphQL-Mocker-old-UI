@@ -4,7 +4,7 @@ import {
   DocumentNode,
   OperationDefinitionNode,
 } from "graphql";
-import { FIELD_NOT_FOUND } from "../common/types";
+import { FIELD_NOT_FOUND } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import _ from "lodash";
 import { dynamicValueGenerator } from "./randomDataTypeGenerator";

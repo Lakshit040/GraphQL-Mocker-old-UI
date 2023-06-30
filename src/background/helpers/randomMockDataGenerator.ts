@@ -16,7 +16,7 @@ import {
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
   VALID_RESPONSE,
-} from "../common/types";
+} from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomResponseGenerator";
 import { giveTypeMaps } from "./gqlFieldMapHelper";
