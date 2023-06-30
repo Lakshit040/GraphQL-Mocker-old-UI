@@ -4,6 +4,8 @@ import {
   getIntrospectionQuery,
   buildClientSchema,
   printSchema,
+  graphql,
+  buildSchema,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
@@ -13,7 +15,7 @@ import {
   SUCCESS,
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
-  VALID_RESPONSE
+  VALID_RESPONSE,
 } from "../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomResponseGenerator";
@@ -25,7 +27,8 @@ interface SchemaConfig {
 }
 interface GeneratedResponseConfig {
   data: object;
-  message: string | string[];
+  message: string;
+  non_matching_fields?: string[];
 }
 
 const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
@@ -107,26 +110,15 @@ export const generateRandomizedResponse = async (
 
     const queryDocument = parse(graphqlQuery);
 
-    const isValid = true;
     if (!shouldRandomizeResponse) {
-      const errorsInQuery : string[] = queryResponseValidator(
-        mockResponse,
-        queryDocument,
-        schemaSDL,
-        fieldTypes,
-        enumTypes,
-        interfaceTypes,
-        unionTypes
+      const errors = queryResponseValidator(
+        JSON.parse(mockResponse),
+        fieldTypes
       );
-      if(errorsInQuery.length > 0){
-        return {
-          data: {},
-          message: errorsInQuery
-        }
-      }
       return {
         data: JSON.parse(mockResponse).data,
         message: VALID_RESPONSE,
+        non_matching_fields: errors,
       };
     }
     const dataSet = {
@@ -155,6 +147,6 @@ export const generateRandomizedResponse = async (
       return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
     }
   } catch (error) {
-    return { data: {}, message: INTERNAL_SERVER_ERROR };
+    return { data: {}, message: INTERNAL_SERVER_ERROR + " or Invalid JSON" };
   }
 };
