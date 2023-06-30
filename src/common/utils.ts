@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import jsep from "jsep";
+import _ from 'lodash';
 import { GraphQLOperationType } from "./types";
 
 export const parseIfGraphQLRequest = (
@@ -46,6 +47,18 @@ export const doesMockingRuleHold = (
   if (dynamicExpression.trim() === "*") {
     return true;
   }
+
+  try {
+    let matches = dynamicExpression.match(/(\w+)\s*==\s*(\{.*\})/);
+    if (matches) {
+      let varName = matches[1];
+      let objLiteral = JSON.parse(matches[2]);
+      return _.isEqual(variableValues[varName], objLiteral);
+    } else {
+      return false;
+    }
+  } catch (error) {}
+
   try {
     const ast = jsep(dynamicExpression);
     const evaluate = (node: any): any => {
