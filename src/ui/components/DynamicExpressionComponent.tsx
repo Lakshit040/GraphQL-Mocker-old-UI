@@ -32,7 +32,6 @@ const DynamicExpressionComponent = ({
       register(id, {
         dynamicExpression: dynamicHook.dynamicExpression,
         shouldRandomizeResponse:  dynamicHook.shouldRandomizeResponse,
-        shouldValidateResponse: dynamicHook.shouldValidateResponse,
         numberRangeStart: dynamicHook.numberRangeStart,
         numberRangeEnd: dynamicHook.numberRangeEnd,
         arrayLength: dynamicHook.arrayLength,
@@ -52,7 +51,6 @@ const DynamicExpressionComponent = ({
     id,
     dynamicHook.dynamicExpression,
     dynamicHook.shouldRandomizeResponse,
-    dynamicHook.shouldValidateResponse,
     dynamicHook.numberRangeStart,
     dynamicHook.numberRangeEnd,
     dynamicHook.arrayLength,
@@ -125,12 +123,10 @@ const DynamicExpressionComponent = ({
             responseDelay={dynamicHook.responseDelay}
             statusCode={dynamicHook.statusCode}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
-            shouldValidateResponse={dynamicHook.shouldValidateResponse}
             onResponseDelayChange={dynamicHook.handleResponseDelayChange}
             onShouldRandomizeResponseChange={
               dynamicHook.handleShouldRandomizeResponseChange
             }
-            onShouldValidateResponseChange={dynamicHook.handleShouldValidateResponseChange}
             onStatusCodeChange={dynamicHook.handleStatusCodeChange}
           />
 

@@ -13,21 +13,19 @@ import {
   SUCCESS,
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
+  VALID_RESPONSE
 } from "../common/types";
-import { DataSet} from "./randomDataTypeGenerator";
+import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomResponseGenerator";
-import {
-  generateTypeMapForQuery,
-  generateTypeMapForResponse,
-  giveTypeMaps,
-} from "./gqlFieldMapHelper";
+import { giveTypeMaps } from "./gqlFieldMapHelper";
+import { queryResponseValidator } from "./queryResponseValidator";
 interface SchemaConfig {
   schemaSDL: GraphQLSchema;
   schemaString: string;
 }
 interface GeneratedResponseConfig {
   data: object;
-  message: string;
+  message: string | string[];
 }
 
 const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
@@ -58,7 +56,6 @@ export const generateRandomizedResponse = async (
   graphQLendpoint: string,
   requestConfig: any,
   graphqlQuery: string,
-  shouldValidate: boolean,
   numRangeStart: number,
   numRangeEnd: number,
   isSpecialAllowed: boolean,
@@ -66,7 +63,8 @@ export const generateRandomizedResponse = async (
   stringLength: number,
   booleanValues: string,
   digitsAfterDecimal: number,
-  mockResponse: string
+  mockResponse: string,
+  shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
@@ -107,41 +105,54 @@ export const generateRandomizedResponse = async (
     const enumTypes = enumConfigurationMap.get(graphQLendpoint)!;
     const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!;
 
-    if (shouldValidate) {
-      try {
-        const isValid = _.isEqual(
-          generateTypeMapForResponse(JSON.parse(mockResponse).data).fields,
-          generateTypeMapForQuery(schemaString, graphqlQuery)
-        );
+    const queryDocument = parse(graphqlQuery);
+
+    const isValid = true;
+    if (!shouldRandomizeResponse) {
+      const errorsInQuery : string[] = queryResponseValidator(
+        mockResponse,
+        queryDocument,
+        schemaSDL,
+        fieldTypes,
+        enumTypes,
+        interfaceTypes,
+        unionTypes
+      );
+      if(errorsInQuery.length > 0){
         return {
-          data: JSON.parse(mockResponse).data,
-          message: isValid ? SUCCESS : INVALID_MOCK_RESPONSE,
-        };
-      } catch {
-        return {
-          data: JSON.parse(mockResponse).data,
-          message: INTERNAL_SERVER_ERROR,
-        };
+          data: {},
+          message: errorsInQuery
+        }
       }
-    } else {
-      const dataSet = {
-        stringLength: stringLength,
-        arrayLength: arrayLength,
-        isSpecialAllowed: isSpecialAllowed,
-        booleanValues: booleanValues,
-        numRangeEnd: numRangeEnd,
-        numRangeStart: numRangeStart,
-        digitsAfterDecimal: digitsAfterDecimal,
-      } as DataSet;
-      
-      try {
-        return {
-          data: giveRandomResponse(parse(graphqlQuery), fieldTypes, enumTypes, unionTypes, interfaceTypes, dataSet),
-          message: SUCCESS,
-        };
-      } catch {
-        return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
-      }
+      return {
+        data: JSON.parse(mockResponse).data,
+        message: VALID_RESPONSE,
+      };
+    }
+    const dataSet = {
+      stringLength: stringLength,
+      arrayLength: arrayLength,
+      isSpecialAllowed: isSpecialAllowed,
+      booleanValues: booleanValues,
+      numRangeEnd: numRangeEnd,
+      numRangeStart: numRangeStart,
+      digitsAfterDecimal: digitsAfterDecimal,
+    } as DataSet;
+
+    try {
+      return {
+        data: giveRandomResponse(
+          queryDocument,
+          fieldTypes,
+          enumTypes,
+          unionTypes,
+          interfaceTypes,
+          dataSet
+        ),
+        message: SUCCESS,
+      };
+    } catch {
+      return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
     }
   } catch (error) {
     return { data: {}, message: INTERNAL_SERVER_ERROR };

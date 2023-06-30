@@ -5,13 +5,9 @@ interface ResponseDelayCodeComponentProps {
   responseDelay: number;
   statusCode: number;
   shouldRandomizeResponse: boolean;
-  shouldValidateResponse: boolean;
   onResponseDelayChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onStatusCodeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onShouldRandomizeResponseChange: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
-  onShouldValidateResponseChange: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
 }
@@ -20,11 +16,9 @@ const ResponseDelayCodeComponent = ({
   responseDelay,
   statusCode,
   shouldRandomizeResponse,
-  shouldValidateResponse,
   onResponseDelayChange,
   onStatusCodeChange,
   onShouldRandomizeResponseChange,
-  onShouldValidateResponseChange
 }: ResponseDelayCodeComponentProps) => {
   return (
     <>
@@ -59,19 +53,6 @@ const ResponseDelayCodeComponent = ({
             className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
             checked={shouldRandomizeResponse}
             onChange={onShouldRandomizeResponseChange}
-          ></input>
-        </TopAlignedLabelAndInput>
-        <div className="w-4"></div>
-        <TopAlignedLabelAndInput
-          htmlInputId="inputShouldValidateResponse"
-          label="Validate Response"
-          divClassOverride="mb-2 flex flex-row-reverse justify-end ml-2"
-        >
-          <input
-            type="checkbox"
-            className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
-            checked={shouldValidateResponse}
-            onChange={onShouldValidateResponseChange}
           ></input>
         </TopAlignedLabelAndInput>
       </div>

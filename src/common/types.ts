@@ -33,11 +33,10 @@ const ERROR_GENERATING_RANDOM_RESPONSE = "error_generating_random_response";
 const SUCCESS = "success";
 const SCHEMA_INTROSPECTION_ERROR = "schema_introspection_error";
 const INVALID_MOCK_RESPONSE = "invalid_mock_response";
-
+const VALID_RESPONSE = "valid_response";
 export interface DynamicComponentData {
   dynamicExpression: string;
   shouldRandomizeResponse: boolean;
-  shouldValidateResponse: boolean;
   numberRangeStart: number;
   numberRangeEnd: number;
   arrayLength: number;
@@ -63,5 +62,6 @@ export {
   SCHEMA_INTROSPECTION_ERROR,
   SUCCESS,
   INVALID_MUTATION,
-  INVALID_MOCK_RESPONSE
+  INVALID_MOCK_RESPONSE,
+  VALID_RESPONSE
 };

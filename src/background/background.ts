@@ -79,64 +79,44 @@ const handleInterceptedRequest = async (
     for (const mockingRuleKey in mockResponseConfig) {
       const mockingRule = mockResponseConfig[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
-        if (
-          mockingRule.shouldRandomizeResponse ||
-          mockingRule.shouldValidateResponse
-        ) {
-          const booleanValue =
-            mockingRule.booleanType === BooleanType.True
-              ? TRUE
-              : mockingRule.booleanType === BooleanType.False
-              ? FALSE
-              : RANDOM;
-          const generatedRandomResponse = await generateRandomizedResponse(
-            tabId,
-            frameId,
-            url,
-            config,
-            query,
-            mockingRule.shouldValidateResponse,
-            mockingRule.numberRangeStart,
-            mockingRule.numberRangeEnd,
-            mockingRule.specialCharactersAllowed,
-            mockingRule.arrayLength,
-            mockingRule.stringLength,
-            booleanValue,
-            mockingRule.afterDecimals,
-            mockingRule.mockResponse
+        const booleanValue =
+          mockingRule.booleanType === BooleanType.True
+            ? TRUE
+            : mockingRule.booleanType === BooleanType.False
+            ? FALSE
+            : RANDOM;
+        const generatedRandomResponse = await generateRandomizedResponse(
+          tabId,
+          frameId,
+          url,
+          config,
+          query,
+          mockingRule.numberRangeStart,
+          mockingRule.numberRangeEnd,
+          mockingRule.specialCharactersAllowed,
+          mockingRule.arrayLength,
+          mockingRule.stringLength,
+          booleanValue,
+          mockingRule.afterDecimals,
+          mockingRule.mockResponse,
+          mockingRule.shouldRandomizeResponse
+        );
+        if (mockingRule.responseDelay > 0) {
+          setTimeout(
+            () =>
+              resolve(
+                JSON.stringify(generatedRandomResponse, null, 2),
+                mockingRule.statusCode
+              ),
+            mockingRule.responseDelay
           );
-          if (mockingRule.responseDelay > 0) {
-            setTimeout(
-              () =>
-                resolve(
-                  JSON.stringify(generatedRandomResponse, null, 2),
-                  mockingRule.statusCode
-                ),
-              mockingRule.responseDelay
-            );
-          } else {
-            resolve(
-              JSON.stringify(generatedRandomResponse, null, 2),
-              mockingRule.statusCode
-            );
-          }
         } else {
-          if (mockingRule.responseDelay > 0) {
-            setTimeout(
-              () =>
-                resolve(
-                  JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
-                  mockingRule.statusCode
-                ),
-              mockingRule.responseDelay
-            );
-          } else {
-            resolve(
-              JSON.stringify(JSON.parse(mockingRule.mockResponse), null, 2),
-              mockingRule.statusCode
-            );
-          }
+          resolve(
+            JSON.stringify(generatedRandomResponse, null, 2),
+            mockingRule.statusCode
+          );
         }
+
         return;
       }
     }
