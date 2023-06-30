@@ -1,152 +1,129 @@
-import _ from "lodash";
 import {
-  parse,
-  getIntrospectionQuery,
-  buildClientSchema,
-  printSchema,
-  graphql,
-  buildSchema,
+  SelectionSetNode,
+  FragmentDefinitionNode,
+  DocumentNode,
+  OperationDefinitionNode,
 } from "graphql";
-import { GraphQLSchema } from "graphql/type/schema";
-import {
-  MessageType,
-  INTERNAL_SERVER_ERROR,
-  ERROR_GENERATING_RANDOM_RESPONSE,
-  SUCCESS,
-  SCHEMA_INTROSPECTION_ERROR,
-  INVALID_MOCK_RESPONSE,
-  VALID_RESPONSE,
-} from "../../common/types";
+import { FIELD_NOT_FOUND } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
-import giveRandomResponse from "./randomResponseGenerator";
-import { giveTypeMaps } from "./gqlFieldMapHelper";
-import { queryResponseValidator } from "./queryResponseValidator";
-interface SchemaConfig {
-  schemaSDL: GraphQLSchema;
-  schemaString: string;
-}
-interface GeneratedResponseConfig {
-  data: object;
-  message: string;
-  non_matching_fields?: string[];
-}
+import _ from "lodash";
+import { dynamicValueGenerator } from "./randomDataTypeGenerator";
 
-const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
-const unionConfigurationMap: Map<string, Map<string, any>> = new Map();
-const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map();
-const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map();
-const fieldConfigurationMap: Map<string, Map<string, any>> = new Map();
-
-const fetchJSONFromInjectedScript = async (
-  tabId: number,
-  frameId: number,
-  url: string,
-  config: any
+const giveRandomResponse = (
+  queryDocument: DocumentNode,
+  fieldTypes: Map<string, any>,
+  enumTypes: Map<string, string[]>,
+  unionTypes: Map<string, any>,
+  interfaceTypes: Map<string, any>,
+  dataSet: DataSet
 ) => {
-  const msg = {
-    type: MessageType.DoFetch,
-    data: { url, config },
-  };
-  const responseJSONData = await chrome.tabs.sendMessage(tabId, msg, {
-    frameId,
-  });
-  return responseJSONData;
-};
+  const generateMockResponse = (
+    selectionSet: SelectionSetNode,
+    typeMap: Map<string, any>
+  ) => {
+    const response: any = {};
 
-export const generateRandomizedResponse = async (
-  tabId: number,
-  frameId: number,
-  graphQLendpoint: string,
-  requestConfig: any,
-  graphqlQuery: string,
-  numRangeStart: number,
-  numRangeEnd: number,
-  isSpecialAllowed: boolean,
-  arrayLength: number,
-  stringLength: number,
-  booleanValues: string,
-  digitsAfterDecimal: number,
-  mockResponse: string,
-  shouldRandomizeResponse: boolean
-): Promise<GeneratedResponseConfig> => {
-  try {
-    if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
-      const requestConfigCopy = { ...requestConfig };
-      requestConfigCopy.body = JSON.stringify({
-        query: getIntrospectionQuery(),
-      });
+    for (const field of selectionSet.selections) {
+      if (field.kind === "InlineFragment") {
+        response[field.typeCondition!.name.value] = generateMockResponse(
+          field.selectionSet!,
+          typeMap
+        );
+      } else if (field.kind === "FragmentSpread") {
+        const fragmentName = field.name.value;
+        const fragmentResponse = generateMockResponse(
+          typeMap.get(fragmentName).selectionSet,
+          typeMap
+        );
+        for (const fragmentKey in fragmentResponse) {
+          response[fragmentKey] = fragmentResponse[fragmentKey];
+        }
 
-      const introspectionResult = await fetchJSONFromInjectedScript(
-        tabId,
-        frameId,
-        graphQLendpoint,
-        requestConfigCopy
-      );
+      } else {
+        if (!typeMap.has(field.name.value)) {
+          console.log(field.name.value);
+          return { data: {}, message: FIELD_NOT_FOUND };
+        }
+        const typeName = typeMap.get(field.name.value);
 
-      if (introspectionResult.errors || introspectionResult.error) {
-        return { data: {}, message: SCHEMA_INTROSPECTION_ERROR };
+        if ("selectionSet" in field && field.selectionSet !== undefined) {
+          if (typeName?.includes("[")) {
+            response[field.name.value] = _.times(dataSet.arrayLength, () =>
+              generateMockResponse(field.selectionSet!, typeMap)
+            );
+          } else if (unionTypes.has(typeName!)) {
+            response[field.name.value] = generateMockResponse(
+              field.selectionSet!,
+              typeMap
+            );
+          } else if (interfaceTypes.has(typeName)) {
+            response[field.name.value] = generateMockResponse(
+              field.selectionSet,
+              typeMap
+            );
+          } else {
+            response[field.name.value] = generateMockResponse(
+              field.selectionSet!,
+              typeMap
+            );
+          }
+        } else {
+          if (typeName?.includes("[")) {
+            response[field.name.value] = _.times(dataSet.arrayLength, () =>
+              dynamicValueGenerator(
+                typeName!.replace("[", "").replace("]", ""),
+                enumTypes,
+                dataSet,
+                field.name.value
+              )
+            );
+          } else {
+            response[field.name.value] = dynamicValueGenerator(
+              typeName!,
+              enumTypes,
+              dataSet,
+              field.name.value
+            );
+          }
+        }
       }
-      const schemaSDL = buildClientSchema(introspectionResult.data);
-      const schemaString = printSchema(schemaSDL);
-
-      const typeMap = schemaSDL!.getTypeMap();
-
-      const [fieldTypes, enumTypes, interfaceTypes, unionTypes] =
-        giveTypeMaps(typeMap);
-
-      schemaConfigurationMap.set(graphQLendpoint, { schemaSDL, schemaString });
-      interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes);
-      unionConfigurationMap.set(graphQLendpoint, unionTypes);
-      enumConfigurationMap.set(graphQLendpoint, enumTypes);
-      fieldConfigurationMap.set(graphQLendpoint, fieldTypes);
     }
+    return response;
+  };
 
-    const { schemaSDL, schemaString } =
-      schemaConfigurationMap.get(graphQLendpoint)!;
-    const fieldTypes = fieldConfigurationMap.get(graphQLendpoint)!;
-    const unionTypes = unionConfigurationMap.get(graphQLendpoint)!;
-    const enumTypes = enumConfigurationMap.get(graphQLendpoint)!;
-    const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!;
+  const addFragmentToTypeMap = (fragment: FragmentDefinitionNode) => {
+    const fragmentName = fragment.name.value;
+    fieldTypes.set(fragmentName, fragment);
+  };
 
-    const queryDocument = parse(graphqlQuery);
+  const generateNestedMockResponse = (
+    queryDocument: DocumentNode,
+    typeMap: Map<string, any>
+  ): any => {
+    const fragments = queryDocument.definitions.filter(
+      (def) => def.kind === "FragmentDefinition"
+    );
 
-    if (!shouldRandomizeResponse) {
-      const errors = queryResponseValidator(
-        JSON.parse(mockResponse),
-        fieldTypes
-      );
-      return {
-        data: JSON.parse(mockResponse).data,
-        message: VALID_RESPONSE,
-        non_matching_fields: errors,
-      };
+    fragments.forEach((fragment) => {
+      addFragmentToTypeMap(fragment as FragmentDefinitionNode);
+    });
+    const operationDefinition: OperationDefinitionNode | undefined =
+      queryDocument.definitions.find(
+        (def) => def.kind === "OperationDefinition"
+      ) as OperationDefinitionNode;
+
+    if (!operationDefinition) {
+      return {};
     }
-    const dataSet = {
-      stringLength: stringLength,
-      arrayLength: arrayLength,
-      isSpecialAllowed: isSpecialAllowed,
-      booleanValues: booleanValues,
-      numRangeEnd: numRangeEnd,
-      numRangeStart: numRangeStart,
-      digitsAfterDecimal: digitsAfterDecimal,
-    } as DataSet;
-
-    try {
-      return {
-        data: giveRandomResponse(
-          queryDocument,
-          fieldTypes,
-          enumTypes,
-          unionTypes,
-          interfaceTypes,
-          dataSet
-        ),
-        message: SUCCESS,
-      };
-    } catch {
-      return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
+    if (
+      operationDefinition.operation === "query" ||
+      operationDefinition.operation === "mutation"
+    ) {
+      return generateMockResponse(operationDefinition.selectionSet, typeMap);
     }
-  } catch (error) {
-    return { data: {}, message: INTERNAL_SERVER_ERROR + " or Invalid JSON" };
-  }
+    return {};
+  };
+  return generateNestedMockResponse(queryDocument, fieldTypes);
 };
+
+export default giveRandomResponse;
