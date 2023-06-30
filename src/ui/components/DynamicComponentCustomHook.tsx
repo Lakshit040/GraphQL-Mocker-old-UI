@@ -14,7 +14,6 @@ const useDynamicComponentHook = () => {
   const [responseDelay, setResponseDelay] = useState(0);
   const [statusCode, setStatusCode] = useState(200);
   const [shouldRandomizeResponse, setShouldRandomizeResponse] = useState(false);
-  const [shouldValidateResponse, setShouldValidateResponse] = useState(false);
   const [dynamicExpression, setDynamicExpression] = useState("");
 
   const handleNumberRangeStartChange = useCallback(
@@ -30,17 +29,8 @@ const useDynamicComponentHook = () => {
     []
   );
 
-  const handleShouldValidateResponseChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShouldRandomizeResponse(false);
-      setShouldValidateResponse((r) => !r);
-    },
-    []
-  );
-
   const handleShouldRandomizeResponseChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShouldValidateResponse(false);
       setShouldRandomizeResponse((r) => !r);
     },
     []
@@ -138,7 +128,6 @@ const useDynamicComponentHook = () => {
     responseDelay,
     statusCode,
     shouldRandomizeResponse,
-    shouldValidateResponse,
     dynamicExpression,
     handleBooleanTypeChange,
     handleNumberRangeStartChange,
@@ -151,7 +140,6 @@ const useDynamicComponentHook = () => {
     handleResponseDelayChange,
     handleStatusCodeChange,
     handleShouldRandomizeResponseChange,
-    handleShouldValidateResponseChange,
     handleDynamicExpressionChange,
     handlePrettifyButtonPressed
   };

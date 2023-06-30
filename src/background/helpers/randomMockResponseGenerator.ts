@@ -4,6 +4,8 @@ import {
   getIntrospectionQuery,
   buildClientSchema,
   printSchema,
+  graphql,
+  buildSchema,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
@@ -13,14 +15,12 @@ import {
   SUCCESS,
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
+  VALID_RESPONSE,
 } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
-import {
-  generateTypeMapForQuery,
-  generateTypeMapForResponse,
-  giveTypeMaps,
-} from "./gqlFieldMapHelper";
+import { giveTypeMaps } from "./gqlFieldMapHelper";
+import { queryResponseValidator } from "./queryResponseValidator";
 interface SchemaConfig {
   schemaSDL: GraphQLSchema;
   schemaString: string;
@@ -28,6 +28,7 @@ interface SchemaConfig {
 interface GeneratedResponseConfig {
   data: object;
   message: string;
+  non_matching_fields?: string[];
 }
 
 const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
@@ -58,7 +59,6 @@ export const generateRandomizedResponse = async (
   graphQLendpoint: string,
   requestConfig: any,
   graphqlQuery: string,
-  shouldValidate: boolean,
   numRangeStart: number,
   numRangeEnd: number,
   isSpecialAllowed: boolean,
@@ -66,7 +66,8 @@ export const generateRandomizedResponse = async (
   stringLength: number,
   booleanValues: string,
   digitsAfterDecimal: number,
-  mockResponse: string
+  mockResponse: string,
+  shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
   try {
     if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
@@ -107,50 +108,45 @@ export const generateRandomizedResponse = async (
     const enumTypes = enumConfigurationMap.get(graphQLendpoint)!;
     const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!;
 
-    if (shouldValidate) {
-      try {
-        const isValid = _.isEqual(
-          generateTypeMapForResponse(JSON.parse(mockResponse).data).fields,
-          generateTypeMapForQuery(schemaString, graphqlQuery)
-        );
-        return {
-          data: JSON.parse(mockResponse).data,
-          message: isValid ? SUCCESS : INVALID_MOCK_RESPONSE,
-        };
-      } catch {
-        return {
-          data: JSON.parse(mockResponse).data,
-          message: INTERNAL_SERVER_ERROR,
-        };
-      }
-    } else {
-      const dataSet = {
-        stringLength: stringLength,
-        arrayLength: arrayLength,
-        isSpecialAllowed: isSpecialAllowed,
-        booleanValues: booleanValues,
-        numRangeEnd: numRangeEnd,
-        numRangeStart: numRangeStart,
-        digitsAfterDecimal: digitsAfterDecimal,
-      } as DataSet;
+    const queryDocument = parse(graphqlQuery);
 
-      try {
-        return {
-          data: giveRandomResponse(
-            parse(graphqlQuery),
-            fieldTypes,
-            enumTypes,
-            unionTypes,
-            interfaceTypes,
-            dataSet
-          ),
-          message: SUCCESS,
-        };
-      } catch {
-        return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
-      }
+    if (!shouldRandomizeResponse) {
+      const errors = queryResponseValidator(
+        JSON.parse(mockResponse),
+        fieldTypes
+      );
+      return {
+        data: JSON.parse(mockResponse).data,
+        message: VALID_RESPONSE,
+        non_matching_fields: errors,
+      };
+    }
+    const dataSet = {
+      stringLength: stringLength,
+      arrayLength: arrayLength,
+      isSpecialAllowed: isSpecialAllowed,
+      booleanValues: booleanValues,
+      numRangeEnd: numRangeEnd,
+      numRangeStart: numRangeStart,
+      digitsAfterDecimal: digitsAfterDecimal,
+    } as DataSet;
+
+    try {
+      return {
+        data: giveRandomResponse(
+          queryDocument,
+          fieldTypes,
+          enumTypes,
+          unionTypes,
+          interfaceTypes,
+          dataSet
+        ),
+        message: SUCCESS,
+      };
+    } catch {
+      return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
     }
   } catch (error) {
-    return { data: {}, message: INTERNAL_SERVER_ERROR };
+    return { data: {}, message: INTERNAL_SERVER_ERROR + " or Invalid JSON" };
   }
 };
