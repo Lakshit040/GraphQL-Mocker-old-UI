@@ -13,9 +13,9 @@ import {
   SUCCESS,
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
-} from "../common/types";
-import { DataSet} from "./randomDataTypeGenerator";
-import giveRandomResponse from "./randomResponseGenerator";
+} from "../../common/types";
+import { DataSet } from "./randomDataTypeGenerator";
+import giveRandomResponse from "./randomMockDataGenerator";
 import {
   generateTypeMapForQuery,
   generateTypeMapForResponse,
@@ -133,10 +133,17 @@ export const generateRandomizedResponse = async (
         numRangeStart: numRangeStart,
         digitsAfterDecimal: digitsAfterDecimal,
       } as DataSet;
-      
+
       try {
         return {
-          data: giveRandomResponse(parse(graphqlQuery), fieldTypes, enumTypes, unionTypes, interfaceTypes, dataSet),
+          data: giveRandomResponse(
+            parse(graphqlQuery),
+            fieldTypes,
+            enumTypes,
+            unionTypes,
+            interfaceTypes,
+            dataSet
+          ),
           message: SUCCESS,
         };
       } catch {

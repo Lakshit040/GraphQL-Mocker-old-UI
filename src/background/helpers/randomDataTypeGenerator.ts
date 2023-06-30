@@ -3,7 +3,7 @@ import {
   NORMAL_CHARACTERS,
   TRUE,
   FALSE,
-} from "../common/types";
+} from "../../common/types";
 import _ from "lodash";
 import { specificFieldGenerator } from "./specificFieldGenerator";
 

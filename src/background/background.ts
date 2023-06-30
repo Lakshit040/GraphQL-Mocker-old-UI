@@ -8,7 +8,7 @@ import {
   RANDOM,
   BooleanType,
 } from "../common/types";
-import { generateRandomizedResponse } from "./helpers";
+import { generateRandomizedResponse } from "./helpers/randomMockResponseGenerator";
 
 const mockResponseConfigMap: Map<
   string,
