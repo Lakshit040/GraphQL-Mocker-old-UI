@@ -4,8 +4,6 @@ import {
   getIntrospectionQuery,
   buildClientSchema,
   printSchema,
-  graphql,
-  buildSchema,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
@@ -19,7 +17,7 @@ import {
 } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
-import { giveTypeMaps } from "./gqlFieldMapHelper";
+import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
 interface SchemaConfig {
   schemaSDL: GraphQLSchema;
@@ -117,7 +115,7 @@ export const generateRandomizedResponse = async (
       );
       return {
         data: JSON.parse(mockResponse).data,
-        message: VALID_RESPONSE,
+        message: errors.length === 0 ? VALID_RESPONSE : INVALID_MOCK_RESPONSE,
         non_matching_fields: errors,
       };
     }
