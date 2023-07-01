@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import jsep from "jsep";
-import _ from 'lodash';
+import _ from "lodash";
 import { GraphQLOperationType } from "./types";
 
 export const parseIfGraphQLRequest = (
@@ -48,8 +48,6 @@ export const doesMockingRuleHold = (
     return true;
   }
 
-  
-
   try {
     const ast = jsep(dynamicExpression);
     const evaluate = (node: any): any => {
@@ -70,14 +68,22 @@ export const doesMockingRuleHold = (
       const right = evaluate(node.right);
 
       switch (node.operator) {
-        case "==":
+        case "==" || "===":
           return left == right;
-        case "!=":
+        case "!=" || "!==":
           return left != right;
         case "&&":
           return left && right;
         case "||":
           return left || right;
+        case ">=":
+          return left >= right;
+        case "<=":
+          return left <= right;
+        case "<":
+          return left < right;
+        case ">":
+          return left > right;
         default:
           return false;
       }
