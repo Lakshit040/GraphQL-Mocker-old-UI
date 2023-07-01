@@ -40,7 +40,7 @@ export const parseIfGraphQLRequest = (
   return undefined;
 };
 
-const doesMockingRuleHold = (
+export const doesMockingRuleHold = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
