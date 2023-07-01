@@ -69,7 +69,6 @@ const DynamicExpressionComponent = ({
     setIsExpressionMocking((e) => !e);
   }, [id, onDynamicExpressionPlayPause]);
 
-
   const handleMockResponseTextAreaFocused = useCallback(() => {
     setIsMockResponseTextAreaFocused(true);
   }, []);
