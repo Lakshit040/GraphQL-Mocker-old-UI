@@ -40,6 +40,52 @@ export const parseIfGraphQLRequest = (
   return undefined;
 };
 
+const helper = (str: string, values: any): string => {
+  const pattern = /(\([^()]+\))|[^&|]+/g;
+  const matches = str.match(pattern)!;
+  const extractedConditions = matches.map((match) =>
+    match.replace(/[()]/g, "").trim()
+  );
+
+  const objectRegex = /(==|!=|===|!==)\s*({.*})/;
+  const arrayRegex = /(==|===|!=|!==)\s*(\[.*])/;
+  extractedConditions.forEach((condition, index) => {
+    console.log(`Condition ${index + 1}: ${condition}`);
+    for (const [key, value] of Object.entries(values)) {
+      if (Array.isArray(value)) {
+        if (condition.includes(key))
+          try {
+            const match = condition.match(arrayRegex);
+            if (match && match[1] && match[2]) {
+              let result: boolean;
+              if (match[1] === "==" || match[1] === "===") {
+                result = _.isEqual(value, JSON.parse(match[2]));
+              } else result = !_.isEqual(value, JSON.parse(match[2]));
+              str = str.replace(condition, String(result));
+            }
+          } catch {
+            str = str.replace(condition, String(false));
+          }
+      } else if (typeof value === "object") {
+        if (condition.includes(key))
+          try {
+            const match = condition.match(objectRegex);
+            let result = false;
+            if (match && match[1] && match[2]) {
+              if (match[1] === "==" || match[1] === "===")
+                result = _.isEqual(value, JSON.parse(match[2]));
+              else result = !_.isEqual(value, JSON.parse(match[2]));
+            }
+            str = str.replace(condition, String(result));
+          } catch {
+            str = str.replace(condition, String(false));
+          }
+      }
+    }
+  });
+  return str;
+};
+
 export const doesMockingRuleHold = (
   dynamicExpression: string,
   variableValues: any
@@ -48,27 +94,8 @@ export const doesMockingRuleHold = (
     return true;
   }
 
-  const expr = dynamicExpression;
-
-  let str = expr.replace(/[\s\n]/g, "");
-
-  const map: Map<string, string> = new Map();
-
-  for (const [key, value] of Object.entries(variableValues)) {
-    if (typeof value === "object") {
-      const str = JSON.stringify(value).replace(/[\n\s]/g, "");
-      map.set(str, key);
-    }
-  }
-
-  const arr = Array.from(map.entries());
-  for (const [key, value] of arr) {
-    str = str.replace(key, "1");
-    variableValues[value] = 1;
-  }
-
   try {
-    const ast = jsep(str);
+    const ast = jsep(helper(dynamicExpression, variableValues));
     const evaluate = (node: any): any => {
       switch (node.type) {
         case "BinaryExpression":
