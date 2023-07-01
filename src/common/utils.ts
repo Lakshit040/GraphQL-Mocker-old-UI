@@ -40,7 +40,7 @@ export const parseIfGraphQLRequest = (
   return undefined;
 };
 
-export const doesMockingRuleHold = (
+const doesMockingRuleHold = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
@@ -48,8 +48,27 @@ export const doesMockingRuleHold = (
     return true;
   }
 
+  const expr = dynamicExpression;
+
+  let str = expr.replace(/[\s\n]/g, "");
+
+  const map: Map<string, string> = new Map();
+
+  for (const [key, value] of Object.entries(variableValues)) {
+    if (typeof value === "object") {
+      const str = JSON.stringify(value).replace(/[\n\s]/g, "");
+      map.set(str, key);
+    }
+  }
+
+  const arr = Array.from(map.entries());
+  for (const [key, value] of arr) {
+    str = str.replace(key, "1");
+    variableValues[value] = 1;
+  }
+
   try {
-    const ast = jsep(dynamicExpression);
+    const ast = jsep(str);
     const evaluate = (node: any): any => {
       switch (node.type) {
         case "BinaryExpression":
