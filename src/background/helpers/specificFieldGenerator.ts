@@ -1,4 +1,4 @@
-const Chance = require("chance");
+import Chance from 'chance';
 const chance = new Chance();
 
 export const specificFieldGenerator = (fieldName: string): any | undefined => {
@@ -60,7 +60,7 @@ export const specificFieldGenerator = (fieldName: string): any | undefined => {
     case "date":
       return chance.date({ string: true, american: false });
     case "day":
-      return chance.weekday();
+      return chance.weekday({});
     case "currency":
       return chance.currency().code;
     case "birthday":
