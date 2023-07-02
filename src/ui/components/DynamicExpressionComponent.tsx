@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useContext } from "react";
-import { XMarkIcon, PlayIcon, PauseIcon } from "@heroicons/react/24/solid";
+import {  PlayIcon, PauseIcon, TrashIcon} from "@heroicons/react/24/solid";
 import MockingAreaComponent from "./MockingAreaComponent";
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
@@ -95,8 +95,8 @@ const DynamicExpressionComponent = ({
             />
 
             <div className="grow flex flex-row-reverse mr-2">
-              <XMarkIcon
-                title="Delete"
+              <TrashIcon
+                title="Delete rule"
                 className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                 onClick={handleDeleteExpressionButtonPressed}
               />
@@ -129,7 +129,7 @@ const DynamicExpressionComponent = ({
             onStatusCodeChange={dynamicHook.handleStatusCodeChange}
           />
 
-          <div className={dynamicHook.shouldRandomizeResponse ? "mt-4" : "hidden"}>
+          <div className={dynamicHook.shouldRandomizeResponse ? "mt-2" : "hidden"}>
             <RandomResponseConfigComponent
               booleanType={dynamicHook.booleanType}
               arrayLength={dynamicHook.arrayLength}

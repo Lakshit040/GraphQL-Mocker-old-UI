@@ -87,7 +87,7 @@ const RandomResponseConfigComponent = ({
 
         <div className="grid grid-cols-2 gap-4 overflow-auto items-center">
           <TopAlignedLabelAndInput
-            divClassAppend="mr-12 w-[50%]"
+            divClassAppend="w-[50%]"
             htmlInputId="inputSelectBooleanType"
             label="Booleans Type"
           >
@@ -111,7 +111,7 @@ const RandomResponseConfigComponent = ({
           <TopAlignedLabelAndInput
             htmlInputId="inputSpecialCharactersAllowed"
             label="Special Characters Allowed"
-            divClassOverride="mb-2 mt-4 w-[50%] flex flex-row-reverse justify-end ml-2"
+            divClassOverride="mb-2 mt-4 w-[50%] flex flex-row-reverse justify-end"
           >
             <input
               type="checkbox"

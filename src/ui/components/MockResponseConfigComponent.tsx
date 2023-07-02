@@ -3,8 +3,7 @@ import { useState, useCallback, createContext, useRef } from "react";
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 import DynamicExpressionComponent from "./DynamicExpressionComponent";
-
-import { XMarkIcon, PlayIcon, PauseIcon } from "@heroicons/react/24/solid";
+import { PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 import { GraphQLOperationType, DynamicComponentData } from "../../common/types";
 import {
@@ -145,13 +144,14 @@ const MockResponseConfigComponent = ({
                 type="text"
                 label="Operation Name"
                 value={operationName}
+                placeholder="getCountry, createUser..."
                 divClassAppend="mx-4"
                 onChange={handleOperationNameChange}
               />
 
               <div className="grow flex flex-row-reverse mr-2">
-                <XMarkIcon
-                  title="Delete"
+                <TrashIcon
+                  title="Delete config"
                   className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                   onClick={handleDeleteMockResponseConfig}
                 />
