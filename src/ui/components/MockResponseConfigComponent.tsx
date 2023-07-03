@@ -11,6 +11,7 @@ import {
   backgroundUnSetMockResponse,
 } from "../helpers/utils";
 import { guidGenerator } from "../../common/utils";
+import { removeQueryEndpoint } from "../../background/helpers/chromeStorageOptions";
 
 const QUERY = "query";
 const MUTATION = "mutation";
@@ -77,9 +78,10 @@ const MockResponseConfigComponent = ({
   }, []);
 
   const handleDeleteDynamicExpressionConfig = useCallback(
-    (id: string) => {
+    async (id: string) => {
       backgroundUnSetMockResponse(operationType, operationName);
       setAreMocking(false);
+      await removeQueryEndpoint(id);
       setDynamicResponseConfigKeys((keys) => keys.filter((key) => key !== id));
     },
     [operationName, operationType]

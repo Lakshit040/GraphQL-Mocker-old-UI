@@ -5,12 +5,7 @@ import {
   DynamicComponentData,
 } from "../common/types";
 import { generateRandomizedResponse } from "./helpers/randomMockResponseGenerator";
-import { storeQueryEndpoint } from "./helpers/chromeStorageOptions";
-
-const mockResponseConfigMap: Map<
-  string,
-  Record<string, DynamicComponentData>
-> = new Map();
+import { storeQueryEndpoint, storeOperation, deleteOperation, getOperation} from "./helpers/chromeStorageOptions";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.type) {
@@ -70,12 +65,12 @@ const handleInterceptedRequest = async (
   const [operationType, operationName, query, variables] = parsed;
   const key = `${operationType}_${operationName}`;
 
-  const mockResponseConfig = mockResponseConfigMap.get(key);
+  const mockResponseConfig = await getOperation(key);
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
       await storeQueryEndpoint(mockingRuleKey, query, url);
-      const mockingRule = mockResponseConfig[mockingRuleKey];
+      const mockingRule = (mockResponseConfig as any)[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
         const generatedRandomResponse = await generateRandomizedResponse(
           tabId,
@@ -118,38 +113,26 @@ const handleInterceptedRequest = async (
   reject();
 };
 
-const setMockResponse = (
+const setMockResponse = async (
   operationType: GraphQLOperationType,
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
-): void => {
-  mockResponseConfigMap.set(
-    `${operationType}_${operationName}`,
-    dynamicResponseData
-  );
-};
-
-const unSetMockResponse = (
-  operationType: GraphQLOperationType,
-  operationName: string
-): void => {
-  try {
-    mockResponseConfigMap.delete(`${operationType}_${operationName}`);
-  } catch {
+): Promise<void> => {
+  try{
+    await storeOperation(`${operationType}_${operationName}`, dynamicResponseData);
+  }
+  catch{
     return;
   }
 };
 
-const setExpressionQueryEndpoint = async (
-  expressionId: string,
-  query: string,
-  endpoint: string
-) => {
+const unSetMockResponse = async (
+  operationType: GraphQLOperationType,
+  operationName: string
+): Promise<void> => {
   try {
-    chrome.storage.local.set({ [expressionId] :`${query}__${endpoint}` }, () => {
-      console.log("Stored successfully!!");
-    });
+    await deleteOperation(`${operationType}_${operationName}`);
   } catch {
-    console.log("Problem in storing data!!");
+    return;
   }
 };
