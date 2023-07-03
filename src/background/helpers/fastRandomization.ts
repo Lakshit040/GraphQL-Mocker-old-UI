@@ -2,7 +2,7 @@ import { giveTypeMaps } from "./typeMapProvider";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
 import { DataSet } from "./randomDataTypeGenerator";
-import { getQueryEndpoint, getSchema } from "./mapStorage";
+import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
 import {
   BooleanType,
   SUCCESS,

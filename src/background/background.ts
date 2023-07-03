@@ -3,13 +3,9 @@ import {
   MessageType,
   GraphQLOperationType,
   DynamicComponentData,
-  TRUE,
-  FALSE,
-  RANDOM,
-  BooleanType,
 } from "../common/types";
 import { generateRandomizedResponse } from "./helpers/randomMockResponseGenerator";
-import { storeQueryEndpoint } from "./helpers/mapStorage";
+import { storeQueryEndpoint } from "./helpers/chromeStorageOptions";
 
 const mockResponseConfigMap: Map<
   string,

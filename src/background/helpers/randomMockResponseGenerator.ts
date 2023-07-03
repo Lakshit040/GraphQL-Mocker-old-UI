@@ -6,7 +6,6 @@ import {
   printSchema,
   buildSchema,
 } from "graphql";
-import { GraphQLSchema } from "graphql/type/schema";
 import {
   MessageType,
   INTERNAL_SERVER_ERROR,
@@ -21,7 +20,7 @@ import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
-import { storeSchema, getSchema } from "./mapStorage";
+import { storeSchema, getSchema } from "./chromeStorageOptions";
 
 interface GeneratedResponseConfig {
   data: object;
