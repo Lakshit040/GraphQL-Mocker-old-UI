@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import {
   parse,
   getIntrospectionQuery,
@@ -15,6 +15,7 @@ import {
   INVALID_MOCK_RESPONSE,
   VALID_RESPONSE,
   BooleanType,
+  FIELD_NOT_FOUND,
 } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
@@ -26,6 +27,7 @@ interface GeneratedResponseConfig {
   data: object;
   message: string;
   non_matching_fields?: string[];
+  field_not_found?: string;
 }
 
 const fetchJSONFromInjectedScript = async (
@@ -84,16 +86,17 @@ export const generateRandomizedResponse = async (
       const schemaString = printSchema(schemaSDL);
       try {
         const hello = await storeSchema(graphQLendpoint, schemaString);
-        console.log(hello)
+        console.log(hello);
       } catch (error) {
-        console.error('storeTypeMaps failed: ', error);
+        console.error("storeTypeMaps failed: ", error);
       }
     }
     schemaString = await getSchema(graphQLendpoint);
     const schemaSDL = buildSchema(schemaString!);
     const typeMap = schemaSDL!.getTypeMap();
 
-    const [fieldTypes, enumTypes, unionTypes, interfaceTypes] = await giveTypeMaps(typeMap);
+    const [fieldTypes, enumTypes, unionTypes, interfaceTypes] =
+      await giveTypeMaps(typeMap);
 
     const queryDocument = parse(graphqlQuery);
 
@@ -119,15 +122,19 @@ export const generateRandomizedResponse = async (
     } as DataSet;
 
     try {
+      const response = giveRandomResponse(
+        queryDocument,
+        fieldTypes,
+        enumTypes,
+        unionTypes,
+        interfaceTypes,
+        dataSet
+      );
+      if (typeof response === "string") {
+        return { data: {}, message: FIELD_NOT_FOUND, field_not_found: response };
+      }
       return {
-        data: giveRandomResponse(
-          queryDocument,
-          fieldTypes,
-          enumTypes,
-          unionTypes,
-          interfaceTypes,
-          dataSet
-        ),
+        data: response,
         message: SUCCESS,
       };
     } catch {

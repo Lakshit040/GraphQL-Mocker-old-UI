@@ -4,7 +4,6 @@ import {
   DocumentNode,
   OperationDefinitionNode,
 } from "graphql";
-import { FIELD_NOT_FOUND } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import _ from "lodash";
 import { dynamicValueGenerator } from "./randomDataTypeGenerator";
@@ -17,6 +16,7 @@ const giveRandomResponse = (
   interfaceTypes: Map<string, any>,
   dataSet: DataSet
 ) => {
+  let fieldNotFound : string = "";
   const generateMockResponse = (
     selectionSet: SelectionSetNode,
     typeMap: Map<string, any>
@@ -40,8 +40,8 @@ const giveRandomResponse = (
         }
       } else {
         if (!typeMap.has(field.name.value)) {
-          console.log(field.name.value);
-          return { data: {}, message: FIELD_NOT_FOUND };
+          fieldNotFound = field.name.value;
+          return {};
         }
         const typeName = typeMap.get(field.name.value);
 
@@ -122,7 +122,12 @@ const giveRandomResponse = (
     }
     return {};
   };
-  return generateNestedMockResponse(queryDocument, fieldTypes);
+  
+  const generatedResponse = generateNestedMockResponse(queryDocument, fieldTypes);
+  if(fieldNotFound.length > 0){
+    return fieldNotFound;
+  }
+  return generatedResponse;
 };
 
 export default giveRandomResponse;
