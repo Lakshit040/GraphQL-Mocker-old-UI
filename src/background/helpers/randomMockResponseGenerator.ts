@@ -4,6 +4,7 @@ import {
   getIntrospectionQuery,
   buildClientSchema,
   printSchema,
+  buildSchema,
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import {
@@ -20,7 +21,7 @@ import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
-import { storeTypeMaps, getTypeMaps } from "./mapStorage";
+import { storeSchema, getSchema } from "./mapStorage";
 
 interface GeneratedResponseConfig {
   data: object;
@@ -55,16 +56,16 @@ export const generateRandomizedResponse = async (
   isSpecialAllowed: boolean,
   arrayLength: number,
   stringLength: number,
-  booleanValues: string,
+  booleanValues: BooleanType,
   digitsAfterDecimal: number,
   mockResponse: string,
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
   try {
-    let typeMaps = await getTypeMaps(graphQLendpoint);
-    console.log(typeMaps.isEmpty);
-    if (typeMaps === undefined || typeMaps.isEmpty === false) {
-      console.log("Storing the typeMaps!!");
+    let schemaString = await getSchema(graphQLendpoint);
+
+    if (schemaString === undefined) {
+      console.log("Storing the schemaString!!");
       const requestConfigCopy = { ...requestConfig };
       requestConfigCopy.body = JSON.stringify({
         query: getIntrospectionQuery(),
@@ -82,30 +83,25 @@ export const generateRandomizedResponse = async (
       }
       const schemaSDL = buildClientSchema(introspectionResult.data);
       const schemaString = printSchema(schemaSDL);
-      const typeMap = schemaSDL!.getTypeMap();
-      // console.log(schemaString);
-      const typeMapStore = await giveTypeMaps(typeMap);
-      console.log(typeMapStore);
       try {
-        await storeTypeMaps(graphQLendpoint, typeMapStore, false);
+        const hello = await storeSchema(graphQLendpoint, schemaString);
+        console.log(hello)
       } catch (error) {
         console.error('storeTypeMaps failed: ', error);
       }
     }
+    schemaString = await getSchema(graphQLendpoint);
+    const schemaSDL = buildSchema(schemaString!);
+    const typeMap = schemaSDL!.getTypeMap();
 
-    let store = await getTypeMaps(graphQLendpoint);
-    let storedData = store?.typeMapStore;
-    
-    if (storedData !== undefined) {
-      console.log("Storage hurray!!");
-      console.log(storedData);
-    }
+    const [fieldTypes, enumTypes, unionTypes, interfaceTypes] = await giveTypeMaps(typeMap);
+
     const queryDocument = parse(graphqlQuery);
 
     if (!shouldRandomizeResponse) {
       const errors = queryResponseValidator(
         JSON.parse(mockResponse!),
-        store.fieldTypes
+        fieldTypes
       );
       return {
         data: JSON.parse(mockResponse!).data,
@@ -127,10 +123,10 @@ export const generateRandomizedResponse = async (
       return {
         data: giveRandomResponse(
           queryDocument,
-          storedData.fieldTypes,
-          storedData.enumTypes,
-          storedData.unionTypes,
-          storedData.interfaceTypes,
+          fieldTypes,
+          enumTypes,
+          unionTypes,
+          interfaceTypes,
           dataSet
         ),
         message: SUCCESS,

@@ -3,6 +3,7 @@ import {
   NORMAL_CHARACTERS,
   TRUE,
   FALSE,
+  BooleanType,
 } from "../../common/types";
 import _ from "lodash";
 import { specificFieldGenerator } from "./specificFieldGenerator";
@@ -29,10 +30,10 @@ const floatGenerator = (
   return Number(_.random(numberFrom, numberTo, true).toFixed(noOfDecimals));
 };
 
-const booleanGenerator = (booleanValue: string): boolean => {
-  return booleanValue === TRUE
+const booleanGenerator = (booleanValue: BooleanType): boolean => {
+  return booleanValue === BooleanType.True
     ? true
-    : booleanValue === FALSE
+    : booleanValue === BooleanType.False
     ? false
     : _.random() < 0.5;
 };
@@ -47,7 +48,7 @@ export interface DataSet {
   numRangeStart: number;
   numRangeEnd: number;
   digitsAfterDecimal: number;
-  booleanValues: string;
+  booleanValues: BooleanType;
   isSpecialAllowed: boolean;
 }
 

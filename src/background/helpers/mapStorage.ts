@@ -1,20 +1,9 @@
-export const storeTypeMaps = (graphQLendpoint: string, typeMapStore: any, isEmpty: boolean = false) => {
+export const storeSchema = (graphQLendpoint: string, schemaString: string) => {
   return new Promise((resolve, reject) => {
     try {
-      // Convert Maps to objects
-      const storedValue = {
-        isEmpty,
-        typeMapStore: {
-          enumTypes: Object.fromEntries(typeMapStore.enumTypes),
-          fieldTypes: Object.fromEntries(typeMapStore.fieldTypes),
-          unionTypes: Object.fromEntries(typeMapStore.unionTypes),
-          interfaceTypes: Object.fromEntries(typeMapStore.interfaceTypes),
-        },
-      };
-      
-      chrome.storage.local.set({ [graphQLendpoint]: storedValue }, () => {
+      chrome.storage.local.set({ [graphQLendpoint]: schemaString }, () => {
         console.log("TypeMap stored successfully!");
-        resolve(storedValue);
+        resolve(schemaString)
       });
     } catch (error) {
       console.error("TypeMap not stored!!", error);
@@ -23,33 +12,54 @@ export const storeTypeMaps = (graphQLendpoint: string, typeMapStore: any, isEmpt
   });
 };
 
-export const getTypeMaps = async (graphQLEndpoint: string) => {
-  return new Promise<any>((resolve) => {
+export const getSchema = (graphQLEndpoint: string) => {
+  return new Promise<string | undefined>((resolve) => {
     try {
-      chrome.storage.local.get(graphQLEndpoint, (result) => {
+      chrome.storage.local.get([graphQLEndpoint], (result) => {
         if (chrome.runtime.lastError) {
-          console.log("Error retrieving typemap!!");
+          console.log("Error retrieving schema!");
           resolve(undefined);
         } else {
-          // Convert objects back to Maps
-          if (result && result[graphQLEndpoint]) {
-            const retrieved = result[graphQLEndpoint];
-            const { typeMapStore } = retrieved;
-            retrieved.typeMapStore = {
-              enumTypes: new Map(Object.entries(typeMapStore.enumTypes)),
-              fieldTypes: new Map(Object.entries(typeMapStore.fieldTypes)),
-              unionTypes: new Map(Object.entries(typeMapStore.unionTypes)),
-              interfaceTypes: new Map(Object.entries(typeMapStore.interfaceTypes)),
-            };
-            resolve(retrieved);
-          } else {
-            resolve(undefined);
-          }
+          resolve(result[graphQLEndpoint] as string | undefined);
         }
       });
-    } catch {
-      console.log('Error retriving')
+    } catch (error) {
+      console.error('Caught error in getSchema: ', error);
       resolve(undefined);
     }
   });
 };
+
+export const getQueryEndpoint = (expressionId: string) => {
+  return new Promise<string | undefined>((resolve) => {
+    try{
+      chrome.storage.local.get([expressionId], (result) => {
+        if(chrome.runtime.lastError){
+          console.log("Error retrieving endpoint!");
+          resolve(undefined);
+        }
+        else{
+          resolve(result[expressionId] as string | undefined);
+        }
+      })
+    }
+    catch(error) {
+      console.log('Caught error in getQueryEndpoint: ', error);
+    }
+  })
+}
+
+export const storeQueryEndpoint = (expressionId: string, query: string, endpoint: string) => {
+  return new Promise((resolve, reject) => {
+    try{
+      chrome.storage.local.set({[expressionId] : `${query}__${endpoint}`}, () => {
+        console.log('Expression-Query-Endpoint stored');
+        resolve(`${query}__${endpoint}`);
+      })
+    }
+    catch(error){
+      console.log('Query not stored!', error);
+      reject(error);
+    }
+  })
+}

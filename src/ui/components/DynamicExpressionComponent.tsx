@@ -8,6 +8,7 @@ import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
 import useDynamicComponentHook from "./DynamicComponentCustomHook";
 import { generateRandomizedResponse } from "../../background/helpers/randomMockResponseGenerator";
+import { fastRandomize } from "../../background/helpers/fastRandomization";
 interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
@@ -80,19 +81,15 @@ const DynamicExpressionComponent = ({
     onDynamicExpressionDelete(id);
   }, [id, onDynamicExpressionDelete]);
 
-  const handleResponseHere = useCallback((id : string) => {
-    chrome.storage.local.get(id, async (result) => {
-      console.log(1, JSON.stringify(result));
-      if (result && result[id]) {
-        console.log(result[id]);
-        const str: string = result[id];
-        const [query, endpoint] = str.split("__");
-        console.log(query);
-        console.log(endpoint);
-        
+  const handleResponseHere = useCallback(
+    async (id: string) => {
+      const response = await fastRandomize(id);
+      if (response !== undefined) {
+        dynamicHook.handleMockResponseChange(JSON.stringify(response, null, 2));
       }
-    });
-  }, [dynamicHook.handleMockResponseChange]);
+    },
+    [dynamicHook.handleMockResponseChange]
+  );
 
   return (
     <div className="my-2 border-none rounded-xl overflow-auto">
@@ -168,7 +165,7 @@ const DynamicExpressionComponent = ({
             />
           </div>
           <MockingAreaComponent
-          id={id}
+            id={id}
             mockResponse={dynamicHook.mockResponse}
             isMockResponseTextAreaFocused={isMockResponseTextAreaFocused}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}

@@ -9,6 +9,7 @@ import {
   BooleanType,
 } from "../common/types";
 import { generateRandomizedResponse } from "./helpers/randomMockResponseGenerator";
+import { storeQueryEndpoint } from "./helpers/mapStorage";
 
 const mockResponseConfigMap: Map<
   string,
@@ -77,15 +78,9 @@ const handleInterceptedRequest = async (
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
-      await setExpressionQueryEndpoint(mockingRuleKey, query, url);
+      await storeQueryEndpoint(mockingRuleKey, query, url);
       const mockingRule = mockResponseConfig[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
-        const booleanValue =
-          mockingRule.booleanType === BooleanType.True
-            ? TRUE
-            : mockingRule.booleanType === BooleanType.False
-            ? FALSE
-            : RANDOM;
         const generatedRandomResponse = await generateRandomizedResponse(
           tabId,
           frameId,
@@ -97,7 +92,7 @@ const handleInterceptedRequest = async (
           mockingRule.specialCharactersAllowed,
           mockingRule.arrayLength,
           mockingRule.stringLength,
-          booleanValue,
+          mockingRule.booleanType,
           mockingRule.afterDecimals,
           mockingRule.mockResponse,
           mockingRule.shouldRandomizeResponse

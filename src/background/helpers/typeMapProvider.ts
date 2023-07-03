@@ -65,15 +65,6 @@ export const giveTypeMaps = async (typeMap: any) => {
       addInterfaceFields(graphQLType);
     }
   });
-  const typeMapStore = {
-    fieldTypes: fieldTypes,
-    enumTypes: enumTypes,
-    unionTypes: unionTypes,
-    interfaceTypes: interfaceTypes
-  }
-  console.log(fieldTypes);
-  console.log(enumTypes);
-  console.log(unionTypes);
-  console.log(interfaceTypes);
-  return typeMapStore;
+  
+  return [fieldTypes, enumTypes, unionTypes, interfaceTypes];
 };
