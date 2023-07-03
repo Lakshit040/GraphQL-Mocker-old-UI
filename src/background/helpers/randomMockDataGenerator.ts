@@ -25,10 +25,13 @@ const giveRandomResponse = (
 
     for (const field of selectionSet.selections) {
       if (field.kind === "InlineFragment") {
-        response[field.typeCondition!.name.value] = generateMockResponse(
+        const fragmentResponse = generateMockResponse(
           field.selectionSet!,
           typeMap
         );
+        for(const fragmentKey in fragmentResponse){
+          response[fragmentKey] = fragmentResponse[fragmentKey];
+        }
       } else if (field.kind === "FragmentSpread") {
         const fragmentName = field.name.value;
         const fragmentResponse = generateMockResponse(

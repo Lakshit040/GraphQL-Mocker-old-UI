@@ -1,4 +1,4 @@
-import _, { isArray } from "lodash";
+import _ from "lodash";
 import {
   parse,
   getIntrospectionQuery,
@@ -28,6 +28,7 @@ interface GeneratedResponseConfig {
   message: string;
   non_matching_fields?: string[];
   field_not_found?: string;
+  missing_fields?: string[];
 }
 
 const fetchJSONFromInjectedScript = async (
@@ -101,14 +102,15 @@ export const generateRandomizedResponse = async (
     const queryDocument = parse(graphqlQuery);
 
     if (!shouldRandomizeResponse) {
-      const errors = queryResponseValidator(
-        JSON.parse(mockResponse!),
+      const response = queryResponseValidator(
+        JSON.parse(mockResponse!).data,
         fieldTypes
       );
       return {
         data: JSON.parse(mockResponse!).data,
-        message: errors.length === 0 ? VALID_RESPONSE : INVALID_MOCK_RESPONSE,
-        non_matching_fields: errors,
+        message: response.errors.length === 0 && response.fieldNotFound.length === 0 ? VALID_RESPONSE : INVALID_MOCK_RESPONSE,
+        non_matching_fields: response.errors,
+        field_not_found: response.fieldNotFound
       };
     }
     const dataSet = {
@@ -131,7 +133,11 @@ export const generateRandomizedResponse = async (
         dataSet
       );
       if (typeof response === "string") {
-        return { data: {}, message: FIELD_NOT_FOUND, field_not_found: response };
+        return {
+          data: {},
+          message: FIELD_NOT_FOUND,
+          field_not_found: response,
+        };
       }
       return {
         data: response,

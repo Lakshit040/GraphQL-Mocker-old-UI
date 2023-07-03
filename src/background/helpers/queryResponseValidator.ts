@@ -1,17 +1,20 @@
-import { DocumentNode, GraphQLSchema } from "graphql";
-
-const responseTypeMap: Map<string, string> = new Map();
-
 export const queryResponseValidator = (
   response: any,
   fieldTypes: Map<string, any>
-): string[] => {
+): any => {
+
+  if(typeof response !== "object"){
+    return {errors: [], fieldNotFound: []};
+  }
+
+  const responseTypeMap: Map<string, string> = new Map();
+
   const getResponseFieldMap = (obj: any) => {
     for (const key in obj) {
       if (Array.isArray(obj[key])) {
-        responseTypeMap.set(key, `[${typeof obj[key][0]}]`);
+        responseTypeMap.set(key, `array`);
         if (obj[key].length > 0 && typeof obj[key][0] !== "object") {
-        } else if (obj[key].length > 0) {
+        } else if (obj[key].length > 0 ) {
           getResponseFieldMap(obj[key][0]);
         }
       } else if (typeof obj[key] === "object" && obj[key] !== null) {
@@ -22,17 +25,20 @@ export const queryResponseValidator = (
       }
     }
   };
-
   getResponseFieldMap(response);
   const errors: string[] = [];
+  console.log(responseTypeMap);
+  const fieldNotFound: string[] = [];
+
   for (const [key, value] of responseTypeMap) {
     if (value.startsWith("[")) {
-      // response type is array
       if (fieldTypes.has(key)) {
         const fieldValue = fieldTypes.get(key);
         if (typeof fieldValue === "string" && fieldValue.charAt(0) !== "[") {
           errors.push(`${key} must be an array`);
         }
+      } else {
+        fieldNotFound.push(key);
       }
     } else {
       // base types check
@@ -49,25 +55,17 @@ export const queryResponseValidator = (
           ) {
             fieldValue = "string";
           }
-          if (
-            fieldValue === "string" ||
-            fieldValue === "number" ||
-            fieldValue === "boolean"
-          ) {
-            if (fieldValue !== value) {
-              errors.push(
-                `${key} must be a ${fieldValue} and you provided a ${value}`
-              );
-            }
+          if (fieldValue !== value) {
+            errors.push(
+              `${key} must be a ${fieldValue} and you provided a ${value}`
+            );
           }
         }
+      } else {
+        fieldNotFound.push(key);
       }
     }
   }
 
-  if (errors.length === 0) {
-    return [];
-  } else {
-    return errors;
-  }
+  return {errors: errors, fieldNotFound: fieldNotFound};
 };
