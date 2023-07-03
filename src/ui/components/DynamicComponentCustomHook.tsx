@@ -99,19 +99,21 @@ const useDynamicComponentHook = () => {
     []
   );
   const handleMockResponseChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setMockResponse(event.target.value);
+    (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
+      if (typeof event === "string") {
+        setMockResponse(event);
+      } else setMockResponse(event.target.value);
     },
     []
   );
 
+  const handleGenerateResponseHere = useCallback((value: string) => {
+    setMockResponse(value);
+  }, []);
+
   const handlePrettifyButtonPressed = () => {
     try {
-      const prettified = JSON.stringify(
-        JSON.parse(mockResponse),
-        null,
-        2
-      );
+      const prettified = JSON.stringify(JSON.parse(mockResponse), null, 2);
       setMockResponse(prettified);
     } catch (err) {}
   };
@@ -141,7 +143,8 @@ const useDynamicComponentHook = () => {
     handleStatusCodeChange,
     handleShouldRandomizeResponseChange,
     handleDynamicExpressionChange,
-    handlePrettifyButtonPressed
+    handlePrettifyButtonPressed,
+    handleGenerateResponseHere,
   };
 };
 

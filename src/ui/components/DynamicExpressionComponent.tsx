@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useContext } from "react";
-import {  PlayIcon, PauseIcon, TrashIcon} from "@heroicons/react/24/solid";
+import { PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/solid";
 import MockingAreaComponent from "./MockingAreaComponent";
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
@@ -7,7 +7,7 @@ import { ContextForDynamicComponents } from "./MockResponseConfigComponent";
 import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
 import useDynamicComponentHook from "./DynamicComponentCustomHook";
-
+import { generateRandomizedResponse } from "../../background/helpers/randomMockResponseGenerator";
 interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
@@ -31,7 +31,7 @@ const DynamicExpressionComponent = ({
     if (isExpressionMocking) {
       register(id, {
         dynamicExpression: dynamicHook.dynamicExpression,
-        shouldRandomizeResponse:  dynamicHook.shouldRandomizeResponse,
+        shouldRandomizeResponse: dynamicHook.shouldRandomizeResponse,
         numberRangeStart: dynamicHook.numberRangeStart,
         numberRangeEnd: dynamicHook.numberRangeEnd,
         arrayLength: dynamicHook.arrayLength,
@@ -80,6 +80,20 @@ const DynamicExpressionComponent = ({
     onDynamicExpressionDelete(id);
   }, [id, onDynamicExpressionDelete]);
 
+  const handleResponseHere = useCallback((id : string) => {
+    chrome.storage.local.get(id, async (result) => {
+      console.log(1, JSON.stringify(result));
+      if (result && result[id]) {
+        console.log(result[id]);
+        const str: string = result[id];
+        const [query, endpoint] = str.split("__");
+        console.log(query);
+        console.log(endpoint);
+        
+      }
+    });
+  }, [dynamicHook.handleMockResponseChange]);
+
   return (
     <div className="my-2 border-none rounded-xl overflow-auto">
       <AccordionComponent
@@ -102,13 +116,13 @@ const DynamicExpressionComponent = ({
               />
               {isExpressionMocking ? (
                 <PauseIcon
-                  title="Stop mocking"
+                  title="Deactivate rule"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                   onClick={handleExpressionMockingPlayPause}
                 />
               ) : (
                 <PlayIcon
-                  title="Start mocking"
+                  title="Activate rule"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
                   onClick={handleExpressionMockingPlayPause}
                 />
@@ -129,7 +143,9 @@ const DynamicExpressionComponent = ({
             onStatusCodeChange={dynamicHook.handleStatusCodeChange}
           />
 
-          <div className={dynamicHook.shouldRandomizeResponse ? "mt-2" : "hidden"}>
+          <div
+            className={dynamicHook.shouldRandomizeResponse ? "mt-2" : "hidden"}
+          >
             <RandomResponseConfigComponent
               booleanType={dynamicHook.booleanType}
               arrayLength={dynamicHook.arrayLength}
@@ -142,7 +158,9 @@ const DynamicExpressionComponent = ({
               onAfterDecimalsChange={dynamicHook.handleAfterDecimalsChange}
               onArrayLengthChange={dynamicHook.handleArrayLengthChange}
               onNumberRangeEndChange={dynamicHook.handleNumberRangeEndChange}
-              onNumberRangeStartChange={dynamicHook.handleNumberRangeStartChange}
+              onNumberRangeStartChange={
+                dynamicHook.handleNumberRangeStartChange
+              }
               onSpecialCharactersAllowedChange={
                 dynamicHook.handleSpecialCharactersAllowedChange
               }
@@ -150,6 +168,7 @@ const DynamicExpressionComponent = ({
             />
           </div>
           <MockingAreaComponent
+          id={id}
             mockResponse={dynamicHook.mockResponse}
             isMockResponseTextAreaFocused={isMockResponseTextAreaFocused}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
@@ -157,6 +176,7 @@ const DynamicExpressionComponent = ({
             onMockResponseTextAreaBlurred={handleMockResponseTextAreaBlurred}
             onMockResponseTextAreaFocused={handleMockResponseTextAreaFocused}
             onPrettifyButtonPressed={dynamicHook.handlePrettifyButtonPressed}
+            onGenerateResponseHereButtonPressed={handleResponseHere}
           />
         </div>
       </AccordionComponent>

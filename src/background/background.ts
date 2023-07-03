@@ -77,6 +77,7 @@ const handleInterceptedRequest = async (
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
+      await setExpressionQueryEndpoint(mockingRuleKey, query, url);
       const mockingRule = mockResponseConfig[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
         const booleanValue =
@@ -100,6 +101,7 @@ const handleInterceptedRequest = async (
           mockingRule.afterDecimals,
           mockingRule.mockResponse,
           mockingRule.shouldRandomizeResponse
+
         );
         if (mockingRule.responseDelay > 0) {
           setTimeout(
@@ -116,7 +118,6 @@ const handleInterceptedRequest = async (
             mockingRule.statusCode
           );
         }
-
 
         return;
       }
@@ -145,5 +146,19 @@ const unSetMockResponse = (
     mockResponseConfigMap.delete(`${operationType}_${operationName}`);
   } catch {
     return;
+  }
+};
+
+const setExpressionQueryEndpoint = async (
+  expressionId: string,
+  query: string,
+  endpoint: string
+) => {
+  try {
+    chrome.storage.local.set({ [expressionId] :`${query}__${endpoint}` }, () => {
+      console.log("Stored successfully!!");
+    });
+  } catch {
+    console.log("Problem in storing data!!");
   }
 };

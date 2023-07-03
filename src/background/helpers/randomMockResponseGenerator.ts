@@ -14,26 +14,19 @@ import {
   SCHEMA_INTROSPECTION_ERROR,
   INVALID_MOCK_RESPONSE,
   VALID_RESPONSE,
+  BooleanType,
 } from "../../common/types";
 import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
-interface SchemaConfig {
-  schemaSDL: GraphQLSchema;
-  schemaString: string;
-}
+import { storeTypeMaps, getTypeMaps } from "./mapStorage";
+
 interface GeneratedResponseConfig {
   data: object;
   message: string;
   non_matching_fields?: string[];
 }
-
-const schemaConfigurationMap: Map<string, SchemaConfig> = new Map();
-const unionConfigurationMap: Map<string, Map<string, any>> = new Map();
-const interfaceConfigurationMap: Map<string, Map<string, any>> = new Map();
-const enumConfigurationMap: Map<string, Map<string, string[]>> = new Map();
-const fieldConfigurationMap: Map<string, Map<string, any>> = new Map();
 
 const fetchJSONFromInjectedScript = async (
   tabId: number,
@@ -68,15 +61,18 @@ export const generateRandomizedResponse = async (
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
   try {
-    if (schemaConfigurationMap.get(graphQLendpoint) === undefined) {
+    let typeMaps = await getTypeMaps(graphQLendpoint);
+    console.log(typeMaps.isEmpty);
+    if (typeMaps === undefined || typeMaps.isEmpty === false) {
+      console.log("Storing the typeMaps!!");
       const requestConfigCopy = { ...requestConfig };
       requestConfigCopy.body = JSON.stringify({
         query: getIntrospectionQuery(),
       });
 
       const introspectionResult = await fetchJSONFromInjectedScript(
-        tabId,
-        frameId,
+        tabId!,
+        frameId!,
         graphQLendpoint,
         requestConfigCopy
       );
@@ -86,57 +82,55 @@ export const generateRandomizedResponse = async (
       }
       const schemaSDL = buildClientSchema(introspectionResult.data);
       const schemaString = printSchema(schemaSDL);
-
       const typeMap = schemaSDL!.getTypeMap();
-
-      const [fieldTypes, enumTypes, interfaceTypes, unionTypes] =
-        giveTypeMaps(typeMap);
-
-      schemaConfigurationMap.set(graphQLendpoint, { schemaSDL, schemaString });
-      interfaceConfigurationMap.set(graphQLendpoint, interfaceTypes);
-      unionConfigurationMap.set(graphQLendpoint, unionTypes);
-      enumConfigurationMap.set(graphQLendpoint, enumTypes);
-      fieldConfigurationMap.set(graphQLendpoint, fieldTypes);
+      // console.log(schemaString);
+      const typeMapStore = await giveTypeMaps(typeMap);
+      console.log(typeMapStore);
+      try {
+        await storeTypeMaps(graphQLendpoint, typeMapStore, false);
+      } catch (error) {
+        console.error('storeTypeMaps failed: ', error);
+      }
     }
 
-    const { schemaSDL, schemaString } =
-      schemaConfigurationMap.get(graphQLendpoint)!;
-    const fieldTypes = fieldConfigurationMap.get(graphQLendpoint)!;
-    const unionTypes = unionConfigurationMap.get(graphQLendpoint)!;
-    const enumTypes = enumConfigurationMap.get(graphQLendpoint)!;
-    const interfaceTypes = interfaceConfigurationMap.get(graphQLendpoint)!;
-
+    let store = await getTypeMaps(graphQLendpoint);
+    let storedData = store?.typeMapStore;
+    
+    if (storedData !== undefined) {
+      console.log("Storage hurray!!");
+      console.log(storedData);
+    }
     const queryDocument = parse(graphqlQuery);
 
     if (!shouldRandomizeResponse) {
       const errors = queryResponseValidator(
-        JSON.parse(mockResponse),
-        fieldTypes
+        JSON.parse(mockResponse!),
+        store.fieldTypes
       );
       return {
-        data: JSON.parse(mockResponse).data,
+        data: JSON.parse(mockResponse!).data,
         message: errors.length === 0 ? VALID_RESPONSE : INVALID_MOCK_RESPONSE,
         non_matching_fields: errors,
       };
     }
     const dataSet = {
-      stringLength: stringLength,
-      arrayLength: arrayLength,
-      isSpecialAllowed: isSpecialAllowed,
-      booleanValues: booleanValues,
-      numRangeEnd: numRangeEnd,
-      numRangeStart: numRangeStart,
-      digitsAfterDecimal: digitsAfterDecimal,
+      stringLength: stringLength ?? 8,
+      arrayLength: arrayLength ?? 4,
+      isSpecialAllowed: isSpecialAllowed ?? true,
+      booleanValues: booleanValues ?? BooleanType.Random,
+      numRangeEnd: numRangeEnd ?? 1000,
+      numRangeStart: numRangeStart ?? 1,
+      digitsAfterDecimal: digitsAfterDecimal ?? 2,
     } as DataSet;
 
     try {
       return {
         data: giveRandomResponse(
           queryDocument,
-          fieldTypes,
-          enumTypes,
-          unionTypes,
-          interfaceTypes,
+          storedData.fieldTypes,
+          storedData.enumTypes,
+          storedData.unionTypes,
+          storedData.interfaceTypes,
           dataSet
         ),
         message: SUCCESS,

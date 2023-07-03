@@ -8,7 +8,8 @@ import {
   GraphQLInterfaceType,
 } from "graphql";
 
-export const giveTypeMaps = (typeMap: any) => {
+export const giveTypeMaps = async (typeMap: any) => {
+
   const interfaceTypes: Map<string, any> = new Map();
   const fieldTypes: Map<string, any> = new Map();
   const enumTypes: Map<string, string[]> = new Map();
@@ -64,5 +65,15 @@ export const giveTypeMaps = (typeMap: any) => {
       addInterfaceFields(graphQLType);
     }
   });
-  return [fieldTypes, enumTypes, unionTypes, interfaceTypes];
+  const typeMapStore = {
+    fieldTypes: fieldTypes,
+    enumTypes: enumTypes,
+    unionTypes: unionTypes,
+    interfaceTypes: interfaceTypes
+  }
+  console.log(fieldTypes);
+  console.log(enumTypes);
+  console.log(unionTypes);
+  console.log(interfaceTypes);
+  return typeMapStore;
 };
