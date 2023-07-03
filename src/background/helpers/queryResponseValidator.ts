@@ -2,9 +2,8 @@ export const queryResponseValidator = (
   response: any,
   fieldTypes: Map<string, any>
 ): any => {
-
-  if(typeof response !== "object"){
-    return {errors: [], fieldNotFound: []};
+  if (typeof response !== "object") {
+    return { errors: [], fieldNotFound: [] };
   }
 
   const responseTypeMap: Map<string, string> = new Map();
@@ -14,7 +13,7 @@ export const queryResponseValidator = (
       if (Array.isArray(obj[key])) {
         responseTypeMap.set(key, `array`);
         if (obj[key].length > 0 && typeof obj[key][0] !== "object") {
-        } else if (obj[key].length > 0 ) {
+        } else if (obj[key].length > 0) {
           getResponseFieldMap(obj[key][0]);
         }
       } else if (typeof obj[key] === "object" && obj[key] !== null) {
@@ -54,6 +53,11 @@ export const queryResponseValidator = (
             fieldValue === "url"
           ) {
             fieldValue = "string";
+          } else if (fieldValue !== "boolean" && fieldValue !== "string") {
+            if (fieldValue.startsWith("[")) fieldValue = "array";
+            else {
+              fieldValue = "object";
+            }
           }
           if (fieldValue !== value) {
             errors.push(
@@ -67,5 +71,5 @@ export const queryResponseValidator = (
     }
   }
 
-  return {errors: errors, fieldNotFound: fieldNotFound};
+  return { errors: errors, fieldNotFound: fieldNotFound };
 };
