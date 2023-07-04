@@ -22,9 +22,10 @@ const giveRandomResponse = (
     typeMap: Map<string, any>
   ) => {
     const response: any = {};
-
+    let inlineFragmentProcessed: boolean = false;
     for (const field of selectionSet.selections) {
       if (field.kind === "InlineFragment") {
+        if(inlineFragmentProcessed) continue;
         const fragmentResponse = generateMockResponse(
           field.selectionSet!,
           typeMap
@@ -32,6 +33,7 @@ const giveRandomResponse = (
         for(const fragmentKey in fragmentResponse){
           response[fragmentKey] = fragmentResponse[fragmentKey];
         }
+        inlineFragmentProcessed = true;
       } else if (field.kind === "FragmentSpread") {
         const fragmentName = field.name.value;
         const fragmentResponse = generateMockResponse(
