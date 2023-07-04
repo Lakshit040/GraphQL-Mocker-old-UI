@@ -90,10 +90,13 @@ export const doesMockingRuleHold = (
   dynamicExpression: string,
   variableValues: any
 ): boolean => {
-  if (dynamicExpression.trim() === "*") {
+  dynamicExpression = dynamicExpression.trim();
+  if (dynamicExpression === "*") {
     return true;
   }
-
+  if(dynamicExpression === ""){
+    return false;
+  }
   try {
     const ast = jsep(helper(dynamicExpression, variableValues));
     const evaluate = (node: any): any => {
