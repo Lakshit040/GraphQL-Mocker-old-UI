@@ -33,7 +33,7 @@ const capture = (url: string, config?: RequestInit) => {
 
     const message = {
       type: MessageType.RequestIntercepted,
-      data: { url, config },
+      data: { url, config: JSON.parse(JSON.stringify(config)) },
     };
     const event = new CustomEvent("request-intercepted", {
       detail: { data: message, requestId },
@@ -41,24 +41,6 @@ const capture = (url: string, config?: RequestInit) => {
     window.dispatchEvent(event);
   });
 };
-
-// Capture XMLHttpRequests
-proxy({
-  onRequest: (config, handler) =>
-    capture(config.url, config)
-      .then(({ response, statusCode }) => {
-        return handler.resolve({
-          config,
-          status: statusCode,
-          headers: [],
-          response,
-        });
-      })
-      .catch(() => handler.next(config)),
-  onResponse: (response, handler) => {
-    handler.resolve(response);
-  },
-});
 
 // Capture fetch requests
 const __oldFetch__: (
