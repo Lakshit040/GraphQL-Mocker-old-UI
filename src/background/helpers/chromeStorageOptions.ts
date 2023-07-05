@@ -1,115 +1,62 @@
+import {
+  readFromSessionStorage,
+  writeToSessionStorage,
+  deleteFromSessionStorage,
+} from "../../common/chromeStorageHelpers";
 import { DynamicComponentData } from "../../common/types";
 
-export const storeSchema = (graphQLendpoint: string, schemaString: string) => {
-  return new Promise((resolve, reject) => {
-    try {
-      chrome.storage.local.set({ [graphQLendpoint]: schemaString }, () => {
-        resolve(schemaString);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+const Namespaces = {
+  CachedSchema: "CACHED_SCHEMA",
+  QueryEndpoint: "QUERY_ENDPOINT",
+  Operation: "OPERATION",
 };
 
-export const getSchema = (graphQLEndpoint: string) => {
-  return new Promise<string | undefined>((resolve) => {
-    try {
-      chrome.storage.local.get([graphQLEndpoint], (result) => {
-        if (chrome.runtime.lastError) {
-          resolve(undefined);
-        } else {
-          resolve(result[graphQLEndpoint] as string | undefined);
-        }
-      });
-    } catch (error) {
-      resolve(undefined);
-    }
-  });
+export const getSchema = async (graphQLEndpoint: string) => {
+  return await readFromSessionStorage(Namespaces.CachedSchema, graphQLEndpoint);
 };
 
-export const getQueryEndpoint = (expressionId: string) => {
-  return new Promise<string | undefined>((resolve, reject) => {
-    try {
-      chrome.storage.local.get([expressionId], (result) => {
-        if (chrome.runtime.lastError) {
-          resolve(undefined);
-        } else {
-          resolve(result[expressionId] as string | undefined);
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const storeSchema = async (
+  graphQLendpoint: string,
+  schemaString: string
+) => {
+  await writeToSessionStorage(
+    Namespaces.CachedSchema,
+    graphQLendpoint,
+    schemaString
+  );
 };
 
-export const storeQueryEndpoint = (
+export const getQueryEndpoint = async (expressionId: string) => {
+  return await readFromSessionStorage(Namespaces.QueryEndpoint, expressionId);
+};
+
+export const storeQueryEndpoint = async (
   expressionId: string,
   query: string,
   endpoint: string
 ) => {
-  return new Promise((resolve, reject) => {
-    try {
-      chrome.storage.local.set(
-        { [expressionId]: `${query}__${endpoint}` },
-        () => {
-          resolve(`${query}__${endpoint}`);
-        }
-      );
-    } catch (error) {
-      reject(error);
-    }
-  });
+  await writeToSessionStorage(
+    Namespaces.QueryEndpoint,
+    expressionId,
+    `${query}__${endpoint}`
+  );
 };
 
-export const removeQueryEndpoint = (expressionId: string) => {
-  return new Promise((resolve, reject) => {
-    try {
-      chrome.storage.local.remove(expressionId, () => {
-        resolve(expressionId);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const removeQueryEndpoint = async (expressionId: string) => {
+  await deleteFromSessionStorage(Namespaces.QueryEndpoint, expressionId);
 };
 
-export const storeOperation = (
+export const getOperation = async (key: string) => {
+  return await readFromSessionStorage(Namespaces.Operation, key);
+};
+
+export const storeOperation = async (
   key: string,
   value: Record<string, DynamicComponentData>
 ) => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.set({ [key]: value }, () => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(value);
-      }
-    });
-  });
+  await writeToSessionStorage(Namespaces.Operation, key, value);
 };
 
-export const getOperation = (key: string) => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get([key], (result) => {
-      if (chrome.runtime.lastError) {
-        resolve(undefined);
-      } else {
-        resolve(result[key]);
-      }
-    });
-  });
-};
-
-export const deleteOperation = (key: string) => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.remove([key], () => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(undefined);
-      }
-    });
-  });
+export const deleteOperation = async (key: string) => {
+  await deleteFromSessionStorage(Namespaces.Operation, key);
 };
