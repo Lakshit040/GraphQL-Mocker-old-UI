@@ -1,4 +1,3 @@
-import { proxy } from "ajax-hook";
 import { MessageType } from "../common/types";
 import { guidGenerator } from "../common/utils";
 
@@ -21,7 +20,7 @@ interface DoFetchEventDetail {
   };
 }
 
-const hijackedRequests = new Map();
+const capturedRequests = new Map();
 
 const capture = (url: string, config?: RequestInit) => {
   return new Promise<CapturedResponse>((resolve, reject) => {
@@ -29,7 +28,7 @@ const capture = (url: string, config?: RequestInit) => {
       return reject();
 
     const requestId = guidGenerator();
-    hijackedRequests.set(requestId, [resolve, reject]);
+    capturedRequests.set(requestId, [resolve, reject]);
 
     const message = {
       type: MessageType.RequestIntercepted,
@@ -61,9 +60,9 @@ window.fetch = (req, config = undefined) => {
 window.addEventListener("mock-response", (event) => {
   const { requestId, response, statusCode } = (event as any)
     .detail as MockResponseEventDetail;
-  if (!hijackedRequests.has(requestId)) return;
+  if (!capturedRequests.has(requestId)) return;
 
-  const [resolve, reject] = hijackedRequests.get(requestId);
+  const [resolve, reject] = capturedRequests.get(requestId);
 
   if (response) {
     resolve({ response, statusCode });
@@ -71,7 +70,7 @@ window.addEventListener("mock-response", (event) => {
     reject();
   }
 
-  hijackedRequests.delete(requestId);
+  capturedRequests.delete(requestId);
 });
 
 window.addEventListener("do-fetch", async (event) => {
