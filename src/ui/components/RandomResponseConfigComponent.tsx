@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 import AccordionComponent from "./AccordionComponent";
 import { BooleanType, TRUE, FALSE, RANDOM } from "../../common/types";

@@ -1,10 +1,8 @@
 import { useState, useCallback, createContext, useRef } from "react";
-
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 import DynamicExpressionComponent from "./DynamicExpressionComponent";
 import { PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/solid";
-
 import { GraphQLOperationType, DynamicComponentData } from "../../common/types";
 import {
   backgroundSetMockResponse,

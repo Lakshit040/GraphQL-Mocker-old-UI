@@ -7,7 +7,6 @@ import { ContextForDynamicComponents } from "./MockResponseConfigComponent";
 import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
 import useDynamicComponentHook from "./DynamicComponentCustomHook";
-import { generateRandomizedResponse } from "../../background/helpers/randomMockResponseGenerator";
 import { fastRandomize } from "../../background/helpers/fastRandomization";
 interface DynamicComponentProps {
   id: string;
