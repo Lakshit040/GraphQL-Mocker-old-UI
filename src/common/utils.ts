@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import jsep from "jsep";
 import _ from "lodash";
 import { GraphQLOperationType } from "./types";
+import { CONDITION_REGEX, OBJECT_REGEX, ARRAY_REGEX } from "./rejex";
 
 export const parseIfGraphQLRequest = (
   config: any
@@ -41,16 +42,15 @@ export const parseIfGraphQLRequest = (
 };
 
 const helper = (str: string, values: any): string => {
-  const pattern = /(\([^()]+\))|[^&|]+/g;
+  const pattern = CONDITION_REGEX;
   const matches = str.match(pattern)!;
   const extractedConditions = matches.map((match) =>
     match.replace(/[()]/g, "").trim()
   );
 
-  const objectRegex = /(==|!=|===|!==)\s*({.*})/;
-  const arrayRegex = /(==|===|!=|!==)\s*(\[.*])/;
+  const objectRegex = OBJECT_REGEX;
+  const arrayRegex = ARRAY_REGEX;
   extractedConditions.forEach((condition, index) => {
-    console.log(`Condition ${index + 1}: ${condition}`);
     for (const [key, value] of Object.entries(values)) {
       if (Array.isArray(value)) {
         if (condition.includes(key))
@@ -144,7 +144,7 @@ export const doesMockingRuleHold = (
 };
 
 export function guidGenerator() {
-  let S4 = () =>
+  const S4 = () =>
     (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 
   return `${S4()}${S4()}-${S4()}-${S4()}-${S4()}-${S4()}${S4()}${S4()}`;
