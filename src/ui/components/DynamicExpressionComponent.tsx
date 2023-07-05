@@ -6,7 +6,7 @@ import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 import { ContextForDynamicComponents } from "./MockResponseConfigComponent";
 import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
-import useDynamicComponentHook from "./DynamicComponentCustomHook";
+import useDynamicComponentHook from "./useDynamicCustomHook";
 import { fastRandomize } from "../../background/helpers/fastRandomization";
 interface DynamicComponentProps {
   id: string;
@@ -29,38 +29,14 @@ const DynamicExpressionComponent = ({
 
   useEffect(() => {
     if (isExpressionMocking) {
-      register(id, {
-        dynamicExpression: dynamicHook.dynamicExpression,
-        shouldRandomizeResponse: dynamicHook.shouldRandomizeResponse,
-        numberRangeStart: dynamicHook.numberRangeStart,
-        numberRangeEnd: dynamicHook.numberRangeEnd,
-        arrayLength: dynamicHook.arrayLength,
-        stringLength: dynamicHook.stringLength,
-        specialCharactersAllowed: dynamicHook.specialCharactersAllowed,
-        mockResponse: dynamicHook.mockResponse,
-        statusCode: dynamicHook.statusCode,
-        responseDelay: dynamicHook.responseDelay,
-        afterDecimals: dynamicHook.afterDecimals,
-        booleanType: dynamicHook.booleanType,
-      });
+      register(id, dynamicHook);
     }
     return () => unregister(id);
   }, [
     register,
     unregister,
     id,
-    dynamicHook.dynamicExpression,
-    dynamicHook.shouldRandomizeResponse,
-    dynamicHook.numberRangeStart,
-    dynamicHook.numberRangeEnd,
-    dynamicHook.arrayLength,
-    dynamicHook.stringLength,
-    dynamicHook.specialCharactersAllowed,
-    dynamicHook.booleanType,
-    dynamicHook.mockResponse,
-    dynamicHook.statusCode,
-    dynamicHook.responseDelay,
-    dynamicHook.afterDecimals,
+    dynamicHook,
     isExpressionMocking,
   ]);
 
@@ -84,10 +60,10 @@ const DynamicExpressionComponent = ({
     async (id: string) => {
       const response = await fastRandomize(id);
       if (response !== undefined) {
-        dynamicHook.handleMockResponseChange(JSON.stringify(response, null, 2));
+        dynamicHook.handleGenerateResponseHere(JSON.stringify(response, null, 2));
       }
     },
-    [dynamicHook.handleMockResponseChange]
+    [dynamicHook.handleGenerateResponseHere]
   );
 
   return (
@@ -101,7 +77,7 @@ const DynamicExpressionComponent = ({
               label={`Rule`}
               value={dynamicHook.dynamicExpression}
               placeholder={`id == "22", *, age > 18 && count == 5`}
-              onChange={dynamicHook.handleDynamicExpressionChange}
+              onChange={dynamicHook.handleInputChange('dynamicExpression')}
             />
 
             <div className="grow flex flex-row-reverse mr-2">
@@ -132,11 +108,11 @@ const DynamicExpressionComponent = ({
             responseDelay={dynamicHook.responseDelay}
             statusCode={dynamicHook.statusCode}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
-            onResponseDelayChange={dynamicHook.handleResponseDelayChange}
+            onResponseDelayChange={dynamicHook.handleInputChange('responseDelay')}
             onShouldRandomizeResponseChange={
-              dynamicHook.handleShouldRandomizeResponseChange
+              dynamicHook.handleCheckboxChange('shouldRandomizeResponse')
             }
-            onStatusCodeChange={dynamicHook.handleStatusCodeChange}
+            onStatusCodeChange={dynamicHook.handleCheckboxChange('statusCode')}
           />
 
           <div
@@ -151,16 +127,16 @@ const DynamicExpressionComponent = ({
               afterDecimals={dynamicHook.afterDecimals}
               specialCharactersAllowed={dynamicHook.specialCharactersAllowed}
               onBooleanTypeChange={dynamicHook.handleBooleanTypeChange}
-              onAfterDecimalsChange={dynamicHook.handleAfterDecimalsChange}
-              onArrayLengthChange={dynamicHook.handleArrayLengthChange}
-              onNumberRangeEndChange={dynamicHook.handleNumberRangeEndChange}
+              onAfterDecimalsChange={dynamicHook.handleInputChange('afterDecimals')}
+              onArrayLengthChange={dynamicHook.handleInputChange('arrayLength')}
+              onNumberRangeEndChange={dynamicHook.handleInputChange('numberRangeEnd')}
               onNumberRangeStartChange={
-                dynamicHook.handleNumberRangeStartChange
+                dynamicHook.handleInputChange('numberRangeStart')
               }
               onSpecialCharactersAllowedChange={
-                dynamicHook.handleSpecialCharactersAllowedChange
+                dynamicHook.handleCheckboxChange('specialCharactersAllowed')
               }
-              onStringLengthChange={dynamicHook.handleStringLengthChange}
+              onStringLengthChange={dynamicHook.handleInputChange('stringLength')}
             />
           </div>
           <MockingAreaComponent
@@ -168,7 +144,7 @@ const DynamicExpressionComponent = ({
             mockResponse={dynamicHook.mockResponse}
             isMockResponseTextAreaFocused={isMockResponseTextAreaFocused}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
-            onMockResponseChange={dynamicHook.handleMockResponseChange}
+            onMockResponseChange={dynamicHook.handleInputChange('mockResponse')}
             onMockResponseTextAreaBlurred={handleMockResponseTextAreaBlurred}
             onMockResponseTextAreaFocused={handleMockResponseTextAreaFocused}
             onPrettifyButtonPressed={dynamicHook.handlePrettifyButtonPressed}
