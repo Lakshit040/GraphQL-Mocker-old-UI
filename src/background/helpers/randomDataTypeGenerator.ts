@@ -1,25 +1,23 @@
 import {
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
-  TRUE,
-  FALSE,
   BooleanType,
 } from "../../common/types";
-import _ from "lodash";
+import {random, uniqueId, sampleSize, times} from "lodash";
 import { specificFieldGenerator } from "./specificFieldGenerator";
 
 const stringGenerator = (
   stringLength: number,
   isSpecialAllowed: boolean
 ): string => {
-  return _.sampleSize(
+  return sampleSize(
     isSpecialAllowed ? ALL_CHARACTERS : NORMAL_CHARACTERS,
     stringLength
   ).join("");
 };
 
 const intGenerator = (numberFrom: number, numberTo: number): number => {
-  return _.random(numberFrom, numberTo);
+  return random(numberFrom, numberTo);
 };
 
 const floatGenerator = (
@@ -27,7 +25,7 @@ const floatGenerator = (
   numberTo: number,
   noOfDecimals: number
 ): number => {
-  return Number(_.random(numberFrom, numberTo, true).toFixed(noOfDecimals));
+  return Number(random(numberFrom, numberTo, true).toFixed(noOfDecimals));
 };
 
 const booleanGenerator = (booleanValue: BooleanType): boolean => {
@@ -35,12 +33,9 @@ const booleanGenerator = (booleanValue: BooleanType): boolean => {
     ? true
     : booleanValue === BooleanType.False
     ? false
-    : _.random() < 0.5;
+    : random() < 0.5;
 };
 
-const idGenerator = (): string => {
-  return _.uniqueId();
-};
 
 export interface DataSet {
   stringLength: number;
@@ -79,7 +74,7 @@ export const dynamicValueGenerator = (
     case "Int":
       return intGenerator(dataSet.numRangeStart, dataSet.numRangeEnd);
     case "ID":
-      return idGenerator();
+      return uniqueId();
     case "Float":
       return floatGenerator(
         dataSet.numRangeStart,
@@ -90,7 +85,7 @@ export const dynamicValueGenerator = (
       return booleanGenerator(dataSet.booleanValues);
     default: {
       if (dataType.startsWith("[")) {
-        return _.times(dataSet.arrayLength, () =>
+        return times(dataSet.arrayLength, () =>
           dynamicValueGenerator(
             dataType.replace("[", "").replace("]", ""),
             enumTypes,
@@ -100,7 +95,7 @@ export const dynamicValueGenerator = (
         );
       } else if (enumTypes.has(dataType)) {
         const enumValues = enumTypes.get(dataType)!;
-        return enumValues[_.random(0, enumValues.length - 1)];
+        return enumValues[random(0, enumValues.length - 1)];
       } else {
         return stringGenerator(dataSet.stringLength, dataSet.isSpecialAllowed);
       }

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import {
   parse,
   getIntrospectionQuery,
@@ -8,16 +7,8 @@ import {
 } from "graphql";
 import {
   MessageType,
-  INTERNAL_SERVER_ERROR,
-  ERROR_GENERATING_RANDOM_RESPONSE,
-  SUCCESS,
-  SCHEMA_INTROSPECTION_ERROR,
-  INVALID_MOCK_RESPONSE,
-  VALID_RESPONSE,
   BooleanType,
-  FIELD_NOT_FOUND,
 } from "../../common/types";
-import { DataSet } from "./randomDataTypeGenerator";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
@@ -67,7 +58,6 @@ export const generateRandomizedResponse = async (
     let schemaString = await getSchema(graphQLendpoint);
 
     if (schemaString === undefined) {
-      console.log("Storing the schemaString!!");
       const requestConfigCopy = { ...requestConfig };
       requestConfigCopy.body = JSON.stringify({
         query: getIntrospectionQuery(),
@@ -81,15 +71,14 @@ export const generateRandomizedResponse = async (
       );
 
       if (introspectionResult.errors || introspectionResult.error) {
-        return { data: {}, message: SCHEMA_INTROSPECTION_ERROR };
+        return { data: {}, message: "SCHEMA_INTROSPECTION_ERROR" };
       }
       const schemaSDL = buildClientSchema(introspectionResult.data);
       const schemaString = printSchema(schemaSDL);
       try {
-        const hello = await storeSchema(graphQLendpoint, schemaString);
-        console.log(hello);
+        await storeSchema(graphQLendpoint, schemaString);
       } catch (error) {
-        console.error("storeTypeMaps failed: ", error);
+        console.error(error);
       }
     }
     schemaString = await getSchema(graphQLendpoint);
@@ -108,9 +97,12 @@ export const generateRandomizedResponse = async (
       );
       return {
         data: JSON.parse(mockResponse!).data,
-        message: response.errors.length === 0 && response.fieldNotFound.length === 0 ? VALID_RESPONSE : INVALID_MOCK_RESPONSE,
+        message:
+          response.errors.length === 0 && response.fieldNotFound.length === 0
+            ? "VALID_RESPONSE"
+            : "INVALID_MOCK_RESPONSE",
         non_matching_fields: response.errors,
-        field_not_found: response.fieldNotFound
+        field_not_found: response.fieldNotFound,
       };
     }
     const dataSet = {
@@ -121,7 +113,7 @@ export const generateRandomizedResponse = async (
       numRangeEnd: numRangeEnd ?? 1000,
       numRangeStart: numRangeStart ?? 1,
       digitsAfterDecimal: digitsAfterDecimal ?? 2,
-    } as DataSet;
+    };
 
     try {
       const response = giveRandomResponse(
@@ -135,18 +127,18 @@ export const generateRandomizedResponse = async (
       if (typeof response === "string") {
         return {
           data: {},
-          message: FIELD_NOT_FOUND,
+          message: "FIELD_NOT_FOUND",
           field_not_found: response,
         };
       }
       return {
         data: response,
-        message: SUCCESS,
+        message: "SUCCESS",
       };
     } catch {
-      return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
+      return { data: {}, message: "ERROR_GENERATING_RANDOM_RESPONSE" };
     }
   } catch (error) {
-    return { data: {}, message: INTERNAL_SERVER_ERROR + " or Invalid JSON" };
+    return { data: {}, message: "INTERNAL_SERVER_ERROR" + " or Invalid JSON" };
   }
 };

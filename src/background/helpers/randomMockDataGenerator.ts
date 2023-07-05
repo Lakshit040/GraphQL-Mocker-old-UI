@@ -5,7 +5,7 @@ import {
   OperationDefinitionNode,
 } from "graphql";
 import { DataSet } from "./randomDataTypeGenerator";
-import _ from "lodash";
+import {times} from "lodash";
 import { dynamicValueGenerator } from "./randomDataTypeGenerator";
 
 const giveRandomResponse = (
@@ -52,7 +52,7 @@ const giveRandomResponse = (
 
         if ("selectionSet" in field && field.selectionSet !== undefined) {
           if (typeName?.includes("[")) {
-            response[field.name.value] = _.times(dataSet.arrayLength, () =>
+            response[field.name.value] = times(dataSet.arrayLength, () =>
               generateMockResponse(field.selectionSet!, typeMap)
             );
           } else if (unionTypes.has(typeName!)) {
@@ -73,7 +73,7 @@ const giveRandomResponse = (
           }
         } else {
           if (typeName?.includes("[")) {
-            response[field.name.value] = _.times(dataSet.arrayLength, () =>
+            response[field.name.value] = times(dataSet.arrayLength, () =>
               dynamicValueGenerator(
                 typeName!.replace("[", "").replace("]", ""),
                 enumTypes,

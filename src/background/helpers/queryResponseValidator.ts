@@ -6,10 +6,14 @@ export const queryResponseValidator = (
     return { errors: [], fieldNotFound: [] };
   }
 
+  if(response === ""){
+    return {errors: [], fieldNotFound: []}
+  }
+
   const responseTypeMap: Map<string, string> = new Map();
 
   const getResponseFieldMap = (obj: any) => {
-    for (const key in obj) {
+    Object.keys(obj).forEach((key) => {
       if (Array.isArray(obj[key])) {
         responseTypeMap.set(key, `array`);
         if (obj[key].length > 0 && typeof obj[key][0] !== "object") {
@@ -22,14 +26,14 @@ export const queryResponseValidator = (
       } else {
         responseTypeMap.set(key, String(typeof obj[key]));
       }
-    }
+    });
   };
+
   getResponseFieldMap(response);
   const errors: string[] = [];
-  console.log(responseTypeMap);
-  const fieldNotFound: string[] = [];
 
-  for (const [key, value] of responseTypeMap) {
+  const fieldNotFound: string[] = [];
+  responseTypeMap.forEach((value, key) => {
     if (value.startsWith("[")) {
       if (fieldTypes.has(key)) {
         const fieldValue = fieldTypes.get(key);
@@ -40,7 +44,6 @@ export const queryResponseValidator = (
         fieldNotFound.push(key);
       }
     } else {
-      // base types check
       if (fieldTypes.has(key)) {
         let fieldValue = fieldTypes.get(key);
         if (typeof fieldValue === "string") {
@@ -69,7 +72,7 @@ export const queryResponseValidator = (
         fieldNotFound.push(key);
       }
     }
-  }
+  });
 
   return { errors: errors, fieldNotFound: fieldNotFound };
 };

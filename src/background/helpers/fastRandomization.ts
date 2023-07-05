@@ -1,12 +1,9 @@
 import { giveTypeMaps } from "./typeMapProvider";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
-import { DataSet } from "./randomDataTypeGenerator";
 import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
 import {
   BooleanType,
-  SUCCESS,
-  ERROR_GENERATING_RANDOM_RESPONSE,
 } from "../../common/types";
 
 export const fastRandomize = async (id: string) : Promise<any>=> {
@@ -25,7 +22,7 @@ export const fastRandomize = async (id: string) : Promise<any>=> {
         numRangeEnd: 1000,
         numRangeStart: 1,
         digitsAfterDecimal: 2,
-      } as DataSet;
+      };
 
       try {
         return {
@@ -37,10 +34,10 @@ export const fastRandomize = async (id: string) : Promise<any>=> {
             interfaceTypes,
             dataSet
           ),
-          message: SUCCESS,
+          message: 'SUCCESS',
         };
       } catch {
-        return { data: {}, message: ERROR_GENERATING_RANDOM_RESPONSE };
+        return { data: {}, message: 'ERROR_GENERATING_RANDOM_RESPONSE' };
       }
     }
   }
