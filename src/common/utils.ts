@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import jsep from "jsep";
 import _ from "lodash";
 import { GraphQLOperationType } from "./types";
-import { CONDITION_REGEX, OBJECT_REGEX, ARRAY_REGEX } from "./rejex";
+import { CONDITION_REGEX, OBJECT_REGEX, ARRAY_REGEX } from "./regex";
 
 export const parseIfGraphQLRequest = (
   config: any
@@ -94,7 +94,7 @@ export const doesMockingRuleHold = (
   if (dynamicExpression === "*") {
     return true;
   }
-  if(dynamicExpression === ""){
+  if (dynamicExpression === "") {
     return false;
   }
   try {
