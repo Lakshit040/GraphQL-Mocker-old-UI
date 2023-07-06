@@ -23,7 +23,7 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack -w --config webpack.config.js",
-    "ship": "webpack --config webpack.config.js && zip dist.zip dist/manifest.json dist/js/"
+    "ship": "webpack --config webpack.config.js && zip dist.zip dist/*"
   },
   "eslintConfig": {
     "extends": [
