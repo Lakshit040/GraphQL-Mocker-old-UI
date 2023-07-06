@@ -36,11 +36,10 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "public/manifest.json", to: "../manifest.json" },
-        { from: "public/devtools.html", to: "devtools.html" },
         { from: "public/icon128.png", to: "../icon128.png" },
       ],
     }),
-    ...getHtmlPlugins(["index"]),
+    ...getHtmlPlugins(["index", "devtools"]),
   ],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
