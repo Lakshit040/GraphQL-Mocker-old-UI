@@ -17,11 +17,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case MessageType.RequestIntercepted: {
       const tabId = sender.tab?.id;
       const frameId = sender.frameId;
+      const { host, path, config } = msg.data;
       handleInterceptedRequest(
         tabId,
         frameId,
-        msg.data.url,
-        msg.data.config,
+        host,
+        path,
+        config,
         sendResponse
       );
       const isResponseAsync = true;
@@ -48,7 +50,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 const handleInterceptedRequest = async (
   tabId: number | undefined,
   frameId: number | undefined,
-  url: string,
+  host: string,
+  path: string,
   config: any,
   sendResponse: (response?: any) => void
 ): Promise<void> => {
@@ -74,7 +77,7 @@ const handleInterceptedRequest = async (
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
-      await storeQueryEndpoint(mockingRuleKey, query, url);
+      await storeQueryEndpoint(mockingRuleKey, query, host, path);
       const mockingRule = (mockResponseConfig as any)[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
         if (query === "" && mockingRule.shouldRandomizeResponse) {
@@ -85,7 +88,8 @@ const handleInterceptedRequest = async (
         const generatedRandomResponse = await generateRandomizedResponse(
           tabId,
           frameId,
-          url,
+          host,
+          path,
           config,
           query,
           mockingRule.numberRangeStart,

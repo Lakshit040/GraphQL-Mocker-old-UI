@@ -2,15 +2,13 @@ import { giveTypeMaps } from "./typeMapProvider";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
 import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
-import {
-  BooleanType,
-} from "../../common/types";
+import { BooleanType } from "../../common/types";
 
-export const fastRandomize = async (id: string) : Promise<any>=> {
+export const fastRandomize = async (id: string): Promise<any> => {
   const queryEndpoint = await getQueryEndpoint(id);
   if (queryEndpoint !== undefined) {
-    const [query, endpoint] = queryEndpoint.split("__");
-    const schemaString = await getSchema(endpoint);
+    const [query, endpointHost, endpointPath] = queryEndpoint.split("__");
+    const schemaString = await getSchema(endpointHost, endpointPath);
     if (schemaString !== undefined) {
       const [fieldTypes, enumTypes, unionTypes, interfaceTypes] =
         await giveTypeMaps(buildSchema(schemaString).getTypeMap());
@@ -34,10 +32,10 @@ export const fastRandomize = async (id: string) : Promise<any>=> {
             interfaceTypes,
             dataSet
           ),
-          message: 'SUCCESS',
+          message: "SUCCESS",
         };
       } catch {
-        return { data: {}, message: 'ERROR_GENERATING_RANDOM_RESPONSE' };
+        return { data: {}, message: "ERROR_GENERATING_RANDOM_RESPONSE" };
       }
     }
   }

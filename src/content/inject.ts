@@ -22,9 +22,9 @@ interface DoFetchEventDetail {
 
 const capturedRequests = new Map();
 
-const capture = (url: string, config?: RequestInit) => {
+const capture = (path: string, config?: RequestInit) => {
   return new Promise<CapturedResponse>((resolve, reject) => {
-    if (!/.*graphql.*/.test(url) || config?.method?.toLowerCase() !== "post")
+    if (!/.*graphql.*/.test(path) || config?.method?.toLowerCase() !== "post")
       return reject();
 
     const requestId = guidGenerator();
@@ -32,7 +32,11 @@ const capture = (url: string, config?: RequestInit) => {
 
     const message = {
       type: MessageType.RequestIntercepted,
-      data: { url, config: JSON.parse(JSON.stringify(config)) },
+      data: {
+        host: window.location.origin,
+        path,
+        config: JSON.parse(JSON.stringify(config)),
+      },
     };
     const event = new CustomEvent("request-intercepted", {
       detail: { data: message, requestId },

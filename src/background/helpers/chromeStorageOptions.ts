@@ -11,17 +11,21 @@ const Namespaces = {
   Operation: "OPERATION",
 };
 
-export const getSchema = async (graphQLEndpoint: string) => {
-  return await readFromSessionStorage(Namespaces.CachedSchema, graphQLEndpoint);
+export const getSchema = async (endpointHost: string, endpointPath: string) => {
+  return await readFromSessionStorage(
+    Namespaces.CachedSchema,
+    `${endpointHost}_${endpointPath}`
+  );
 };
 
 export const storeSchema = async (
-  graphQLendpoint: string,
+  endpointHost: string,
+  endpointPath: string,
   schemaString: string
 ) => {
   await writeToSessionStorage(
     Namespaces.CachedSchema,
-    graphQLendpoint,
+    `${endpointHost}_${endpointPath}`,
     schemaString
   );
 };
@@ -33,12 +37,13 @@ export const getQueryEndpoint = async (expressionId: string) => {
 export const storeQueryEndpoint = async (
   expressionId: string,
   query: string,
-  endpoint: string
+  origin: string,
+  path: string
 ) => {
   await writeToSessionStorage(
     Namespaces.QueryEndpoint,
     expressionId,
-    `${query}__${endpoint}`
+    `${query}__${origin}__${path}`
   );
 };
 

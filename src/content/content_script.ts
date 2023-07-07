@@ -13,9 +13,9 @@ interceptScript.src = chrome.runtime.getURL("js/inject.js");
 document.head.prepend(interceptScript);
 
 window.addEventListener("request-intercepted", (event) => {
-  let { data, requestId } = (event as any).detail as CustomEventDetail;
+  const { data, requestId } = (event as any).detail as CustomEventDetail;
   chrome.runtime.sendMessage(data).then(({ response, statusCode }) => {
-    let reply = new CustomEvent("mock-response", {
+    const reply = new CustomEvent("mock-response", {
       detail: { requestId, response, statusCode },
     });
     window.dispatchEvent(reply);

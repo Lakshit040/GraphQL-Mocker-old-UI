@@ -38,7 +38,8 @@ const fetchJSONFromInjectedScript = async (
 export const generateRandomizedResponse = async (
   tabId: number,
   frameId: number,
-  graphQLendpoint: string,
+  endpointHost: string,
+  endpointPath: string,
   requestConfig: any,
   graphqlQuery: string,
   numRangeStart: number,
@@ -56,7 +57,7 @@ export const generateRandomizedResponse = async (
   }
 
   try {
-    let schemaString = await getSchema(graphQLendpoint);
+    let schemaString = await getSchema(endpointHost, endpointPath);
 
     if (schemaString === undefined) {
       const requestConfigCopy = { ...requestConfig };
@@ -67,7 +68,7 @@ export const generateRandomizedResponse = async (
       const introspectionResult = await fetchJSONFromInjectedScript(
         tabId!,
         frameId!,
-        graphQLendpoint,
+        endpointPath,
         requestConfigCopy
       );
 
@@ -77,12 +78,12 @@ export const generateRandomizedResponse = async (
       const schemaSDL = buildClientSchema(introspectionResult.data);
       const schemaString = printSchema(schemaSDL);
       try {
-        await storeSchema(graphQLendpoint, schemaString);
+        await storeSchema(endpointHost, endpointPath, schemaString);
       } catch (error) {
         console.error(error);
       }
     }
-    schemaString = await getSchema(graphQLendpoint);
+    schemaString = await getSchema(endpointHost, endpointPath);
     const schemaSDL = buildSchema(schemaString!);
     const typeMap = schemaSDL!.getTypeMap();
 
@@ -140,6 +141,6 @@ export const generateRandomizedResponse = async (
       return { data: {}, message: "ERROR_GENERATING_RANDOM_RESPONSE" };
     }
   } catch (error) {
-    return { data: {}, message: "INTERNAL_SERVER_ERROR" + " or Invalid JSON" };
+    return { data: {}, message: "INTERNAL_SERVER_ERROR" };
   }
 };
