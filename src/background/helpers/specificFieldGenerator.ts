@@ -3,7 +3,9 @@ const chance = new Chance();
 
 export const specificFieldGenerator = (fieldName: string): any | undefined => {
   switch (fieldName) {
-    case "name" || "username":
+    case "name":
+      return chance.name();
+    case "username": 
       return chance.name();
     case "gender":
       return chance.gender();
