@@ -16,11 +16,17 @@ interface DoFetchEventDetail {
   requestId: string;
   data: {
     url: string;
-    config?: RequestInit;
+    body: string;
+    originalRequestId: string;
   };
 }
 
+interface CapturedRequestConfig {
+  config?: RequestInit;
+}
+
 const capturedRequests = new Map();
+const capturedRequestConfigs: Map<string, CapturedRequestConfig> = new Map();
 
 const capture = (path: string, config?: RequestInit) => {
   return new Promise<CapturedResponse>((resolve, reject) => {
@@ -29,6 +35,7 @@ const capture = (path: string, config?: RequestInit) => {
 
     const requestId = uuidv4();
     capturedRequests.set(requestId, [resolve, reject]);
+    capturedRequestConfigs.set(requestId, { config });
 
     const message = {
       type: MessageType.RequestIntercepted,
@@ -36,6 +43,7 @@ const capture = (path: string, config?: RequestInit) => {
         host: window.location.origin,
         path,
         config: JSON.parse(JSON.stringify(config)),
+        requestId,
       },
     };
     const event = new CustomEvent("request-intercepted", {
@@ -54,7 +62,7 @@ window.fetch = (req, config = undefined) => {
   return capture(req as string, config)
     .then(({ response, statusCode }) => {
       return new Response(response, {
-        headers: new Headers([]),
+        headers: config?.headers ?? new Headers([]),
         status: statusCode,
       });
     })
@@ -75,17 +83,38 @@ window.addEventListener("mock-response", (event) => {
   }
 
   capturedRequests.delete(requestId);
+  capturedRequestConfigs.delete(requestId);
 });
 
 window.addEventListener("do-fetch", async (event) => {
   const { requestId, data } = (event as any).detail as DoFetchEventDetail;
-  const { url, config } = data;
+  const { url, body, originalRequestId } = data;
 
-  const response = await __oldFetch__(url, config);
-  const responseJSON = await response.json();
+  const requestConfig = capturedRequestConfigs.get(originalRequestId)?.config;
 
-  const reply = new CustomEvent("fetch-response", {
-    detail: { requestId, data: responseJSON },
-  });
-  window.dispatchEvent(reply);
+  if (requestConfig !== undefined) {
+    const requestConfigCopy = { ...requestConfig };
+    requestConfigCopy.body = body;
+
+    const response = await __oldFetch__(url, requestConfigCopy);
+    const responseJSON = await response.json();
+
+    const reply = new CustomEvent("fetch-response", {
+      detail: { requestId, data: responseJSON },
+    });
+    window.dispatchEvent(reply);
+  } else {
+    window.dispatchEvent(
+      new CustomEvent("fetch-response", {
+        detail: {
+          requestId,
+          data: {
+            error: "ERROR_FETCHING_DATA",
+          },
+        },
+      })
+    );
+  }
+
+  capturedRequestConfigs.delete(originalRequestId);
 });

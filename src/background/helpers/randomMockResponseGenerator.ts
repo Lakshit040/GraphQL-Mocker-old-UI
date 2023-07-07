@@ -23,11 +23,12 @@ export const fetchJSONFromInjectedScript = async (
   tabId: number,
   frameId: number,
   url: string,
-  config: any
+  body: string,
+  requestId: string
 ) => {
   const msg = {
     type: MessageType.DoFetch,
-    data: { url, config },
+    data: { url, body, originalRequestId: requestId },
   };
   const responseJSONData = await chrome.tabs.sendMessage(tabId, msg, {
     frameId,
@@ -41,6 +42,7 @@ export const generateRandomizedResponse = async (
   endpointHost: string,
   endpointPath: string,
   requestConfig: any,
+  requestId: string,
   graphqlQuery: string,
   numRangeStart: number,
   numRangeEnd: number,
@@ -60,8 +62,7 @@ export const generateRandomizedResponse = async (
     let schemaString = await getSchema(endpointHost, endpointPath);
 
     if (schemaString === undefined) {
-      const requestConfigCopy = { ...requestConfig };
-      requestConfigCopy.body = JSON.stringify({
+      const requestBody = JSON.stringify({
         query: getIntrospectionQuery(),
       });
 
@@ -69,7 +70,8 @@ export const generateRandomizedResponse = async (
         tabId!,
         frameId!,
         endpointPath,
-        requestConfigCopy
+        requestBody,
+        requestId
       );
 
       if (introspectionResult.errors || introspectionResult.error) {

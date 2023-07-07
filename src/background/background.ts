@@ -17,13 +17,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case MessageType.RequestIntercepted: {
       const tabId = sender.tab?.id;
       const frameId = sender.frameId;
-      const { host, path, config } = msg.data;
+      const { host, path, config, requestId } = msg.data;
       handleInterceptedRequest(
         tabId,
         frameId,
         host,
         path,
         config,
+        requestId,
         sendResponse
       );
       const isResponseAsync = true;
@@ -53,6 +54,7 @@ const handleInterceptedRequest = async (
   host: string,
   path: string,
   config: any,
+  requestId: string,
   sendResponse: (response?: any) => void
 ): Promise<void> => {
   const reject = () => sendResponse({ response: null, statusCode: 200 });
@@ -91,6 +93,7 @@ const handleInterceptedRequest = async (
           host,
           path,
           config,
+          requestId,
           query,
           mockingRule.numberRangeStart,
           mockingRule.numberRangeEnd,
