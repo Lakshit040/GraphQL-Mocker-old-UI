@@ -5,7 +5,12 @@ import {
   DynamicComponentData,
 } from "../common/types";
 import { generateRandomizedResponse } from "./helpers/randomMockResponseGenerator";
-import { storeQueryEndpoint, storeOperation, deleteOperation, getOperation} from "./helpers/chromeStorageOptions";
+import {
+  storeQueryEndpoint,
+  storeOperation,
+  deleteOperation,
+  getOperation,
+} from "./helpers/chromeStorageOptions";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.type) {
@@ -72,6 +77,11 @@ const handleInterceptedRequest = async (
       await storeQueryEndpoint(mockingRuleKey, query, url);
       const mockingRule = (mockResponseConfig as any)[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
+        if (query === "" && mockingRule.shouldRandomizeResponse) {
+          reject();
+          // TODO: notify frontend
+          return;
+        }
         const generatedRandomResponse = await generateRandomizedResponse(
           tabId,
           frameId,
@@ -87,7 +97,6 @@ const handleInterceptedRequest = async (
           mockingRule.afterDecimals,
           mockingRule.mockResponse,
           mockingRule.shouldRandomizeResponse
-
         );
         if (mockingRule.responseDelay > 0) {
           setTimeout(
@@ -118,10 +127,12 @@ const setMockResponse = async (
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ): Promise<void> => {
-  try{
-    await storeOperation(`${operationType}_${operationName}`, dynamicResponseData);
-  }
-  catch{
+  try {
+    await storeOperation(
+      `${operationType}_${operationName}`,
+      dynamicResponseData
+    );
+  } catch {
     return;
   }
 };
