@@ -1,7 +1,7 @@
 import { fastRandomize } from '../fastRandomization';
 import { getQueryEndpoint, getSchema } from '../chromeStorageOptions';
 
-// Create typecasting
+
 const mockedGetQueryEndpoint = getQueryEndpoint as jest.MockedFunction<typeof getQueryEndpoint>;
 const mockedGetSchema = getSchema as jest.MockedFunction<typeof getSchema>;
 
@@ -9,7 +9,7 @@ jest.mock('../chromeStorageOptions');
 
 describe('fastRandomize', () => {
   beforeEach(() => {
-    // Use the mocked functions
+
     mockedGetQueryEndpoint.mockClear();
     mockedGetSchema.mockClear();
   });

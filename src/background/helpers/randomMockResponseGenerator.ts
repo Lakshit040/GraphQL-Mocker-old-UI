@@ -19,7 +19,7 @@ interface GeneratedResponseConfig {
   missing_fields?: string[];
 }
 
-const fetchJSONFromInjectedScript = async (
+export const fetchJSONFromInjectedScript = async (
   tabId: number,
   frameId: number,
   url: string,

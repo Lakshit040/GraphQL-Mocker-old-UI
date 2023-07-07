@@ -70,5 +70,4 @@ describe("Chrome Storage Helpers", () => {
     );
   });
 
-  // Similarly, you can write tests for getOperation, storeOperation, and deleteOperation
 });
