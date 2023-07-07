@@ -3,6 +3,7 @@ import {
   writeToSessionStorage,
   deleteFromSessionStorage,
 } from "../../../common/chromeStorageHelpers";
+import { BooleanType } from "../../../common/types";
 import {
   getSchema,
   storeSchema,
@@ -70,4 +71,40 @@ describe("Chrome Storage Helpers", () => {
     );
   });
 
+  it("getOperation should call readFromSessionStorage with correct parameters", async () => {
+    await getOperation("operationType_operationName");
+    expect(readFromSessionStorage).toHaveBeenCalledWith(
+      "OPERATION",
+      "operationType_operationName"
+    );
+  });
+
+  it("deleteOperation should call deleteFromSessionStorage with correct parameters", async () => {
+    await deleteOperation("operationType_operationName");
+    expect(deleteFromSessionStorage).toHaveBeenCalledWith(
+      "OPERATION",
+      "operationType_operationName"
+    );
+  });
+
+  it("storeOperation should call writeToSessionStorage with correct parameters", async () => {
+    const value = {
+      dynamicComponentDataKey: {
+        dynamicExpression: "example expression",
+        shouldRandomizeResponse: true,
+        numberRangeStart: 1,
+        numberRangeEnd: 100,
+        arrayLength: 5,
+        stringLength: 10,
+        specialCharactersAllowed: true,
+        mockResponse: "{data: {}}",
+        statusCode: 200,
+        responseDelay: 0,
+        afterDecimals: 2,
+        booleanType: BooleanType.Random,
+      },
+    };
+    await storeOperation("operationType_operationName", value);
+    expect(writeToSessionStorage).toHaveBeenCalledWith("OPERATION", "operationType_operationName", value);
+  });
 });
