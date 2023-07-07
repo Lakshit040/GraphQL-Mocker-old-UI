@@ -8,7 +8,7 @@ import {
   backgroundSetMockResponse,
   backgroundUnSetMockResponse,
 } from "../helpers/utils";
-import { guidGenerator } from "../../common/utils";
+import { v4 as uuidv4 } from "uuid";
 import { removeQueryEndpoint } from "../../background/helpers/chromeStorageOptions";
 
 const QUERY = "query";
@@ -47,7 +47,7 @@ const MockResponseConfigComponent = ({
   >({});
   const childrenDataRef = useRef<Record<string, DynamicComponentData>>({});
   const [dynamicResponseConfigKeys, setDynamicResponseConfigKeys] = useState([
-    guidGenerator(),
+    uuidv4(),
   ]);
 
   const register = (id: string, dynamicData: DynamicComponentData) => {
@@ -72,7 +72,7 @@ const MockResponseConfigComponent = ({
   const handleAddExpressionButtonPressed = useCallback(() => {
     backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
-    setDynamicResponseConfigKeys((keys) => [...keys, guidGenerator()]);
+    setDynamicResponseConfigKeys((keys) => [...keys, uuidv4()]);
   }, []);
 
   const handleDeleteDynamicExpressionConfig = useCallback(
@@ -158,16 +158,16 @@ const MockResponseConfigComponent = ({
 
                 {areMocking ? (
                   <PauseIcon
-                  title="Stop mocking"
-                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
-                  onClick={onMockingRuleStarted}
-                />
+                    title="Stop mocking"
+                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+                    onClick={onMockingRuleStarted}
+                  />
                 ) : (
                   <PlayIcon
-                  title="Start mocking"
-                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
-                  onClick={onMockingRuleStarted}
-                />
+                    title="Start mocking"
+                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+                    onClick={onMockingRuleStarted}
+                  />
                 )}
               </div>
             </>

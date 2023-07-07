@@ -1,5 +1,5 @@
 import { MessageType } from "../common/types";
-import { guidGenerator } from "../common/utils";
+import { v4 as uuidv4 } from "uuid";
 
 interface CapturedResponse {
   response: string | null;
@@ -27,7 +27,7 @@ const capture = (path: string, config?: RequestInit) => {
     if (!/.*graphql.*/.test(path) || config?.method?.toLowerCase() !== "post")
       return reject();
 
-    const requestId = guidGenerator();
+    const requestId = uuidv4();
     capturedRequests.set(requestId, [resolve, reject]);
 
     const message = {

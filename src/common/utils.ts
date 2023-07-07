@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import jsep from "jsep";
-import {isEqual} from "lodash";
+import { isEqual } from "lodash";
 import { GraphQLOperationType } from "./types";
 import { CONDITION_REGEX, OBJECT_REGEX, ARRAY_REGEX } from "./regex";
 
@@ -141,10 +141,3 @@ export const doesMockingRuleHold = (
     return false;
   }
 };
-
-export function guidGenerator() {
-  const S4 = () =>
-    (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-
-  return `${S4()}${S4()}-${S4()}-${S4()}-${S4()}-${S4()}${S4()}${S4()}`;
-}

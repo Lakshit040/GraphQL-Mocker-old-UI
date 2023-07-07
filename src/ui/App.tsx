@@ -4,7 +4,7 @@ import MockResponseConfigComponent from "./components/MockResponseConfigComponen
 
 import { PlusIcon } from "@heroicons/react/24/solid";
 
-import { guidGenerator } from "../common/utils";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [mockResponseConfigKeys, setMockResponseConfigKeys] = useState(
@@ -12,7 +12,7 @@ function App() {
   );
 
   const handleAddButtonPressed = useCallback(() => {
-    setMockResponseConfigKeys((keys) => [...keys, guidGenerator()]);
+    setMockResponseConfigKeys((keys) => [...keys, uuidv4()]);
   }, []);
 
   const handleDeleteMockResponseConfig = useCallback((id: string) => {

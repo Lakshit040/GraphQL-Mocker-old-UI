@@ -1,5 +1,5 @@
 import { MessageType } from "../common/types";
-import { guidGenerator } from "../common/utils";
+import { v4 as uuidv4 } from "uuid";
 
 interface CustomEventDetail {
   requestId: string;
@@ -25,7 +25,7 @@ window.addEventListener("request-intercepted", (event) => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.type) {
     case MessageType.DoFetch: {
-      const requestId = guidGenerator();
+      const requestId = uuidv4();
       fetchRequestsMap.set(requestId, sendResponse);
       const forward = new CustomEvent("do-fetch", {
         detail: { requestId, data: msg.data },
