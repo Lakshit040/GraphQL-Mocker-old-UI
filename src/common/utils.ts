@@ -42,20 +42,17 @@ export const parseIfGraphQLRequest = (
 };
 
 const helper = (str: string, values: any): string => {
-  const pattern = CONDITION_REGEX;
-  const matches = str.match(pattern)!;
+  const matches = str.match(CONDITION_REGEX)!;
   const extractedConditions = matches.map((match) =>
     match.replace(/[()]/g, "").trim()
   );
 
-  const objectRegex = OBJECT_REGEX;
-  const arrayRegex = ARRAY_REGEX;
   extractedConditions.forEach((condition, index) => {
     for (const [key, value] of Object.entries(values)) {
       if (Array.isArray(value)) {
         if (condition.includes(key))
           try {
-            const match = condition.match(arrayRegex);
+            const match = condition.match(ARRAY_REGEX);
             if (match && match[1] && match[2]) {
               let result: boolean;
               if (match[1] === "==" || match[1] === "===") {
@@ -69,7 +66,7 @@ const helper = (str: string, values: any): string => {
       } else if (typeof value === "object") {
         if (condition.includes(key))
           try {
-            const match = condition.match(objectRegex);
+            const match = condition.match(OBJECT_REGEX);
             let result = false;
             if (match && match[1] && match[2]) {
               if (match[1] === "==" || match[1] === "===")
