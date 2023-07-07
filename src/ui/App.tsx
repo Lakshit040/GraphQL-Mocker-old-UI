@@ -20,12 +20,13 @@ function App() {
   }, []);
 
   return (
-    <div className="h-full flex mt-4 ml-12 mr-12 mb-4 flex-col items-center border border-gray-300 rounded-xl">
+    <div className="h-auto w-4/5 flex mt-4 ml-40 mr-40 mb-4 flex-col items-center border border-gray-300 rounded-xl">
       <div className="w-4/5 shrink-0 flex px-2 pb-0 mt-4">
-        <h1 className="text-gray-900 self-center text-xl tracking-wide">
+        <h1 className="text-gray-900 self-center text-xl ">
           Mock GraphQL Requests
         </h1>
         <PlusIcon
+          title="Add new operation"
           className="w-10 h-10 p-2 shrink-0 rounded-full ml-auto text-gray-900 hover:bg-gray-100"
           onClick={handleAddButtonPressed}
         />
