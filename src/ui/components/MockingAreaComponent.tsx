@@ -1,12 +1,14 @@
-import React, {useCallback} from "react";
-import { PlayIcon} from "@heroicons/react/24/solid";
+import React, { useCallback } from "react";
+import { PlayIcon, CodeBracketIcon } from "@heroicons/react/24/solid";
 
 interface MockingAreaComponentProps {
   id: string;
   mockResponse: string;
   shouldRandomizeResponse: boolean;
   isMockResponseTextAreaFocused: boolean;
-  onMockResponseChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  onMockResponseChange: (
+    event: React.ChangeEvent<HTMLTextAreaElement> | string
+  ) => void;
   onMockResponseTextAreaFocused: () => void;
   onMockResponseTextAreaBlurred: () => void;
   onPrettifyButtonPressed: () => void;
@@ -22,15 +24,12 @@ const MockingAreaComponent = ({
   onMockResponseTextAreaBlurred,
   onMockResponseTextAreaFocused,
   onPrettifyButtonPressed,
-  onGenerateResponseHereButtonPressed
+  onGenerateResponseHereButtonPressed,
 }: MockingAreaComponentProps) => {
-  const handleRandomizeHere = useCallback(
-    () => {
-      onGenerateResponseHereButtonPressed(id);
-    },
-    [id, onGenerateResponseHereButtonPressed],
-  )
-  
+  const handleRandomizeHere = useCallback(() => {
+    onGenerateResponseHereButtonPressed(id);
+  }, [id, onGenerateResponseHereButtonPressed]);
+
   return (
     <div className="flex flex-col-reverse mt-4">
       <textarea
@@ -58,12 +57,11 @@ const MockingAreaComponent = ({
             className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
             onClick={handleRandomizeHere}
           />
-          <button
-            className="px-1 h-auto ml-auto self-center tracking-wider rounded-sm text-xs text-gray-500 transition-colors duration-300 transform bg-white hover:bg-gray-200 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-80"
+          <CodeBracketIcon
+            title="Prettify"
+            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
             onClick={onPrettifyButtonPressed}
-          >
-            {"{}"}
-          </button>
+          />
         </div>
       </div>
     </div>
