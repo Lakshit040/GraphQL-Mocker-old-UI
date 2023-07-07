@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import jsep from "jsep";
-import _ from "lodash";
+import {isEqual} from "lodash";
 import { GraphQLOperationType } from "./types";
 import { CONDITION_REGEX, OBJECT_REGEX, ARRAY_REGEX } from "./regex";
 
@@ -59,8 +59,8 @@ const helper = (str: string, values: any): string => {
             if (match && match[1] && match[2]) {
               let result: boolean;
               if (match[1] === "==" || match[1] === "===") {
-                result = _.isEqual(value, JSON.parse(match[2]));
-              } else result = !_.isEqual(value, JSON.parse(match[2]));
+                result = isEqual(value, JSON.parse(match[2]));
+              } else result = !isEqual(value, JSON.parse(match[2]));
               str = str.replace(condition, String(result));
             }
           } catch {
@@ -73,8 +73,8 @@ const helper = (str: string, values: any): string => {
             let result = false;
             if (match && match[1] && match[2]) {
               if (match[1] === "==" || match[1] === "===")
-                result = _.isEqual(value, JSON.parse(match[2]));
-              else result = !_.isEqual(value, JSON.parse(match[2]));
+                result = isEqual(value, JSON.parse(match[2]));
+              else result = !isEqual(value, JSON.parse(match[2]));
             }
             str = str.replace(condition, String(result));
           } catch {
