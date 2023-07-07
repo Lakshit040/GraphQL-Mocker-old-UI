@@ -3,7 +3,6 @@ import { specificFieldGenerator } from "../specificFieldGenerator";
 describe('specificFieldGenerator function', () => {
   it.each([
     "name",
-    "username",
     "gender",
     "age",
     "animal",

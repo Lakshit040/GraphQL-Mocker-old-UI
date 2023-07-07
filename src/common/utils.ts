@@ -14,9 +14,12 @@ export const parseIfGraphQLRequest = (
   try {
     const bodyObject = JSON.parse(body);
 
-    const query = bodyObject.query;
-    const variables = bodyObject.variables || {};
-    if (query !== undefined) {
+    let operationType = GraphQLOperationType.Query;
+    let operationName: string | undefined = bodyObject.operationName;
+    const query: string = bodyObject.query ?? "";
+    const variables: object = bodyObject.variables ?? {};
+
+    if (query !== "") {
       const { definitions } = gql(query);
       const firstDefinition =
         definitions.length > 0 ? definitions[0] : undefined;
@@ -24,19 +27,18 @@ export const parseIfGraphQLRequest = (
         firstDefinition !== undefined &&
         firstDefinition.kind === "OperationDefinition"
       ) {
-        const operationType =
+        operationType =
           firstDefinition.operation === "query"
             ? GraphQLOperationType.Query
             : GraphQLOperationType.Mutation;
-        const operationName =
-          firstDefinition.name?.value || bodyObject.operationName || "";
-
-        return [operationType, operationName, query, variables];
+        operationName = operationName ?? firstDefinition.name?.value;
       }
     }
-  } catch (err) {
-    console.error(err);
-  }
+
+    if (operationName !== undefined) {
+      return [operationType, operationName, query, variables];
+    }
+  } catch (err) {}
 
   return undefined;
 };

@@ -5,10 +5,7 @@ import {
   printSchema,
   buildSchema,
 } from "graphql";
-import {
-  MessageType,
-  BooleanType,
-} from "../../common/types";
+import { MessageType, BooleanType } from "../../common/types";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
@@ -16,7 +13,7 @@ import { storeSchema, getSchema } from "./chromeStorageOptions";
 
 interface GeneratedResponseConfig {
   data: object;
-  message: string;
+  message?: string;
   non_matching_fields?: string[];
   field_not_found?: string;
   missing_fields?: string[];
@@ -54,6 +51,10 @@ export const generateRandomizedResponse = async (
   mockResponse: string,
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
+  if (!(shouldRandomizeResponse || graphqlQuery !== "")) {
+    return { data: JSON.parse(mockResponse).data };
+  }
+
   try {
     let schemaString = await getSchema(graphQLendpoint);
 
