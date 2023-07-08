@@ -115,30 +115,7 @@ const DynamicExpressionComponent = ({
             onStatusCodeChange={dynamicHook.handleCheckboxChange('statusCode')}
           />
 
-          <div
-            className={dynamicHook.shouldRandomizeResponse ? "mt-2" : "hidden"}
-          >
-            <RandomResponseConfigComponent
-              booleanType={dynamicHook.booleanType}
-              arrayLength={dynamicHook.arrayLength}
-              stringLength={dynamicHook.stringLength}
-              numberRangeEnd={dynamicHook.numberRangeEnd}
-              numberRangeStart={dynamicHook.numberRangeStart}
-              afterDecimals={dynamicHook.afterDecimals}
-              specialCharactersAllowed={dynamicHook.specialCharactersAllowed}
-              onBooleanTypeChange={dynamicHook.handleBooleanTypeChange}
-              onAfterDecimalsChange={dynamicHook.handleInputChange('afterDecimals')}
-              onArrayLengthChange={dynamicHook.handleInputChange('arrayLength')}
-              onNumberRangeEndChange={dynamicHook.handleInputChange('numberRangeEnd')}
-              onNumberRangeStartChange={
-                dynamicHook.handleInputChange('numberRangeStart')
-              }
-              onSpecialCharactersAllowedChange={
-                dynamicHook.handleCheckboxChange('specialCharactersAllowed')
-              }
-              onStringLengthChange={dynamicHook.handleInputChange('stringLength')}
-            />
-          </div>
+          
           <MockingAreaComponent
             id={id}
             mockResponse={dynamicHook.mockResponse}
