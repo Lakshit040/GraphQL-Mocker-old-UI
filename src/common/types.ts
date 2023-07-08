@@ -48,3 +48,9 @@ export {
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
 };
+
+// In types.ts
+
+export interface CheckboxState {
+  [key: string]: boolean;
+}
