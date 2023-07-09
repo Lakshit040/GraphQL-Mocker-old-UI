@@ -1,85 +1,50 @@
-import { every } from "lodash";
 import React, { useCallback } from "react";
 import { PlayButtonSVG } from "./SvgComponents";
-
 interface ExpandedRowComponentProps {
+  id: string;
   arrayLength: string;
-  setArrayLength: React.Dispatch<React.SetStateAction<string>>;
   stringLength: string;
-  setStringLength: React.Dispatch<React.SetStateAction<string>>;
   numberStart: string;
-  setNumberStart: React.Dispatch<React.SetStateAction<string>>;
   numberEnd: string;
-  setNumberEnd: React.Dispatch<React.SetStateAction<string>>;
   mockResponse: string;
-  setMockResponse: React.Dispatch<React.SetStateAction<string>>;
   booleanType: string;
-  setBooleanType: React.Dispatch<React.SetStateAction<string>>;
   specialCharactersAllowed: boolean;
-  setIsSpecialCharactersAllowed: React.Dispatch<React.SetStateAction<boolean>>;
+  onArrayLengthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onStringLengthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onNumberStartChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onNumberEndChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onBooleanTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onMockResponseChange: (
+    event: React.ChangeEvent<HTMLTextAreaElement> | string
+  ) => void;
+  onPrettifyButtonPressed: () => void;
+  onGenerateResponseHereButtonPressed: (id: string) => void;
+  onSpecialCharactersAllowedChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
+  id,
   arrayLength,
-  setArrayLength,
   stringLength,
-  setStringLength,
   numberStart,
-  setNumberStart,
   numberEnd,
-  setNumberEnd,
   mockResponse,
-  setMockResponse,
   booleanType,
-  setBooleanType,
   specialCharactersAllowed,
-  setIsSpecialCharactersAllowed
+  onArrayLengthChange,
+  onBooleanTypeChange,
+  onNumberEndChange,
+  onNumberStartChange,
+  onStringLengthChange,
+  onGenerateResponseHereButtonPressed,
+  onMockResponseChange,
+  onPrettifyButtonPressed,
+  onSpecialCharactersAllowedChange
 }) => {
-  const handlePrettifyButtonPressed = useCallback(() => {
-    try {
-      setMockResponse(JSON.stringify(JSON.parse(mockResponse), null, 2));
-    } catch {}
-  }, [mockResponse]);
-  const handleFastRandomizationButtonPressed = useCallback(() => {}, []);
-  const handleArrayLengthChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setArrayLength(event.target.value.trim());
-    },
-    []
-  );
-  const handleStringLengthChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setStringLength(event.target.value.trim());
-    },
-    []
-  );
-  const handleNumberStartChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setNumberStart(event.target.value.trim());
-    },
-    []
-  );
-  const handleNumberEndChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setNumberEnd(event.target.value.trim());
-    },
-    []
-  );
-  const handleMockResponseChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setMockResponse(event.target.value);
-    },
-    []
-  );
-  const handleBooleanTypeChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setBooleanType(event.target.value);
-    },
-    []
-  );
-  const handleSpecialCharactersChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSpecialCharactersAllowed(event.target.checked);
-  }, [])
+  const handleRandomizeHere = useCallback(() => {
+    onGenerateResponseHereButtonPressed(id);
+  }, [id, onGenerateResponseHereButtonPressed]);
+
   return (
     <div className="max-w-4xl px-4 py-6 sm:px-4 lg:px-4 lg:py-8 mx-auto bg-slate-900">
       <div className="mb-8">
@@ -107,7 +72,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
               placeholder="4"
               value={arrayLength}
-              onChange={handleArrayLengthChange}
+              onChange={onArrayLengthChange}
             />
           </div>
           <div className="sm:col-span-3">
@@ -125,7 +90,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
               placeholder="8"
               value={stringLength}
-              onChange={handleStringLengthChange}
+              onChange={onStringLengthChange}
             />
           </div>
           <div className="sm:col-span-3">
@@ -143,7 +108,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
               placeholder="1"
               value={numberStart}
-              onChange={handleNumberStartChange}
+              onChange={onNumberStartChange}
             />
           </div>
           <div className="sm:col-span-3">
@@ -161,10 +126,9 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
               placeholder="1000"
               value={numberEnd}
-              onChange={handleNumberEndChange}
+              onChange={onNumberEndChange}
             />
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="booleanType"
@@ -173,19 +137,17 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               Boolean Type
             </label>
           </div>
-
           <div className="sm:col-span-9">
             <select
               value={booleanType}
               className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
-              onChange={handleBooleanTypeChange}
+              onChange={onBooleanTypeChange}
             >
               <option value={"RANDOM"}>Random</option>
               <option value={"TRUE"}>True</option>
               <option value={"FALSE"}>False</option>
             </select>
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="specialCharactersAllowed"
@@ -194,7 +156,6 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               Special Characters 
             </label>
           </div>
-
           <div className="sm:col-span-9">
           <input
                 type="checkbox"
@@ -203,10 +164,9 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
 before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue-200 before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:before:bg-gray-400 dark:checked:before:bg-blue-200"
                 id="specialCharactersAllowed"
                 checked={specialCharactersAllowed}
-                onChange={handleSpecialCharactersChange}
+                onChange={onSpecialCharactersAllowedChange}
               />
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="mockResponse"
@@ -222,23 +182,24 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
               rows={6}
               placeholder="Give your response..."
               value={mockResponse}
-              onChange={handleMockResponseChange}
+              onChange={onMockResponseChange}
             ></textarea>
           </div>
         </div>
-
         <div className="mt-5 flex justify-end gap-x-2">
           <button
             type="button"
+            title="Randoomize here"
             className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 outline-none  focus:ring-offset-2 focus:ring-offset-white  transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
-            onClick={handleFastRandomizationButtonPressed}
+            onClick={handleRandomizeHere}
           >
             <PlayButtonSVG/>
           </button>
           <button
             type="button"
+            title="Prettify response"
             className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 outline-none  focus:ring-offset-2 transition-all text-sm focus:ring-offset-gray-800"
-            onClick={handlePrettifyButtonPressed}
+            onClick={onPrettifyButtonPressed}
           >
             Prettify
           </button>
@@ -247,5 +208,4 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
     </div>
   );
 };
-
 export default React.memo(ExpandedRowComponent);

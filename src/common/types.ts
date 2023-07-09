@@ -29,16 +29,16 @@ const NORMAL_CHARACTERS =
 export interface DynamicComponentData {
   dynamicExpression: string;
   shouldRandomizeResponse: boolean;
-  numberRangeStart: number;
-  numberRangeEnd: number;
-  arrayLength: number;
-  stringLength: number;
+  numberStart: string;
+  numberEnd: string;
+  arrayLength: string;
+  stringLength: string;
   specialCharactersAllowed: boolean;
   mockResponse: string;
-  statusCode: number;
-  responseDelay: number;
-  afterDecimals: number;
-  booleanType: BooleanType;
+  statusCode: string;
+  responseDelay: string;
+  afterDecimals: string;
+  booleanType: string;
 }
 
 export {

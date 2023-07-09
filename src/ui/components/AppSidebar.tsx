@@ -17,7 +17,6 @@ const AppSidebar = () => {
             GraphQL Mocker
           </a>
         </div>
-
         <nav
           className="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
           data-hs-accordion-always-open
@@ -26,7 +25,8 @@ const AppSidebar = () => {
             <li>
               <a
                 className="flex items-center gap-x-3 py-2 px-2.5 bg-gray-700 text-sm text-white rounded-md"
-                href="javascript:;"
+                href="#"
+                title="Dashboard"
               >
                 <DashboardSVG/>
                 Dashboard
@@ -39,7 +39,8 @@ const AppSidebar = () => {
             >
               <a
                 className="hs-accordion-toggle flex items-center gap-x-3.5 py-2 px-2.5 hs-accordion-active:text-white hs-accordion-active:hover:bg-transparent text-sm text-gray-400 rounded-md hover:bg-gray-800 hover:text-white"
-                href="javascript:;"
+                href="#"
+                title="User profiles"
               >
                 <UsersSVG/>
                 Users
@@ -50,7 +51,8 @@ const AppSidebar = () => {
             <li>
               <a
                 className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-400 rounded-md hover:bg-gray-800 hover:text-white-300"
-                href="javascript:;"
+                href="#"
+                title="Response history"
               >
                 <HistorySVG />
                 Response History
@@ -59,7 +61,8 @@ const AppSidebar = () => {
             <li>
               <a
                 className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-400 rounded-md hover:bg-gray-800 hover:text-white-300"
-                href="javascript:;"
+                href="#"
+                title="Documentation"
               >
                 <DocumentationSVG/>
                 Documentation

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, createContext } from "react";
+import React, { useCallback, useState, createContext, useRef } from "react";
 import {
   DeleteSVG,
   CreateSVG,
@@ -7,23 +7,31 @@ import {
 } from "./SvgComponents";
 import { v4 as uuidv4 } from "uuid";
 import DynamicRowComponent from "./DynamicRowComponent";
-import { GraphQLOperationType, CheckboxState } from "../../common/types";
-
+import { GraphQLOperationType, DynamicComponentData } from "../../common/types";
+import {
+  backgroundSetMockResponse,
+  backgroundUnSetMockResponse,
+} from "../helpers/utils";
+import { removeQueryEndpoint } from "../../background/helpers/chromeStorageOptions";
+import TableHeadingComponent from "./TableHeadingComponent";
 const QUERY = "query";
 const MUTATION = "mutation";
 
+interface ContextDynamicComponentProps {
+  register: (id: string, dynamicData: DynamicComponentData) => void;
+  unregister: (id: string) => void;
+  handleAreMockingChange: () => void;
+}
+export const ContextForDynamicComponents =
+  createContext<ContextDynamicComponentProps>({
+    register: () => {},
+    unregister: () => {},
+    handleAreMockingChange: () => {},
+  });
 interface MockConfigProps {
   id: string;
   onDelete: (id: string) => void;
 }
-interface MockConfigContextType {
-  operationName: string;
-  operationType: GraphQLOperationType;
-}
-export const MockConfigContext = createContext<
-  MockConfigContextType | undefined
->(undefined);
-
 const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
   const defaultRowKey = uuidv4();
   const [operationName, setOperationName] = useState("");
@@ -31,42 +39,31 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
     GraphQLOperationType.Query
   );
   const [isExpanded, setIsExpanded] = useState(false);
-  const [checkedItems, setCheckedItems] = useState<CheckboxState>({[defaultRowKey] : false});
-  const [allChecked, setAllChecked] = useState(false);
   const [dynamicConfigKeys, setDynamicConfigKeys] = useState([defaultRowKey]);
-  const contextValue: MockConfigContextType = {
-    operationName,
-    operationType,
+  const [areMocking, setAreMocking] = useState(false);
+  const [childrenData, setChildrenData] = useState<
+    Record<string, DynamicComponentData>
+  >({});
+  const childrenDataRef = useRef<Record<string, DynamicComponentData>>({});
+  const register = (id: string, dynamicData: DynamicComponentData) => {
+    childrenDataRef.current[id] = dynamicData;
+    setChildrenData({ ...childrenDataRef.current });
   };
-  const [globalCheckBoxChecked, setGlobalCheckboxChecked] = useState(false);
-  const handleCheckboxChange = useCallback((id: string, isChecked: boolean) => {
-    setCheckedItems((prev) => ({ ...prev, [id]: isChecked }));
-    const isAllChecked =
-    Object.values({ ...checkedItems, [id]: isChecked }).every((val) => val);
-    setGlobalCheckboxChecked(isAllChecked);
-  }, [checkedItems]);
+  const unregister = (id: string) => {
+    delete childrenDataRef.current[id];
+    setChildrenData({ ...childrenDataRef.current });
+  };
   const handleExpandedButtonPressed = useCallback(() => {
     setIsExpanded((e) => !e);
   }, []);
-  const handleSelectAllCheckboxChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const isChecked = event.target.checked;
-      setCheckedItems((prev) => {
-        const newState = { ...prev };
-        for (let key in newState) {
-          newState[key] = isChecked;
-        }
-        setAllChecked(isChecked);
-        return newState;
-      });
-    },
-    []
-  );
-
-  const isAllChecked =
-    Object.keys(checkedItems).length > 0 &&
-    Object.values(checkedItems).every((val) => val);
-
+  const handleAreMockingChange = () => {
+    if (areMocking) {
+      backgroundUnSetMockResponse(operationType, operationName);
+    } else {
+      backgroundSetMockResponse(operationType, operationName, childrenData);
+    }
+    setAreMocking((e) => !e);
+  };
   const handleOperationTypeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       event.target.value === QUERY
@@ -82,27 +79,31 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
     []
   );
   const handleDeleteMockConfig = useCallback(() => {
+    backgroundUnSetMockResponse(operationType, operationName);
     onDelete(id);
   }, [id, onDelete, operationName, operationType]);
   const handleAddRuleButtonPressed = useCallback(() => {
-    const newKey = uuidv4();
-    setDynamicConfigKeys((keys) => [...keys, newKey]);
-    setCheckedItems((items) => ({
-      ...items,
-      [newKey]: false,
-    }));
+    backgroundUnSetMockResponse(operationType, operationName);
+    setAreMocking(false);
+    setDynamicConfigKeys((keys) => [...keys, uuidv4()]);
   }, []);
-  const handleDynamicComponentDelete = useCallback((id: string) => {
-    setDynamicConfigKeys((keys) => keys.filter((key) => key !== id));
-    setCheckedItems((prev) => {
-      const newState = { ...prev };
-      delete newState[id];
-      return newState;
-    });
-  }, []);
-
+  const handleDynamicComponentDelete = useCallback(
+    async (id: string) => {
+      backgroundUnSetMockResponse(operationType, operationName);
+      setAreMocking(false);
+      await removeQueryEndpoint(id);
+      setDynamicConfigKeys((keys) => keys.filter((key) => key !== id));
+    },
+    [operationName, operationType]
+  );
+  const handlePlayPauseDynamicConfig = useCallback(() => {
+    backgroundUnSetMockResponse(operationType, operationName);
+    setAreMocking(false);
+  }, [operationType, operationName]);
   return (
-    <MockConfigContext.Provider value={contextValue}>
+    <ContextForDynamicComponents.Provider
+      value={{ register, unregister, handleAreMockingChange }}
+    >
       <div className="max-w-[85rem] px-4 py-6 sm:px-6 lg:px-8 lg:py-6 mx-auto">
         <div className="flex flex-col">
           <div className="-m-1.5 overflow-x-auto">
@@ -136,6 +137,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                       <a
                         className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 outline-none  transition-all text-sm dark:focus:ring-offset-gray-800"
                         href="#"
+                        title={isExpanded ? 'Collapse config' : 'Expand config'}
                         onClick={handleExpandedButtonPressed}
                       >
                         {isExpanded ? <ChevronUpSVG /> : <ChevronDownSVG />}
@@ -143,6 +145,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                       <a
                         className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 outline-none  transition-all text-sm dark:focus:ring-offset-gray-800"
                         href="#"
+                        title="Create new rule"
                         onClick={handleAddRuleButtonPressed}
                       >
                         <CreateSVG />
@@ -150,6 +153,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                       <a
                         className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
                         href="#"
+                        title="Delete config"
                         onClick={handleDeleteMockConfig}
                       >
                         <DeleteSVG />
@@ -174,54 +178,15 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                         >
                           <input
                             type="checkbox"
-                            checked={isAllChecked}
-                            onChange={handleSelectAllCheckboxChange}
+                            checked={areMocking}
+                            onChange={handleAreMockingChange}
                             className="relative shrink-0 w-[3.25rem] h-7 bg-gray-100 checked:bg-none checked:bg-blue-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 border border-transparent ring-1 ring-transparent   ring-offset-white focus:outline-none appearance-none dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-offset-gray-800 before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue-200 before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:before:bg-gray-400 dark:checked:before:bg-blue-200"
                             id="hs-at-with-checkboxes-main"
                           />
                           <span className="sr-only">Checkbox</span>
                         </label>
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left"
-                      >
-                        <div className="flex items-center gap-x-2">
-                          <span className="text-sm font-normal  tracking-wide text-gray-800 dark:text-gray-200 min-w-full">
-                            Rule
-                          </span>
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left"
-                      >
-                        <div className="flex items-center gap-x-2">
-                          <span className="text-sm font-normal tracking-wide text-gray-800 dark:text-gray-200">
-                            Response Delay
-                          </span>
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left"
-                      >
-                        <div className="flex items-center gap-x-2">
-                          <span className="text-sm font-normal tracking-wide text-gray-800 dark:text-gray-200">
-                            Status Code
-                          </span>
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left"
-                      >
-                        <div className="flex items-center gap-x-2">
-                          <span className="text-sm font-normal tracking-wide text-gray-800 dark:text-gray-200">
-                            Randomize
-                          </span>
-                        </div>
-                      </th>
+                      <TableHeadingComponent />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -229,11 +194,10 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                       <DynamicRowComponent
                         key={key}
                         id={key}
-                        isChecked={checkedItems[key] || false}
-                        onCheckboxChange={handleCheckboxChange}
                         onDynamicRowComponentDelete={
                           handleDynamicComponentDelete
                         }
+                        onDynamicRowPlayPause={handlePlayPauseDynamicConfig}
                       />
                     ))}
                   </tbody>
@@ -243,7 +207,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
           </div>
         </div>
       </div>
-    </MockConfigContext.Provider>
+    </ContextForDynamicComponents.Provider>
   );
 };
 export default MockConfigComponent;
