@@ -119,14 +119,14 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                   <div>
                     <div className="inline-flex gap-x-2">
                       <a
-                        className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
+                        className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
                         href="#"
                         onClick={handleDeleteMockConfig}
                       >
                         <DeleteSVG />
                       </a>
                       <a
-                        className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+                        className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 outline-none  transition-all text-sm dark:focus:ring-offset-gray-800"
                         href="#"
                         onClick={handleAddRuleButtonPressed}
                       >
@@ -150,7 +150,9 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                             type="checkbox"
                             checked={isAllChecked}
                             onChange={handleSelectAllCheckboxChange}
-                            className="shrink-0 border-gray-200 rounded text-blue-600 pointer-events-none focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+                            className="relative shrink-0 w-[3.25rem] h-7 bg-gray-100 checked:bg-none checked:bg-blue-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 border border-transparent ring-1 ring-transparent   ring-offset-white focus:outline-none appearance-none dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-offset-gray-800
+
+before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue-200 before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:before:bg-gray-400 dark:checked:before:bg-blue-200"
                             id="hs-at-with-checkboxes-main"
                           />
                           <span className="sr-only">Checkbox</span>
@@ -183,6 +185,16 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                         <div className="flex items-center gap-x-2">
                           <span className="text-sm font-normal tracking-wide text-gray-800 dark:text-gray-200">
                             Status Code
+                          </span>
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left"
+                      >
+                        <div className="flex items-center gap-x-2">
+                          <span className="text-sm font-normal tracking-wide text-gray-800 dark:text-gray-200">
+                            Randomize 
                           </span>
                         </div>
                       </th>

@@ -1,21 +1,40 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 
-const ExpandedRowComponent = () => {
-  const [arrayLength, setArrayLength] = useState("");
-  const [stringLength, setStringLength] = useState("");
-  const [numberStart, setNumberStart] = useState("");
-  const [numberEnd, setNumberEnd] = useState("");
-  const [mockResponse, setMockResponse] = useState("");
-  const [booleanType, setBooleanType] = useState("RANDOM");
+interface ExpandedRowComponentProps {
+  arrayLength: string;
+  setArrayLength: React.Dispatch<React.SetStateAction<string>>;
+  stringLength: string;
+  setStringLength: React.Dispatch<React.SetStateAction<string>>;
+  numberStart: string;
+  setNumberStart: React.Dispatch<React.SetStateAction<string>>;
+  numberEnd: string;
+  setNumberEnd: React.Dispatch<React.SetStateAction<string>>;
+  mockResponse: string;
+  setMockResponse: React.Dispatch<React.SetStateAction<string>>;
+  booleanType: string;
+  setBooleanType: React.Dispatch<React.SetStateAction<string>>;
+}
 
+const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
+  arrayLength,
+  setArrayLength,
+  stringLength,
+  setStringLength,
+  numberStart,
+  setNumberStart,
+  numberEnd,
+  setNumberEnd,
+  mockResponse,
+  setMockResponse,
+  booleanType,
+  setBooleanType,
+}) => {
   const handlePrettifyButtonPressed = useCallback(() => {
     try {
       setMockResponse(JSON.stringify(JSON.parse(mockResponse), null, 2));
     } catch {}
   }, []);
-
   const handleFastRandomizationButtonPressed = useCallback(() => {}, []);
-
   const handleArrayLengthChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setArrayLength(event.target.value.trim());
@@ -40,21 +59,18 @@ const ExpandedRowComponent = () => {
     },
     []
   );
-
   const handleMockResponseChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setMockResponse(event.target.value);
     },
     []
   );
-
   const handleBooleanTypeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       setBooleanType(event.target.value);
     },
     []
   );
-
   return (
     <div className="max-w-4xl px-4 py-6 sm:px-4 lg:px-4 lg:py-8 mx-auto bg-slate-900">
       <div className="mb-8">
@@ -65,7 +81,6 @@ const ExpandedRowComponent = () => {
           Manage your responses as per your choice.
         </p>
       </div>
-
       <form>
         <div className="grid sm:grid-cols-12 gap-2 sm:gap-6">
           <div className="sm:col-span-3">
@@ -86,7 +101,6 @@ const ExpandedRowComponent = () => {
               onChange={handleArrayLengthChange}
             />
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="stringLength"
@@ -105,7 +119,6 @@ const ExpandedRowComponent = () => {
               onChange={handleStringLengthChange}
             />
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="numberStart"
@@ -124,7 +137,6 @@ const ExpandedRowComponent = () => {
               onChange={handleNumberStartChange}
             />
           </div>
-
           <div className="sm:col-span-3">
             <label
               htmlFor="numberEnd"
