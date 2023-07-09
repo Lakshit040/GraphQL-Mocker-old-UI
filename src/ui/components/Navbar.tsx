@@ -8,8 +8,6 @@ const Navbar = () => {
           className="max-w-[85rem] flex basis-full items-center w-full mx-auto px-4 sm:px-6 lg:px-8"
           aria-label="Global"
         >
-
-
           <div className="w-full flex items-center justify-end ml-auto sm:justify-between sm:gap-x-3 sm:order-3">
             <div className="sm:hidden">
               <button

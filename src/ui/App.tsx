@@ -25,7 +25,7 @@ function App() {
 
       <div className="h-screen bg-gray-900">
         <div className="flex bg-gray-900">
-          <div className="w-64 ">
+          <div className="hidden lg:flex lg:w-64 ">
             <AppSidebar />
           </div>
           <div className="flex-1 bg-gray-900 text-white">

@@ -1,3 +1,4 @@
+import { promises } from "fs";
 import {
   readFromSessionStorage,
   writeToSessionStorage,
@@ -65,3 +66,17 @@ export const storeOperation = async (
 export const deleteOperation = async (key: string) => {
   await deleteFromSessionStorage(Namespaces.Operation, key);
 };
+
+export const getOperationDetails = async (key: string) => {
+  return new Promise<any>((resolve) => {
+    chrome.storage.session.get([key], (result) => {
+      resolve(result[key] || {});
+    })
+  })
+}
+
+export const storeOperationDetails = async (key: string, value: any) => {
+  return new Promise<any>((resolve) => {
+    chrome.storage.session.set({[key] : value});
+  })
+}

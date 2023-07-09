@@ -1,4 +1,6 @@
+import { every } from "lodash";
 import React, { useCallback } from "react";
+import { PlayButtonSVG } from "./SvgComponents";
 
 interface ExpandedRowComponentProps {
   arrayLength: string;
@@ -13,6 +15,8 @@ interface ExpandedRowComponentProps {
   setMockResponse: React.Dispatch<React.SetStateAction<string>>;
   booleanType: string;
   setBooleanType: React.Dispatch<React.SetStateAction<string>>;
+  specialCharactersAllowed: boolean;
+  setIsSpecialCharactersAllowed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
@@ -28,12 +32,14 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
   setMockResponse,
   booleanType,
   setBooleanType,
+  specialCharactersAllowed,
+  setIsSpecialCharactersAllowed
 }) => {
   const handlePrettifyButtonPressed = useCallback(() => {
     try {
       setMockResponse(JSON.stringify(JSON.parse(mockResponse), null, 2));
     } catch {}
-  }, []);
+  }, [mockResponse]);
   const handleFastRandomizationButtonPressed = useCallback(() => {}, []);
   const handleArrayLengthChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +77,9 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
     },
     []
   );
+  const handleSpecialCharactersChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSpecialCharactersAllowed(event.target.checked);
+  }, [])
   return (
     <div className="max-w-4xl px-4 py-6 sm:px-4 lg:px-4 lg:py-8 mx-auto bg-slate-900">
       <div className="mb-8">
@@ -179,6 +188,27 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
 
           <div className="sm:col-span-3">
             <label
+              htmlFor="specialCharactersAllowed"
+              className="inline-block text-sm  mt-2.5 text-gray-200"
+            >
+              Special Characters 
+            </label>
+          </div>
+
+          <div className="sm:col-span-9">
+          <input
+                type="checkbox"
+                className="relative shrink-0 w-[3.25rem] h-7 bg-gray-100 checked:bg-none checked:bg-blue-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 border border-transparent ring-1 ring-transparent   ring-offset-white focus:outline-none appearance-none dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-offset-gray-800
+
+before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue-200 before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:before:bg-gray-400 dark:checked:before:bg-blue-200"
+                id="specialCharactersAllowed"
+                checked={specialCharactersAllowed}
+                onChange={handleSpecialCharactersChange}
+              />
+          </div>
+
+          <div className="sm:col-span-3">
+            <label
               htmlFor="mockResponse"
               className="inline-block text-sm text-gray-800 mt-2.5 dark:text-gray-200"
             >
@@ -203,7 +233,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
             className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 outline-none  focus:ring-offset-2 focus:ring-offset-white  transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
             onClick={handleFastRandomizationButtonPressed}
           >
-            Randomize Here
+            <PlayButtonSVG/>
           </button>
           <button
             type="button"

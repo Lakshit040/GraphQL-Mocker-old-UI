@@ -2,7 +2,7 @@ import { DashboardSVG, DocumentationSVG, HistorySVG, UsersDownSVG, UsersSVG } fr
 
 const AppSidebar = () => {
   return (
-    <div className="bg-gray-50 dark:bg-slate-900">
+    <div className="bg-gray-50 dark:bg-slate-900 sm:display-none">
 
       <div
         id="application-sidebar-dark"

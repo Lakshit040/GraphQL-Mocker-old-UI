@@ -1,7 +1,12 @@
 import { ChevronDownSVG, ChevronUpSVG, DeleteSVG } from "./SvgComponents";
-import React, { useCallback, useState, useContext } from "react";
+import React, { useCallback, useState, useContext, useEffect } from "react";
 import { MockConfigContext } from "./MockConfigComponent";
 import ExpandedRowComponent from "./ExpandedRowComponent";
+import {
+  getOperationDetails,
+  storeOperationDetails,
+} from "../../background/helpers/chromeStorageOptions";
+import { dynamicDataConverter } from "../helpers/utils";
 
 interface DynamicRowComponentProps {
   id: string;
@@ -17,7 +22,12 @@ const DynamicRowComponent = ({
   onDynamicRowComponentDelete,
 }: DynamicRowComponentProps) => {
   const mockConfigContext = useContext(MockConfigContext);
+  const curOperationName = mockConfigContext?.operationName;
+  const curOperationType = mockConfigContext?.operationType;
   const [arrayLength, setArrayLength] = useState("");
+  const [dynamicRule, setDynamicRule] = useState("");
+  const [responseDelay, setResponseDelay] = useState("");
+  const [statusCode, setStatusCode] = useState("");
   const [stringLength, setStringLength] = useState("");
   const [numberStart, setNumberStart] = useState("");
   const [numberEnd, setNumberEnd] = useState("");
@@ -25,21 +35,67 @@ const DynamicRowComponent = ({
   const [booleanType, setBooleanType] = useState("RANDOM");
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldRandomize, setShouldRandomize] = useState(true);
+  const [specialCharactersAllowed, setIsSpecialCharactersAllowed] =
+    useState(true);
+
   const handleDeleteRowButtonPressed = useCallback(() => {
     onDynamicRowComponentDelete(id);
   }, [id, onDynamicRowComponentDelete, onCheckboxChange]);
   const handleCheckboxChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
+      const isChecked = event.target.checked;
+      const key = `${curOperationType}_${curOperationName}`;
+      if (isChecked) {
+        console.log("Checked id: ", id);
+        // let storedValue = await getOperationDetails(key);
+        // storedValue = { ...storedValue, [id]: dataSet };
+        // await storeOperationDetails(key, storedValue);
+        console.log("Information Stored for id: ", id);
+      } else {
+        try {
+          console.log("Unchecked id: ", id);
+          // let storedValue = await getOperationDetails(key);
+          // delete storedValue[id];
+          console.log("Deleted id: ", id);
+          // await storeOperationDetails(key, storedValue);
+        } catch {}
+      }
       onCheckboxChange(id, event.target.checked);
     },
     [id, onCheckboxChange, onDynamicRowComponentDelete]
   );
+  
   const handleRowExpanded = useCallback(() => {
     setIsExpanded((e) => !e);
   }, []);
-  const handleShouldRandomizeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setShouldRandomize(event.target.checked);
-  }, []);
+  const handleShouldRandomizeChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldRandomize(event.target.checked);
+    },
+    []
+  );
+
+  const handleDynamicRuleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setDynamicRule(event.target.value);
+    },
+    []
+  );
+
+  const handleResponseDelayChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setResponseDelay(event.target.value.trim());
+    },
+    []
+  );
+
+  const handleStatusCodeChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setStatusCode(event.target.value.trim());
+    },
+    []
+  );
+
   return (
     <>
       <tr>
@@ -70,7 +126,9 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
                   <input
                     type="text"
                     placeholder="id == '5', *, age > 18 && count != 5"
-                    className="px-1 bg-gray-900 border-b border-gray-600 outline-none min-w-full"
+                    className="px-1 py-1 bg-gray-900 border-b border-gray-600 outline-none min-w-full"
+                    value={dynamicRule}
+                    onChange={handleDynamicRuleChange}
                   />
                 </span>
               </div>
@@ -83,7 +141,9 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
               <input
                 type="text"
                 placeholder="0"
-                className="px-1 bg-gray-900 border-b border-gray-600 outline-none"
+                className="px-1 py-1 bg-gray-900 border-b border-gray-600 outline-none"
+                value={responseDelay}
+                onChange={handleResponseDelayChange}
               />
             </span>
           </div>
@@ -94,7 +154,9 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
               <input
                 type="text"
                 placeholder="200"
-                className="px-1 bg-gray-900 border-b border-gray-600 outline-none"
+                className="px-1 py-1 bg-gray-900 border-b border-gray-600 outline-none"
+                value={statusCode}
+                onChange={handleStatusCodeChange}
               />
             </span>
           </div>
@@ -117,20 +179,20 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
         <td className="h-px w-px whitespace-nowrap">
           <div className="px-6 py-2">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex">
-                <a
-                  className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none   transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
-                  href="#"
-                  onClick={handleDeleteRowButtonPressed}
-                >
-                  <DeleteSVG />
-                </a>
+              <div className="flex space-x-2">
                 <a
                   className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none   transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
                   href="#"
                   onClick={handleRowExpanded}
                 >
                   {isExpanded ? <ChevronUpSVG /> : <ChevronDownSVG />}
+                </a>
+                <a
+                  className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none   transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
+                  href="#"
+                  onClick={handleDeleteRowButtonPressed}
+                >
+                  <DeleteSVG />
                 </a>
               </div>
             </span>
@@ -155,6 +217,8 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
             setMockResponse={setMockResponse}
             booleanType={booleanType}
             setBooleanType={setBooleanType}
+            specialCharactersAllowed={specialCharactersAllowed}
+            setIsSpecialCharactersAllowed={setIsSpecialCharactersAllowed}
           />
         </td>
       </tr>
