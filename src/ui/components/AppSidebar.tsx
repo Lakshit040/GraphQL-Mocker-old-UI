@@ -12,14 +12,13 @@ const AppSidebar = () => {
           <a
             className="flex-none text-xl  text-white font-mono"
             href="#"
-            aria-label="Brand"
+            title="GraphQL Mocker"
           >
             GraphQL Mocker
           </a>
         </div>
         <nav
           className="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
-          data-hs-accordion-always-open
         >
           <ul className="space-y-1.5">
             <li>
@@ -32,11 +31,7 @@ const AppSidebar = () => {
                 Dashboard
               </a>
             </li>
-
-            <li
-              className="hs-accordion"
-              id="users-accordion"
-            >
+            <li>
               <a
                 className="hs-accordion-toggle flex items-center gap-x-3.5 py-2 px-2.5 hs-accordion-active:text-white hs-accordion-active:hover:bg-transparent text-sm text-gray-400 rounded-md hover:bg-gray-800 hover:text-white"
                 href="#"

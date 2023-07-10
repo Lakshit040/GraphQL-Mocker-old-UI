@@ -3,7 +3,6 @@ import {
   writeToSessionStorage,
   deleteFromSessionStorage,
 } from "../../../common/chromeStorageHelpers";
-import { BooleanType } from "../../../common/types";
 import {
   getSchema,
   storeSchema,

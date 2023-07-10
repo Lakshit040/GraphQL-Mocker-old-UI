@@ -12,12 +12,6 @@ export enum GraphQLOperationType {
   Mutation,
 }
 
-export enum BooleanType {
-  True,
-  False,
-  Random,
-}
-
 const TRUE = "true";
 const FALSE = "false";
 const RANDOM = "random";
@@ -48,9 +42,3 @@ export {
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
 };
-
-// In types.ts
-
-export interface CheckboxState {
-  [key: string]: boolean;
-}

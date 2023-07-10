@@ -1,4 +1,3 @@
-import { promises } from "fs";
 import {
   readFromSessionStorage,
   writeToSessionStorage,
