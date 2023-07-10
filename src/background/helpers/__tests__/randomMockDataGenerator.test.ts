@@ -24,7 +24,6 @@ describe('giveRandomResponse function', () => {
     isSpecialAllowed: false,
   };
 
-  // Test case for Query operation
   it('should correctly handle Query operation', () => {
     const queryString = `
       query {
