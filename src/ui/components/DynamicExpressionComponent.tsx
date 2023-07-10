@@ -59,7 +59,7 @@ const DynamicExpressionComponent = ({
         );
       }
     },
-    [dynamicHook.handleGenerateResponseHere]
+    [dynamicHook]
   );
 
   return (
