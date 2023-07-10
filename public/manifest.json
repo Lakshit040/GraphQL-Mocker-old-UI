@@ -10,7 +10,7 @@
     "service_worker": "js/background.js"
   },
   "devtools_page": "js/devtools.html",
-  "permissions": ["storage"],
+  "permissions": ["storage", "unlimitedStorage"],
   "content_scripts": [
     {
       "js": ["js/content_script.js"],
