@@ -2,7 +2,6 @@ import { giveTypeMaps } from "./typeMapProvider";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
 import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
-import { BooleanType } from "../../common/types";
 
 export const fastRandomize = async (id: string): Promise<any> => {
   const queryEndpoint = await getQueryEndpoint(id);
@@ -16,7 +15,7 @@ export const fastRandomize = async (id: string): Promise<any> => {
         stringLength: 8,
         arrayLength: 4,
         isSpecialAllowed: true,
-        booleanValues: BooleanType.Random,
+        booleanValues: "RANDOM",
         numRangeEnd: 1000,
         numRangeStart: 1,
         digitsAfterDecimal: 2,

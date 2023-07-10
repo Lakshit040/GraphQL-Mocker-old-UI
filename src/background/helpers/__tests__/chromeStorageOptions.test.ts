@@ -3,7 +3,6 @@ import {
   writeToSessionStorage,
   deleteFromSessionStorage,
 } from "../../../common/chromeStorageHelpers";
-import { BooleanType } from "../../../common/types";
 import {
   getSchema,
   storeSchema,
@@ -92,16 +91,16 @@ describe("Chrome Storage Helpers", () => {
       dynamicComponentDataKey: {
         dynamicExpression: "example expression",
         shouldRandomizeResponse: true,
-        numberRangeStart: 1,
-        numberRangeEnd: 100,
-        arrayLength: 5,
-        stringLength: 10,
+        numberStart: "1",
+        numberEnd: "100",
+        arrayLength: "5",
+        stringLength: "10",
         specialCharactersAllowed: true,
         mockResponse: "{data: {}}",
-        statusCode: 200,
-        responseDelay: 0,
-        afterDecimals: 2,
-        booleanType: BooleanType.Random,
+        statusCode: "200",
+        responseDelay: "0",
+        afterDecimals: "2",
+        booleanType: "RANDOM",
       },
     };
     await storeOperation("operationType_operationName", value);

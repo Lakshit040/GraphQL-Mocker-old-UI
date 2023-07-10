@@ -1,5 +1,4 @@
 import { dynamicValueGenerator } from "../randomDataTypeGenerator";
-import { BooleanType } from "../../../common/types";
 
 describe('dynamicValueGenerator function', () => {
   const mockEnumTypes = new Map<string, any>();
@@ -9,7 +8,7 @@ describe('dynamicValueGenerator function', () => {
     numRangeStart: 1,
     numRangeEnd: 10,
     digitsAfterDecimal: 2,
-    booleanValues: BooleanType.True,
+    booleanValues: "TRUE",
     isSpecialAllowed: true
   };
 

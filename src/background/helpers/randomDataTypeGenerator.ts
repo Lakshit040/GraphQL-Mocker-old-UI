@@ -1,7 +1,6 @@
 import {
   ALL_CHARACTERS,
   NORMAL_CHARACTERS,
-  BooleanType,
 } from "../../common/types";
 import {random, uniqueId, sampleSize, times} from "lodash";
 import { specificFieldGenerator } from "./specificFieldGenerator";
@@ -28,10 +27,10 @@ const floatGenerator = (
   return Number(random(numberFrom, numberTo, true).toFixed(noOfDecimals));
 };
 
-const booleanGenerator = (booleanValue: BooleanType): boolean => {
-  return booleanValue === BooleanType.True
+const booleanGenerator = (booleanValue: string): boolean => {
+  return booleanValue === "TRUE"
     ? true
-    : booleanValue === BooleanType.False
+    : booleanValue === "FALSE"
     ? false
     : random() < 0.5;
 };
@@ -43,7 +42,7 @@ export interface DataSet {
   numRangeStart: number;
   numRangeEnd: number;
   digitsAfterDecimal: number;
-  booleanValues: BooleanType;
+  booleanValues: string;
   isSpecialAllowed: boolean;
 }
 
