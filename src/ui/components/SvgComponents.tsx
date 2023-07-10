@@ -10,7 +10,7 @@ export const DeleteSVG = () => {
     >
       <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
       />
     </svg>
@@ -30,8 +30,8 @@ export const CreateSVG = () => {
       <path
         d="M2.63452 7.50001L13.6345 7.5M8.13452 13V2"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -46,9 +46,9 @@ export const ChevronUpSVG = () => {
       className="w-5 h-5"
     >
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M14.77 12.79a.75.75 0 01-1.06-.02L10 8.832 6.29 12.77a.75.75 0 11-1.08-1.04l4.25-4.5a.75.75 0 011.08 0l4.25 4.5a.75.75 0 01-.02 1.06z"
-        clip-rule="evenodd"
+        clipRule="evenodd"
       />
     </svg>
   );
@@ -63,9 +63,9 @@ export const ChevronDownSVG = () => {
       className="w-5 h-5"
     >
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-        clip-rule="evenodd"
+        clipRule="evenodd"
       />
     </svg>
   );
@@ -130,8 +130,8 @@ export const UsersDownSVG = () => {
       <path
         d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5"
         stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       ></path>
     </svg>
   );
@@ -148,11 +148,11 @@ export const DashboardSVG = () => {
       viewBox="0 0 16 16"
     >
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"
       />
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"
       />
     </svg>
