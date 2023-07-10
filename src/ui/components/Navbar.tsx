@@ -38,7 +38,7 @@ const Navbar = () => {
                 type="button"
                 className="inline-flex flex-shrink-0 justify-center items-center gap-2 h-[2.375rem] w-[2.375rem] rounded-full font-medium hover:bg-white/[.2] text-white align-middle focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all text-xs"
               >
-                <NotificationSVG/>
+                <NotificationSVG />
               </button>
               
 

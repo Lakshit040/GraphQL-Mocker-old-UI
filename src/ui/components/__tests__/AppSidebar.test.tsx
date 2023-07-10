@@ -12,5 +12,12 @@ describe('AppSidebar', () => {
     expect(screen.getByText('Users')).toBeInTheDocument();
     expect(screen.getByText('Response History')).toBeInTheDocument();
     expect(screen.getByText('Documentation')).toBeInTheDocument();
+
+    // Test if SVG components exist in the document.
+    expect(screen.getByTestId('dashboard-svg')).toBeInTheDocument();
+    expect(screen.getByTestId('users-svg')).toBeInTheDocument();
+    expect(screen.getByTestId('usersdown-svg')).toBeInTheDocument();
+    expect(screen.getByTestId('history-svg')).toBeInTheDocument();
+    expect(screen.getByTestId('documentation-svg')).toBeInTheDocument();
   });
 });

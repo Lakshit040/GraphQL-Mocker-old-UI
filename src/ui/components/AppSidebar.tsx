@@ -27,7 +27,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Dashboard"
               >
-                <DashboardSVG data-testid="dashboard-svg"/>
+                <DashboardSVG />
                 Dashboard
               </a>
             </li>
@@ -37,9 +37,9 @@ const AppSidebar = () => {
                 href="#"
                 title="User profiles"
               >
-                <UsersSVG data-testid="users-svg"/>
+                <UsersSVG />
                 Users
-                <UsersDownSVG data-testid="usersdown-svg"/>
+                <UsersDownSVG />
               </a>
             </li>
 
@@ -49,7 +49,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Response history"
               >
-                <HistorySVG data-testid="history-svg"/>
+                <HistorySVG />
                 Response History
               </a>
             </li>
@@ -59,7 +59,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Documentation"
               >
-                <DocumentationSVG data-testid="documentation-svg"/>
+                <DocumentationSVG />
                 Documentation
               </a>
             </li>
