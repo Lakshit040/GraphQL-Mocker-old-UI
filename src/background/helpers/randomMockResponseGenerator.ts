@@ -5,7 +5,7 @@ import {
   printSchema,
   buildSchema,
 } from "graphql";
-import { MessageType} from "../../common/types";
+import { MessageType } from "../../common/types";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
@@ -66,23 +66,31 @@ export const generateRandomizedResponse = async (
         query: getIntrospectionQuery(),
       });
 
-      const introspectionResult = await fetchJSONFromInjectedScript(
-        tabId!,
-        frameId!,
-        endpointPath,
-        requestBody,
-        requestId
-      );
-
-      if (introspectionResult.errors || introspectionResult.error) {
-        return { data: {}, message: "SCHEMA_INTROSPECTION_ERROR" };
-      }
-      const schemaSDL = buildClientSchema(introspectionResult.data);
-      const schemaString = printSchema(schemaSDL);
       try {
+        const introspectionResult = await fetchJSONFromInjectedScript(
+          tabId!,
+          frameId!,
+          endpointPath,
+          requestBody,
+          requestId
+        );
+
+        if (introspectionResult.errors || introspectionResult.error) {
+          return { data: {}, message: "SCHEMA_INTROSPECTION_ERROR" };
+        }
+        const schemaSDL = buildClientSchema(introspectionResult.data);
+        const schemaString = printSchema(schemaSDL);
+
         await storeSchema(endpointHost, endpointPath, schemaString);
-      } catch (error) {
-        console.error(error);
+      } catch {
+        try {
+          return {
+            data: JSON.parse(mockResponse),
+            message: "SCHEMA_INTROSPECTION_FAILED",
+          };
+        } catch {
+          return { data: {}, message: "SCHEMA_INTROSPECTION_FAILED" };
+        }
       }
     }
     schemaString = await getSchema(endpointHost, endpointPath);
