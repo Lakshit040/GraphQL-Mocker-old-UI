@@ -54,7 +54,7 @@ export const generateRandomizedResponse = async (
   mockResponse: string,
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
-  if (!(shouldRandomizeResponse || graphqlQuery !== "")) {
+  if (graphqlQuery === "") {
     return { data: JSON.parse(mockResponse).data };
   }
 

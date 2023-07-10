@@ -33,6 +33,8 @@ const capture = (path: string, config?: RequestInit) => {
     if (!/.*graphql.*/.test(path) || config?.method?.toLowerCase() !== "post")
       return reject();
 
+    console.log("Intercepted", path, config);
+
     const requestId = uuidv4();
     capturedRequests.set(requestId, [resolve, reject]);
     capturedRequestConfigs.set(requestId, { config });
@@ -61,10 +63,19 @@ const __oldFetch__: (
 window.fetch = (req, config = undefined) => {
   return capture(req as string, config)
     .then(({ response, statusCode }) => {
-      return new Response(response, {
-        headers: config?.headers ?? new Headers([]),
+      console.log(response);
+      const finalResponse = new Response(response, {
+        headers:
+          config?.headers !== undefined
+            ? JSON.parse(JSON.stringify(config?.headers))
+            : new Headers([]),
         status: statusCode,
       });
+      console.log(finalResponse);
+      for (const header of finalResponse.headers) {
+        console.log("header entry", header);
+      }
+      return finalResponse;
     })
     .catch(() => __oldFetch__(req, config));
 };
