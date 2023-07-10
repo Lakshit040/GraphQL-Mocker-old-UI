@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { PlayButtonSVG } from "./SvgComponents";
+import LabelledInputComponent from "./LabelledInputComponent";
 interface ExpandedRowComponentProps {
   id: string;
   arrayLength: string;
@@ -19,7 +20,9 @@ interface ExpandedRowComponentProps {
   ) => void;
   onPrettifyButtonPressed: () => void;
   onGenerateResponseHereButtonPressed: (id: string) => void;
-  onSpecialCharactersAllowedChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSpecialCharactersAllowedChange: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
@@ -39,7 +42,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
   onGenerateResponseHereButtonPressed,
   onMockResponseChange,
   onPrettifyButtonPressed,
-  onSpecialCharactersAllowedChange
+  onSpecialCharactersAllowedChange,
 }) => {
   const handleRandomizeHere = useCallback(() => {
     onGenerateResponseHereButtonPressed(id);
@@ -57,78 +60,38 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
       </div>
       <form>
         <div className="grid sm:grid-cols-12 gap-2 sm:gap-6">
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="arrayLength"
-              className="inline-block text-sm  mt-2.5 text-gray-200"
-            >
-              Array Length
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <input
-              id="arrayLength"
-              type="text"
-              className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
-              placeholder="4"
-              value={arrayLength}
-              onChange={onArrayLengthChange}
-            />
-          </div>
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="stringLength"
-              className="inline-block text-sm  mt-2.5 text-gray-200"
-            >
-              String Length
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <input
-              id="stringLength"
-              type="text"
-              className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
-              placeholder="8"
-              value={stringLength}
-              onChange={onStringLengthChange}
-            />
-          </div>
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="numberStart"
-              className="inline-block text-sm  mt-2.5 text-gray-200"
-            >
-              Number Start
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <input
-              id="numberStart"
-              type="text"
-              className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
-              placeholder="1"
-              value={numberStart}
-              onChange={onNumberStartChange}
-            />
-          </div>
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="numberEnd"
-              className="inline-block text-sm  mt-2.5 text-gray-200"
-            >
-              Number End
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <input
-              id="numberEnd"
-              type="text"
-              className="py-2 px-3 pr-11 block w-full border  shadow-sm text-sm rounded-lg outline-none bg-slate-900 border-gray-700 text-gray-400"
-              placeholder="1000"
-              value={numberEnd}
-              onChange={onNumberEndChange}
-            />
-          </div>
+          <LabelledInputComponent
+            value={arrayLength}
+            onChange={onArrayLengthChange}
+            htmlInputId="arrayLength"
+            placeholder="4"
+            type="text"
+            label="Array Length"
+          />
+          <LabelledInputComponent
+            value={stringLength}
+            onChange={onStringLengthChange}
+            htmlInputId="stringLength"
+            placeholder="8"
+            type="text"
+            label="String Length"
+          />
+          <LabelledInputComponent
+            value={numberStart}
+            onChange={onNumberStartChange}
+            htmlInputId="numberStart"
+            placeholder="1"
+            type="text"
+            label="Number Start"
+          />
+          <LabelledInputComponent
+            value={numberEnd}
+            onChange={onNumberEndChange}
+            htmlInputId="numberEnd"
+            placeholder="1000"
+            type="text"
+            label="Number End"
+          />
           <div className="sm:col-span-3">
             <label
               htmlFor="booleanType"
@@ -153,19 +116,19 @@ const ExpandedRowComponent: React.FC<ExpandedRowComponentProps> = ({
               htmlFor="specialCharactersAllowed"
               className="inline-block text-sm  mt-2.5 text-gray-200"
             >
-              Special Characters 
+              Special Characters
             </label>
           </div>
           <div className="sm:col-span-9">
-          <input
-                type="checkbox"
-                className="relative shrink-0 w-[3.25rem] h-7 bg-gray-100 checked:bg-none checked:bg-blue-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 border border-transparent ring-1 ring-transparent   ring-offset-white focus:outline-none appearance-none dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-offset-gray-800
+            <input
+              type="checkbox"
+              className="relative shrink-0 w-[3.25rem] h-7 bg-gray-100 checked:bg-none checked:bg-blue-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 border border-transparent ring-1 ring-transparent   ring-offset-white focus:outline-none appearance-none dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-offset-gray-800
 
 before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue-200 before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:before:bg-gray-400 dark:checked:before:bg-blue-200"
-                id="specialCharactersAllowed"
-                checked={specialCharactersAllowed}
-                onChange={onSpecialCharactersAllowedChange}
-              />
+              id="specialCharactersAllowed"
+              checked={specialCharactersAllowed}
+              onChange={onSpecialCharactersAllowedChange}
+            />
           </div>
           <div className="sm:col-span-3">
             <label
@@ -193,7 +156,7 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
             className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 outline-none  focus:ring-offset-2 focus:ring-offset-white  transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
             onClick={handleRandomizeHere}
           >
-            <PlayButtonSVG/>
+            <PlayButtonSVG />
           </button>
           <button
             type="button"
