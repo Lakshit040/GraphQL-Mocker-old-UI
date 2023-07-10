@@ -30,11 +30,15 @@ export const storeSchema = async (
   );
 };
 
-export const getQueryEndpoint = async (expressionId: string) => {
-  return await readFromSessionStorage(Namespaces.QueryEndpoint, expressionId);
+export const getQueryEndpoint = async (tabId: number, expressionId: string) => {
+  return await readFromSessionStorage(
+    Namespaces.QueryEndpoint,
+    `${tabId}_${expressionId}`
+  );
 };
 
 export const storeQueryEndpoint = async (
+  tabId: number,
   expressionId: string,
   query: string,
   origin: string,
@@ -42,26 +46,33 @@ export const storeQueryEndpoint = async (
 ) => {
   await writeToSessionStorage(
     Namespaces.QueryEndpoint,
-    expressionId,
+    `${tabId}_${expressionId}`,
     `${query}__${origin}__${path}`
   );
 };
 
-export const removeQueryEndpoint = async (expressionId: string) => {
-  await deleteFromSessionStorage(Namespaces.QueryEndpoint, expressionId);
+export const removeQueryEndpoint = async (
+  tabId: number,
+  expressionId: string
+) => {
+  await deleteFromSessionStorage(
+    Namespaces.QueryEndpoint,
+    `${tabId}_${expressionId}`
+  );
 };
 
-export const getOperation = async (key: string) => {
-  return await readFromSessionStorage(Namespaces.Operation, key);
+export const getOperation = async (tabId: number, key: string) => {
+  return await readFromSessionStorage(Namespaces.Operation, `${tabId}_${key}`);
 };
 
 export const storeOperation = async (
+  tabId: number,
   key: string,
   value: Record<string, DynamicComponentData>
 ) => {
-  await writeToSessionStorage(Namespaces.Operation, key, value);
+  await writeToSessionStorage(Namespaces.Operation, `${tabId}_${key}`, value);
 };
 
-export const deleteOperation = async (key: string) => {
-  await deleteFromSessionStorage(Namespaces.Operation, key);
+export const deleteOperation = async (tabId: number, key: string) => {
+  await deleteFromSessionStorage(Namespaces.Operation, `${tabId}_${key}`);
 };

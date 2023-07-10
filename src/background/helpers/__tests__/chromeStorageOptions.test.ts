@@ -42,15 +42,16 @@ describe("Chrome Storage Helpers", () => {
   });
 
   it("getQueryEndpoint should call readFromSessionStorage with correct parameters", async () => {
-    await getQueryEndpoint("testExpression");
+    await getQueryEndpoint(1, "testExpression");
     expect(readFromSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "testExpression"
+      "1_testExpression"
     );
   });
 
   it("storeQueryEndpoint should call writeToSessionStorage with correct parameters", async () => {
     await storeQueryEndpoint(
+      1,
       "testExpression",
       "testQuery",
       "testOrigin",
@@ -58,32 +59,32 @@ describe("Chrome Storage Helpers", () => {
     );
     expect(writeToSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "testExpression",
+      "1_testExpression",
       "testQuery__testOrigin__testPath"
     );
   });
 
   it("removeQueryEndpoint should call deleteFromSessionStorage with correct parameters", async () => {
-    await removeQueryEndpoint("testExpression");
+    await removeQueryEndpoint(1, "testExpression");
     expect(deleteFromSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "testExpression"
+      "1_testExpression"
     );
   });
 
   it("getOperation should call readFromSessionStorage with correct parameters", async () => {
-    await getOperation("operationType_operationName");
+    await getOperation(1, "operationType_operationName");
     expect(readFromSessionStorage).toHaveBeenCalledWith(
       "OPERATION",
-      "operationType_operationName"
+      "1_operationType_operationName"
     );
   });
 
   it("deleteOperation should call deleteFromSessionStorage with correct parameters", async () => {
-    await deleteOperation("operationType_operationName");
+    await deleteOperation(1, "operationType_operationName");
     expect(deleteFromSessionStorage).toHaveBeenCalledWith(
       "OPERATION",
-      "operationType_operationName"
+      "1_operationType_operationName"
     );
   });
 
@@ -104,7 +105,11 @@ describe("Chrome Storage Helpers", () => {
         booleanType: BooleanType.Random,
       },
     };
-    await storeOperation("operationType_operationName", value);
-    expect(writeToSessionStorage).toHaveBeenCalledWith("OPERATION", "operationType_operationName", value);
+    await storeOperation(1, "operationType_operationName", value);
+    expect(writeToSessionStorage).toHaveBeenCalledWith(
+      "OPERATION",
+      "1_operationType_operationName",
+      value
+    );
   });
 });

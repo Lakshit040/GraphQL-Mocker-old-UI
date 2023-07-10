@@ -79,7 +79,7 @@ const MockResponseConfigComponent = ({
     async (id: string) => {
       backgroundUnSetMockResponse(operationType, operationName);
       setAreMocking(false);
-      await removeQueryEndpoint(id);
+      await removeQueryEndpoint(chrome.devtools.inspectedWindow.tabId, id);
       setDynamicResponseConfigKeys((keys) => keys.filter((key) => key !== id));
     },
     [operationName, operationType]
