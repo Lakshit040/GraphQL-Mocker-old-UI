@@ -1,6 +1,5 @@
 import { parse } from 'graphql';
 import giveRandomResponse from '../randomMockDataGenerator';
-import { BooleanType } from '../../../common/types';
 
 describe('giveRandomResponse function', () => {
 
@@ -21,7 +20,7 @@ describe('giveRandomResponse function', () => {
     numRangeStart: 1,
     numRangeEnd: 100,
     digitsAfterDecimal: 2,
-    booleanValues: BooleanType.True,
+    booleanValues: "TRUE",
     isSpecialAllowed: false,
   };
 
