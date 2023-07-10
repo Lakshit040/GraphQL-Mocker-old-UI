@@ -75,9 +75,6 @@ export const generateRandomizedResponse = async (
           requestId
         );
 
-        if (introspectionResult.errors || introspectionResult.error) {
-          return { data: {}, message: "SCHEMA_INTROSPECTION_ERROR" };
-        }
         const schemaSDL = buildClientSchema(introspectionResult.data);
         const schemaString = printSchema(schemaSDL);
 
@@ -85,7 +82,7 @@ export const generateRandomizedResponse = async (
       } catch {
         try {
           return {
-            data: JSON.parse(mockResponse),
+            data: JSON.parse(mockResponse).data,
             message: "SCHEMA_INTROSPECTION_FAILED",
           };
         } catch {
@@ -99,16 +96,25 @@ export const generateRandomizedResponse = async (
 
     const [fieldTypes, enumTypes, unionTypes, interfaceTypes] =
       await giveTypeMaps(typeMap);
-
-    const queryDocument = parse(graphqlQuery);
+    let queryDocument;
+    try{
+      queryDocument = parse(graphqlQuery);
+    }
+    catch{
+      return {data: {}, message: "QUERY_PARSING_ERROR"}
+    }
 
     if (!shouldRandomizeResponse) {
       const response = queryResponseValidator(
         JSON.parse(mockResponse!).data,
         fieldTypes
       );
+      let data = {};
+      try {
+        data = JSON.parse(mockResponse).data;
+      } catch {}
       return {
-        data: JSON.parse(mockResponse!).data,
+        data: data,
         message:
           response.errors.length === 0 && response.fieldNotFound.length === 0
             ? "VALID_RESPONSE"
