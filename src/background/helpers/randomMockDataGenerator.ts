@@ -44,6 +44,9 @@ const giveRandomResponse = (
           response[fragmentKey] = fragmentResponse[fragmentKey];
         }
       } else {
+        if(field.name.value.startsWith('__')){
+          continue;
+        }
         if (!typeMap.has(field.name.value)) {
           fieldNotFound = field.name.value;
           return {};
