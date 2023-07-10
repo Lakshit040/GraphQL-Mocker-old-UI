@@ -64,6 +64,7 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
                 id={`rule-${id}`}
                 title={isMocking ? 'Stop mocking' : 'Start mocking'}
                 checked={isMocking}
+                disabled={dynamicHook.dynamicExpression.trim() === ""}
                 onChange={handleMockingDynamicChange}
               />
               <span className="sr-only">Checkbox</span>
