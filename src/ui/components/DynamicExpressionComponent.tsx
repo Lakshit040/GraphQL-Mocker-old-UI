@@ -32,13 +32,7 @@ const DynamicExpressionComponent = ({
       register(id, dynamicHook);
     }
     return () => unregister(id);
-  }, [
-    register,
-    unregister,
-    id,
-    dynamicHook,
-    isExpressionMocking,
-  ]);
+  }, [register, unregister, id, dynamicHook, isExpressionMocking]);
 
   const handleExpressionMockingPlayPause = useCallback(() => {
     onDynamicExpressionPlayPause(id);
@@ -60,7 +54,9 @@ const DynamicExpressionComponent = ({
     async (id: string) => {
       const response = await fastRandomize(id);
       if (response !== undefined) {
-        dynamicHook.handleGenerateResponseHere(JSON.stringify(response, null, 2));
+        dynamicHook.handleGenerateResponseHere(
+          JSON.stringify(response, null, 2)
+        );
       }
     },
     [dynamicHook.handleGenerateResponseHere]
@@ -77,7 +73,7 @@ const DynamicExpressionComponent = ({
               label={`Rule`}
               value={dynamicHook.dynamicExpression}
               placeholder={`id == "22", *, age > 18 && count == 5`}
-              onChange={dynamicHook.handleInputChange('dynamicExpression')}
+              onChange={dynamicHook.handleInputChange("dynamicExpression")}
             />
 
             <div className="grow flex flex-row-reverse mr-2">
@@ -108,11 +104,13 @@ const DynamicExpressionComponent = ({
             responseDelay={dynamicHook.responseDelay}
             statusCode={dynamicHook.statusCode}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
-            onResponseDelayChange={dynamicHook.handleInputChange('responseDelay')}
-            onShouldRandomizeResponseChange={
-              dynamicHook.handleCheckboxChange('shouldRandomizeResponse')
-            }
-            onStatusCodeChange={dynamicHook.handleCheckboxChange('statusCode')}
+            onResponseDelayChange={dynamicHook.handleInputChange(
+              "responseDelay"
+            )}
+            onShouldRandomizeResponseChange={dynamicHook.handleCheckboxChange(
+              "shouldRandomizeResponse"
+            )}
+            onStatusCodeChange={dynamicHook.handleInputChange("statusCode")}
           />
 
           <div
@@ -127,16 +125,22 @@ const DynamicExpressionComponent = ({
               afterDecimals={dynamicHook.afterDecimals}
               specialCharactersAllowed={dynamicHook.specialCharactersAllowed}
               onBooleanTypeChange={dynamicHook.handleBooleanTypeChange}
-              onAfterDecimalsChange={dynamicHook.handleInputChange('afterDecimals')}
-              onArrayLengthChange={dynamicHook.handleInputChange('arrayLength')}
-              onNumberRangeEndChange={dynamicHook.handleInputChange('numberRangeEnd')}
-              onNumberRangeStartChange={
-                dynamicHook.handleInputChange('numberRangeStart')
-              }
-              onSpecialCharactersAllowedChange={
-                dynamicHook.handleCheckboxChange('specialCharactersAllowed')
-              }
-              onStringLengthChange={dynamicHook.handleInputChange('stringLength')}
+              onAfterDecimalsChange={dynamicHook.handleInputChange(
+                "afterDecimals"
+              )}
+              onArrayLengthChange={dynamicHook.handleInputChange("arrayLength")}
+              onNumberRangeEndChange={dynamicHook.handleInputChange(
+                "numberRangeEnd"
+              )}
+              onNumberRangeStartChange={dynamicHook.handleInputChange(
+                "numberRangeStart"
+              )}
+              onSpecialCharactersAllowedChange={dynamicHook.handleCheckboxChange(
+                "specialCharactersAllowed"
+              )}
+              onStringLengthChange={dynamicHook.handleInputChange(
+                "stringLength"
+              )}
             />
           </div>
           <MockingAreaComponent
@@ -144,7 +148,7 @@ const DynamicExpressionComponent = ({
             mockResponse={dynamicHook.mockResponse}
             isMockResponseTextAreaFocused={isMockResponseTextAreaFocused}
             shouldRandomizeResponse={dynamicHook.shouldRandomizeResponse}
-            onMockResponseChange={dynamicHook.handleInputChange('mockResponse')}
+            onMockResponseChange={dynamicHook.handleInputChange("mockResponse")}
             onMockResponseTextAreaBlurred={handleMockResponseTextAreaBlurred}
             onMockResponseTextAreaFocused={handleMockResponseTextAreaFocused}
             onPrettifyButtonPressed={dynamicHook.handlePrettifyButtonPressed}
