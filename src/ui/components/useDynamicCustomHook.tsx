@@ -1,6 +1,5 @@
-import { useCallback, useReducer, ChangeEvent} from "react";
-import { BooleanType,} from "../../common/types";
-
+import { useCallback, useReducer, ChangeEvent } from "react";
+import { BooleanType } from "../../common/types";
 
 type State = {
   booleanType: BooleanType;
@@ -30,11 +29,11 @@ const initialState: State = {
   arrayLength: 4,
   stringLength: 8,
   specialCharactersAllowed: false,
-  mockResponse: '',
+  mockResponse: "",
   responseDelay: 0,
   statusCode: 200,
   shouldRandomizeResponse: false,
-  dynamicExpression: '',
+  dynamicExpression: "",
 };
 
 const reducer = (state: State, action: Action) => {
@@ -44,24 +43,23 @@ const reducer = (state: State, action: Action) => {
   };
 };
 
-
 const useDynamicComponentHook = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleInputChange = (property: keyof State) => (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string
-  ) => {
-    const value =
-      typeof event === "string"
-        ? event
-        : event.target instanceof HTMLInputElement
-        ? event.target.value
-        : event.currentTarget.value;
-    dispatch({
-      type: property,
-      payload: value,
-    });
-  };
+  const handleInputChange =
+    (property: keyof State) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
+      const value =
+        typeof event === "string"
+          ? event
+          : event.target instanceof HTMLInputElement
+          ? event.target.value
+          : event.currentTarget.value;
+      dispatch({
+        type: property,
+        payload: value,
+      });
+    };
 
   const handleCheckboxChange = useCallback(
     (type: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +72,7 @@ const useDynamicComponentHook = () => {
     (event: ChangeEvent<HTMLSelectElement>) => {
       const currBooleanValue = event.target.value as keyof typeof BooleanType;
       dispatch({
-        type: 'booleanType',
+        type: "booleanType",
         payload:
           currBooleanValue === "True"
             ? BooleanType.True
@@ -87,13 +85,17 @@ const useDynamicComponentHook = () => {
   );
 
   const handleGenerateResponseHere = useCallback((value: string) => {
-    dispatch({ type: 'mockResponse', payload: value });
+    dispatch({ type: "mockResponse", payload: value });
   }, []);
 
   const handlePrettifyButtonPressed = useCallback(() => {
     try {
-      const prettified = JSON.stringify(JSON.parse(state.mockResponse), null, 2);
-      dispatch({ type: 'mockResponse', payload: prettified });
+      const prettified = JSON.stringify(
+        JSON.parse(state.mockResponse),
+        null,
+        2
+      );
+      dispatch({ type: "mockResponse", payload: prettified });
     } catch (err) {
       console.log(err);
     }
