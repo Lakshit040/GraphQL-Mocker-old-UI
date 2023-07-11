@@ -9,6 +9,7 @@ export const backgroundBindMock = (
   operationType: GraphQLOperationType,
   operationName: string
 ): void => {
+  if (operationName === "") return;
   const { tabId } = chrome.devtools.inspectedWindow;
   chrome.runtime.sendMessage({
     type: MessageType.BindMock,
