@@ -54,11 +54,10 @@ export const generateRandomizedResponse = async (
   mockResponse: string,
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
-  if (!(shouldRandomizeResponse || graphqlQuery !== "")) {
-    return { data: JSON.parse(mockResponse).data };
-  }
-
   try {
+    if (graphqlQuery === "") {
+      return { data: JSON.parse(mockResponse).data };
+    }
     let schemaString = await getSchema(endpointHost, endpointPath);
 
     if (schemaString === undefined) {
