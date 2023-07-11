@@ -100,7 +100,7 @@ const DynamicExpressionComponent = ({
           </>
         }
       >
-        <div className="flex flex-col border border-gray-200 p-4 rounded-xl overflow-auto">
+        <div className="flex flex-col border border-gray-700 p-4 rounded-xl overflow-auto">
           <ResponseDelayCodeComponent
             responseDelay={dynamicHook.responseDelay}
             statusCode={dynamicHook.statusCode}

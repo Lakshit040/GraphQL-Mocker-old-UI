@@ -50,7 +50,7 @@ const ResponseDelayCodeComponent = ({
         >
           <input
             type="checkbox"
-            className="mx-1 h-4 w-auto border-gray-200 rounded text-blue-600 focus:ring-blue-500 peer"
+            className="mx-1 h-4 w-auto border-gray-700 rounded text-blue-600 focus:ring-blue-500 peer"
             checked={shouldRandomizeResponse}
             onChange={onShouldRandomizeResponseChange}
           ></input>
