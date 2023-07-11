@@ -46,7 +46,7 @@ const RandomResponseConfigComponent = ({
         <span className="text-gray-400">Random Response Configuration</span>
       }
     >
-      <div className="border rounded-xl p-4 grid grid-cols-2 gap-4">
+      <div className="border border-gray-700 rounded-xl p-4 grid grid-cols-2 gap-4">
         <TopAlignedLabelAndInput
           htmlInputId="inputRangeOfNumbersStart"
           label="Numbers Range Start"
