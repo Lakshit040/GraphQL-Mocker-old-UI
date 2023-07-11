@@ -86,7 +86,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
     backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
     setDynamicConfigKeys((keys) => [...keys, uuidv4()]);
-  }, []);
+  }, [operationName, operationType]);
   const handleDynamicComponentDelete = useCallback(
     async (id: string) => {
       backgroundUnSetMockResponse(operationType, operationName);

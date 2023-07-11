@@ -5,12 +5,12 @@ import {
 const Navbar = () => {
   return (
     <div className="bg-gray-50  dark:bg-slate-900 sticky top-0">
-      <header className="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-gray-900 border-b border-gray-700 text-sm py-2.5 sm:py-4">
+      <header className="flex justify-center z-50 w-full bg-gray-900 border-b border-gray-700 text-sm py-2.5 sm:py-4">
         <nav
           className="max-w-[85rem] flex basis-full items-center w-full mx-auto px-4 sm:px-6 lg:px-8"
           aria-label="Global"
         >
-          <div className="w-full flex items-center justify-end ml-auto sm:justify-between sm:gap-x-3 sm:order-3">
+          <div className="w-full flex items-center justify-center">
             <div className="hidden mx-auto sm:block border border-gray-600 outline-none rounded-xl">
               <label
                 htmlFor="icon"
