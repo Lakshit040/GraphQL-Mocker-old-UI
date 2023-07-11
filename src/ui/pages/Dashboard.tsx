@@ -21,7 +21,7 @@ function Dashboard() {
 
   return (
     <div className="h-full flex m-4 flex-col items-center">
-      <div className="w-4/5 shrink-0 flex px-2 pb-0">
+      <div className="w-full shrink-0 flex px-2 pb-0">
         <h1 className="text-gray-900 self-center text-xl tracking-wide">
           Mock GraphQL Requests
         </h1>
@@ -31,7 +31,7 @@ function Dashboard() {
         />
       </div>
 
-      <div className="grow w-4/5 flex flex-col items-center p-2">
+      <div className="grow w-full flex flex-col items-center p-2">
         {mockResponseConfigKeys.map((key) => (
           <MockResponseConfigComponent
             key={key}
