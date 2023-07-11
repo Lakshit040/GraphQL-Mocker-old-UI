@@ -35,7 +35,7 @@ const MockingAreaComponent = ({
       <textarea
         id="inputMockResponse"
         value={mockResponse}
-        className="my-2 py-1 px-1 w-full font-mono border border-gray-300 rounded-lg text-xs focus:border-blue-500 focus:ring-blue-500 input-mock-response"
+        className="my-2 py-1 px-1 w-full font-mono border border-gray-700 rounded-lg text-xs focus:border-blue-500 focus:ring-blue-500 input-mock-response"
         rows={4}
         onChange={onMockResponseChange}
         onFocus={onMockResponseTextAreaFocused}

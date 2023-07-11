@@ -16,7 +16,7 @@ const AccordionComponent = ({ heading, children }: AccordionComponentProps) => {
   return (
     <>
       <div
-        className={`flex items-center w-full py-2 text-left border border-gray-300 overflow-auto rounded-xl ${
+        className={`flex items-center w-full py-2 text-left border border-gray-700 overflow-auto rounded-xl ${
           isExpanded ? "bg-gray-100" : ""
         }`}
       >
