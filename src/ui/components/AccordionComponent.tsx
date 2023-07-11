@@ -22,7 +22,7 @@ const AccordionComponent = ({ heading, children }: AccordionComponentProps) => {
       >
         <ChevronDownIcon
           title={isExpanded ? "Collapse" : "Expand"}
-          className={`w-10 h-10 p-2 rounded-full hover:bg-gray-200 text-gray-400 shrink-0 mx-2 ${
+          className={`w-10 h-10 p-2 rounded-full hover:bg-gray-600 text-gray-400 shrink-0 mx-2 ${
             isExpanded ? "rotate-180" : ""
           }`}
           onClick={handleChevronIconClick}

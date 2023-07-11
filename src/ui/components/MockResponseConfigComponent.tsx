@@ -152,20 +152,20 @@ const MockResponseConfigComponent = ({
               <div className="grow flex flex-row-reverse mr-2">
                 <TrashIcon
                   title="Delete config"
-                  className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                  className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                   onClick={handleDeleteMockResponseConfig}
                 />
 
                 {areMocking ? (
                   <PauseIcon
                     title="Stop mocking"
-                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                     onClick={onMockingRuleStarted}
                   />
                 ) : (
                   <PlayIcon
                     title="Start mocking"
-                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                    className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                     onClick={onMockingRuleStarted}
                   />
                 )}
@@ -185,7 +185,7 @@ const MockResponseConfigComponent = ({
               />
             ))}
             <button
-              className="antialiased font-sans bg-white hover:bg-gray-200 text-gray-800 font-normal mt-2 py-2 px-4 border border-gray-400 rounded-lg"
+              className="antialiased font-sans bg-white hover:bg-gray-600 text-gray-800 font-normal mt-2 py-2 px-4 border border-gray-400 rounded-lg"
               onClick={handleAddExpressionButtonPressed}
             >
               Add New Rule

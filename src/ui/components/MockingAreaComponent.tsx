@@ -54,12 +54,12 @@ const MockingAreaComponent = ({
         <div className="flex">
           <PlayIcon
             title="Randomize here"
-            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
             onClick={handleRandomizeHere}
           />
           <CodeBracketIcon
             title="Prettify"
-            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
             onClick={onPrettifyButtonPressed}
           />
         </div>

@@ -80,19 +80,19 @@ const DynamicExpressionComponent = ({
             <div className="grow flex flex-row-reverse mr-2">
               <TrashIcon
                 title="Delete rule"
-                className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                 onClick={handleDeleteExpressionButtonPressed}
               />
               {isExpressionMocking ? (
                 <PauseIcon
                   title="Deactivate rule"
-                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                   onClick={handleExpressionMockingPlayPause}
                 />
               ) : (
                 <PlayIcon
                   title="Activate rule"
-                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
+                  className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                   onClick={handleExpressionMockingPlayPause}
                 />
               )}
