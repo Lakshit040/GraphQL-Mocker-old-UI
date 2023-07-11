@@ -131,7 +131,7 @@ const MockResponseConfigComponent = ({
                       ? QUERY
                       : MUTATION
                   }
-                  className="h-8 flex-grow xs:w-16 md:w-32 lg:w-64 my-1 py-0 px-1 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500  peer"
+                  className="h-8 flex-grow xs:w-16 md:w-32 lg:w-64 my-1 py-0 px-1 bg-gray-50 border border-gray-300 rounded-xl text-white text-sm focus:ring-blue-500 focus:border-blue-500  peer"
                   onChange={handleOperationTypeChange}
                 >
                   <option value={QUERY}>Query</option>

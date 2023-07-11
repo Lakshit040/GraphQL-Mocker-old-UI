@@ -22,7 +22,7 @@ function Dashboard() {
   return (
     <div className="h-full flex m-4 flex-col items-center">
       <div className="w-full shrink-0 flex px-2 pb-0">
-        <h1 className="text-gray-900 self-center text-xl tracking-wide">
+        <h1 className="text-white self-center text-xl tracking-wide">
           Mock GraphQL Requests
         </h1>
         <PlusIcon

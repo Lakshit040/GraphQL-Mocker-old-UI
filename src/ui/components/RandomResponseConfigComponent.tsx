@@ -11,15 +11,18 @@ interface RandomResponseConfigProps {
   arrayLength: number;
   stringLength: number;
   specialCharactersAllowed: boolean;
-  onNumberRangeStartChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onNumberRangeStartChange: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
   onNumberRangeEndChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBooleanTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onAfterDecimalsChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onArrayLengthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onStringLengthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSpecialCharactersAllowedChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSpecialCharactersAllowedChange: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
-
 
 const RandomResponseConfigComponent = ({
   booleanType,
@@ -35,7 +38,7 @@ const RandomResponseConfigComponent = ({
   onAfterDecimalsChange,
   onArrayLengthChange,
   onStringLengthChange,
-  onSpecialCharactersAllowedChange
+  onSpecialCharactersAllowedChange,
 }: RandomResponseConfigProps) => {
   return (
     <AccordionComponent
@@ -100,7 +103,7 @@ const RandomResponseConfigComponent = ({
                   ? FALSE
                   : RANDOM
               }
-              className="h-8 flex-grow w-auto my-1 py-0 px-1 bg-gray-100 border rounded-xl border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500  peer"
+              className="h-8 flex-grow w-auto my-1 py-0 px-1 bg-gray-100 border rounded-xl border-gray-300 text-white text-sm focus:ring-blue-500 focus:border-blue-500  peer"
               onChange={onBooleanTypeChange}
             >
               <option value={RANDOM}>Random</option>
