@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
-import { PlayButtonSVG } from "./SvgComponents";
 import LabelledInputComponent from "./LabelledInputComponent";
+import { 
+  PlayIcon, 
+} from '@heroicons/react/24/solid';
+
 interface ExpandedRowComponentProps {
   id: string;
   arrayLength: string;
@@ -156,7 +159,7 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
             className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 outline-none  focus:ring-offset-2 focus:ring-offset-white  transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
             onClick={handleRandomizeHere}
           >
-            <PlayButtonSVG />
+            <PlayIcon className="w-4 h-4"/>
           </button>
           <button
             type="button"

@@ -1,10 +1,10 @@
 import React, { useCallback, useState, createContext, useRef } from "react";
-import {
-  DeleteSVG,
-  CreateSVG,
-  ChevronUpSVG,
-  ChevronDownSVG,
-} from "./SvgComponents";
+import { 
+  PlusIcon, 
+  TrashIcon,
+  ChevronUpIcon,
+  ChevronDownIcon
+} from '@heroicons/react/24/outline';
 import { v4 as uuidv4 } from "uuid";
 import DynamicRowComponent from "./DynamicRowComponent";
 import { GraphQLOperationType, DynamicComponentData } from "../../common/types";
@@ -138,7 +138,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                     title={isExpanded ? "Collapse config" : "Expand config"}
                     onClick={handleExpandedButtonPressed}
                   >
-                    {isExpanded ? <ChevronUpSVG /> : <ChevronDownSVG />}
+                    {isExpanded ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
                   </a>
                   <a
                     className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 outline-none  transition-all text-sm dark:focus:ring-offset-gray-800"
@@ -146,7 +146,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                     title="Create new rule"
                     onClick={handleAddRuleButtonPressed}
                   >
-                    <CreateSVG />
+                    <PlusIcon className="w-4 h-4" />
                   </a>
                   <a
                     className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
@@ -154,7 +154,7 @@ const MockConfigComponent = ({ id, onDelete }: MockConfigProps) => {
                     title="Delete config"
                     onClick={handleDeleteMockConfig}
                   >
-                    <DeleteSVG />
+                    <TrashIcon className="w-4 h-4" />
                   </a>
                 </div>
               </div>

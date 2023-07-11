@@ -1,5 +1,10 @@
-import { DashboardSVG, DocumentationSVG, HistorySVG, UsersDownSVG, UsersSVG } from "./SvgComponents";
-
+import { 
+  UserGroupIcon, 
+  HomeIcon, 
+  ClockIcon,
+  ChevronDownIcon,
+  BookOpenIcon
+} from '@heroicons/react/24/outline';
 const AppSidebar = () => {
   return (
     <div className="bg-gray-50 dark:bg-slate-900 sm:display-none">
@@ -27,7 +32,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Dashboard"
               >
-                <DashboardSVG />
+                <HomeIcon className="w-4 h-4" />
                 Dashboard
               </a>
             </li>
@@ -37,9 +42,9 @@ const AppSidebar = () => {
                 href="#"
                 title="User profiles"
               >
-                <UsersSVG />
+                <UserGroupIcon className="w-4 h-4"/>
                 Users
-                <UsersDownSVG />
+                <ChevronDownIcon className="w-4 h-4" />
               </a>
             </li>
 
@@ -49,7 +54,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Response history"
               >
-                <HistorySVG />
+                <ClockIcon className="w-4 h-4" />
                 Response History
               </a>
             </li>
@@ -59,7 +64,7 @@ const AppSidebar = () => {
                 href="#"
                 title="Documentation"
               >
-                <DocumentationSVG />
+                <BookOpenIcon className="w-4 h-4" />
                 Documentation
               </a>
             </li>

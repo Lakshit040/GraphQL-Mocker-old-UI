@@ -1,10 +1,15 @@
-import { ChevronDownSVG, ChevronUpSVG, DeleteSVG } from "./SvgComponents";
 import React, { useCallback, useState, useContext, useEffect } from "react";
 import ExpandedRowComponent from "./ExpandedRowComponent";
 import { ContextForDynamicComponents } from "./MockConfigComponent";
 import useDynamicComponentHook from "./useDynamicCustomHook";
 import { fastRandomize } from "../../background/helpers/fastRandomization";
 import TableDataCellComponent from "./TableDataCellComponent";
+import { 
+  TrashIcon,
+  ChevronUpIcon,
+  ChevronDownIcon
+} from '@heroicons/react/24/outline';
+
 interface DynamicRowComponentProps {
   id: string;
   onDynamicRowComponentDelete: (id: string) => void;
@@ -118,7 +123,7 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
                   title={isExpanded ? "Collapse rule" : "Expand rule"}
                   onClick={handleRowExpanded}
                 >
-                  {isExpanded ? <ChevronUpSVG /> : <ChevronDownSVG />}
+                  {isExpanded ? <ChevronUpIcon className="w-4 h-4"/> : <ChevronDownIcon className="w-4 h-4"/>}
                 </a>
                 <a
                   className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-red-600 shadow-sm align-middle hover:bg-gray-50 outline-none   transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-red-500 dark:focus:ring-offset-gray-800"
@@ -126,7 +131,7 @@ before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-blue
                   title="Delete rule"
                   onClick={handleDeleteRowButtonPressed}
                 >
-                  <DeleteSVG />
+                  <TrashIcon className="w-4 h-4"/>
                 </a>
               </div>
             </span>

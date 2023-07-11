@@ -1,5 +1,7 @@
-import { NotificationSVG, SearchSVG } from "./SvgComponents";
-
+import { SearchSVG } from "./SvgComponents";
+import { 
+  BellIcon, 
+} from '@heroicons/react/24/outline';
 const Navbar = () => {
   return (
     <div className="bg-gray-50  dark:bg-slate-900 sticky top-0">
@@ -38,7 +40,7 @@ const Navbar = () => {
                 type="button"
                 className="inline-flex flex-shrink-0 justify-center items-center gap-2 h-[2.375rem] w-[2.375rem] rounded-full font-medium hover:bg-white/[.2] text-white align-middle focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all text-xs"
               >
-                <NotificationSVG />
+                <BellIcon className="w-4 h-4" />
               </button>
             </div>
           </div>
