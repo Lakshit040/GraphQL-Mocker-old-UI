@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect, useContext } from "react";
+import { useState, useCallback } from "react";
 import { PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/solid";
 import MockingAreaComponent from "./MockingAreaComponent";
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
-import { ContextForDynamicComponents } from "./MockResponseConfigComponent";
 import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
 import useDynamicComponentHook from "./useDynamicCustomHook";
@@ -24,15 +23,6 @@ const DynamicExpressionComponent = ({
 
   const dynamicHook = useDynamicComponentHook();
   const [isExpressionMocking, setIsExpressionMocking] = useState(false);
-
-  const { register, unregister } = useContext(ContextForDynamicComponents);
-
-  useEffect(() => {
-    if (isExpressionMocking) {
-      register(id, dynamicHook);
-    }
-    return () => unregister(id);
-  }, [register, unregister, id, dynamicHook, isExpressionMocking]);
 
   const handleExpressionMockingPlayPause = useCallback(() => {
     onDynamicExpressionPlayPause(id);
