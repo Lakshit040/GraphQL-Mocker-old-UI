@@ -22,7 +22,7 @@ describe("fastRandomize", () => {
   it("should return undefined when getSchema returns undefined", async () => {
     mockedGetQueryEndpoint.mockResolvedValueOnce("query__endpoint");
     mockedGetSchema.mockResolvedValueOnce(undefined);
-    expect(await fastRandomize("testId")).toBeUndefined();
+    expect(await fastRandomize(1, "testId")).toBeUndefined();
   });
 
   it("should return error response when query parsing fails", async () => {
