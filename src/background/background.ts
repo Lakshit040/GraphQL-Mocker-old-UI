@@ -146,8 +146,8 @@ const setMockResponse = async (
       `${operationType}_${operationName}`,
       dynamicResponseData
     );
+  } catch {}
 };
-
 
 const unSetMockResponse = async (
   tabId: number,
