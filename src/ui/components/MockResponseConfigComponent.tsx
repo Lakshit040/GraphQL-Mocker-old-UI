@@ -37,14 +37,6 @@ const MockResponseConfigComponent = ({
   useEffect(() => {
     backgroundBindMock(id, operationType, operationName);
   }, [id, operationType, operationName]);
-  // const onMockingRuleStarted = () => {
-  //   if (areMocking) {
-  //     backgroundUnSetMockResponse(operationType, operationName);
-  //   } else {
-  //     backgroundSetMockResponse(operationType, operationName, childrenData);
-  //   }
-  //   setAreMocking((r) => !r);
-  // };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
     setDynamicResponseConfigKeys((keys) => [...keys, uuidv4()]);
