@@ -1,4 +1,4 @@
-import { NotificationSVG, SearchSVG } from "./SvgComponents";
+import { SearchSVG } from "./SvgComponents";
 
 const Navbar = () => {
   return (

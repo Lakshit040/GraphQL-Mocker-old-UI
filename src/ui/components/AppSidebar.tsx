@@ -1,10 +1,4 @@
-import {
-  DashboardSVG,
-  DocumentationSVG,
-  HistorySVG,
-  UsersDownSVG,
-  UsersSVG,
-} from "./SvgComponents";
+import { DashboardSVG, DocumentationSVG, HistorySVG } from "./SvgComponents";
 
 const AppSidebar = () => {
   return (
