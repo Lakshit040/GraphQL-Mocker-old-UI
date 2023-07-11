@@ -46,7 +46,7 @@ const MockingAreaComponent = ({
         <label
           htmlFor="inputMockResponse"
           className={`text-xs ${
-            isMockResponseTextAreaFocused ? "text-blue-600" : "text-gray-500"
+            isMockResponseTextAreaFocused ? "text-blue-600" : "text-gray-400"
           }`}
         >
           Mock Response
@@ -54,12 +54,12 @@ const MockingAreaComponent = ({
         <div className="flex">
           <PlayIcon
             title="Randomize here"
-            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
             onClick={handleRandomizeHere}
           />
           <CodeBracketIcon
             title="Prettify"
-            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-500 hover:bg-gray-200"
+            className="w-5 h-5 p-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-200"
             onClick={onPrettifyButtonPressed}
           />
         </div>

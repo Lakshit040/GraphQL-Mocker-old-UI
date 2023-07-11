@@ -10,7 +10,7 @@ interface TopAlignedLabelAndInputProps {
   children?: React.ReactNode;
 }
 const TopAlignedLabelAndInputClass =
-  "p-2.5 my-1 h-8 flex-grow xs:w-14 sm:w-25 md:w-40 lg:w-80 text-sm text-white bg-gray-100 bg-transparent border rounded-xl border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer";
+  "p-2.5 my-1 h-8 flex-grow xs:w-14 sm:w-25 md:w-40 lg:w-80 text-sm text-white bg-transparent border rounded-xl border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer";
 
 const TopAlignedLabelAndInput = ({
   htmlInputId,
@@ -49,7 +49,7 @@ const TopAlignedLabelAndInput = ({
         />
         <label
           htmlFor={htmlInputId}
-          className="text-xs text-gray-500 peer-focus:text-blue-600"
+          className="text-xs text-gray-400 peer-focus:text-blue-600"
         >
           {label}
         </label>
@@ -67,7 +67,7 @@ const TopAlignedLabelAndInput = ({
         {children}
         <label
           htmlFor={htmlInputId}
-          className="text-xs text-gray-500 peer-focus:text-blue-600"
+          className="text-xs text-gray-400 peer-focus:text-blue-600"
         >
           {label}
         </label>

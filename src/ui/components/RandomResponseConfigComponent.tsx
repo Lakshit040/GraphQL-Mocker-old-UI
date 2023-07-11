@@ -43,7 +43,7 @@ const RandomResponseConfigComponent = ({
   return (
     <AccordionComponent
       heading={
-        <span className="text-gray-500">Random Response Configuration</span>
+        <span className="text-gray-400">Random Response Configuration</span>
       }
     >
       <div className="border rounded-xl p-4 grid grid-cols-2 gap-4">
