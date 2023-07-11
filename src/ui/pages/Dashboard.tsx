@@ -26,7 +26,7 @@ function Dashboard() {
           Mock GraphQL Requests
         </h1>
         <PlusIcon
-          className="w-10 h-10 p-2 shrink-0 rounded-full ml-auto text-gray-400 hover:bg-gray-100"
+          className="w-10 h-10 p-2 shrink-0 rounded-full ml-auto text-gray-400 hover:bg-gray-800"
           onClick={handleAddButtonPressed}
         />
       </div>

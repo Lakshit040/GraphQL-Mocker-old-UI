@@ -17,7 +17,7 @@ const AccordionComponent = ({ heading, children }: AccordionComponentProps) => {
     <>
       <div
         className={`flex items-center w-full py-2 text-left border border-gray-700 overflow-auto rounded-xl ${
-          isExpanded ? "bg-gray-100" : ""
+          isExpanded ? "bg-gray-800" : ""
         }`}
       >
         <ChevronDownIcon

@@ -103,7 +103,7 @@ const RandomResponseConfigComponent = ({
                   ? FALSE
                   : RANDOM
               }
-              className="h-8 flex-grow w-auto my-1 py-0 px-1 bg-gray-100 border rounded-xl border-gray-700 text-white text-sm focus:ring-blue-500 focus:border-blue-500  peer"
+              className="h-8 flex-grow w-auto my-1 py-0 px-1 bg-gray-800 border rounded-xl border-gray-700 text-white text-sm focus:ring-blue-500 focus:border-blue-500  peer"
               onChange={onBooleanTypeChange}
             >
               <option value={RANDOM}>Random</option>
