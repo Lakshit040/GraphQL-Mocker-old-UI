@@ -185,7 +185,7 @@ const MockResponseConfigComponent = ({
               />
             ))}
             <button
-              className="antialiased font-sans bg-white hover:bg-gray-600 text-gray-800 font-normal mt-2 py-2 px-4 border border-gray-400 rounded-lg"
+              className="antialiased font-sans bg-transparent hover:bg-gray-600 text-white font-normal mt-2 py-2 px-4 border border-gray-400 rounded-lg"
               onClick={handleAddExpressionButtonPressed}
             >
               Add New Rule
