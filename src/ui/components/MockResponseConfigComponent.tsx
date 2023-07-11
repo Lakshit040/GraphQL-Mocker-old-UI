@@ -73,7 +73,7 @@ const MockResponseConfigComponent = ({
     backgroundUnSetMockResponse(operationType, operationName);
     setAreMocking(false);
     setDynamicResponseConfigKeys((keys) => [...keys, uuidv4()]);
-  }, []);
+  }, [operationName, operationType]);
 
   const handleDeleteDynamicExpressionConfig = useCallback(
     async (id: string) => {
