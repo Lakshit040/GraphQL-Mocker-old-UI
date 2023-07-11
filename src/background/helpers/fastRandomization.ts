@@ -35,7 +35,6 @@ export const fastRandomize = async (
             interfaceTypes,
             dataSet
           ),
-          message: "SUCCESS",
         };
       } catch {
         return { data: {}, message: "ERROR_GENERATING_RANDOM_RESPONSE" };
