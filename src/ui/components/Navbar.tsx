@@ -40,24 +40,6 @@ const Navbar = () => {
               >
                 <NotificationSVG />
               </button>
-              
-
-              <div
-                className="hs-dropdown relative inline-flex"
-                data-hs-dropdown-placement="bottom-right"
-              >
-                <button
-                  id="hs-dropdown-with-header"
-                  type="button"
-                  className="inline-flex flex-shrink-0 justify-center items-center gap-2 h-[2.375rem] w-[2.375rem] rounded-full font-medium hover:bg-white/[.2] text-white align-middle focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all text-xs"
-                >
-                  <img
-                    className="inline-block h-[2.375rem] w-[2.375rem] rounded-full"
-                    src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80"
-                    alt="Image Description"
-                  />
-                </button>
-              </div>
             </div>
           </div>
         </nav>
