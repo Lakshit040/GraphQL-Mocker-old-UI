@@ -3,8 +3,11 @@ import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
 import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
 
-export const fastRandomize = async (id: string): Promise<any> => {
-  const queryEndpoint = await getQueryEndpoint(id);
+export const fastRandomize = async (
+  tabId: number,
+  id: string
+): Promise<any> => {
+  const queryEndpoint = await getQueryEndpoint(tabId, id);
   if (queryEndpoint !== undefined) {
     const [query, endpointHost, endpointPath] = queryEndpoint.split("__");
     const schemaString = await getSchema(endpointHost, endpointPath);

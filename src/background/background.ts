@@ -32,6 +32,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case MessageType.SetMockResponse: {
       setMockResponse(
+        msg.data.tabId,
         msg.data.operationType,
         msg.data.operationName,
         msg.data.dynamicResponseData
@@ -39,7 +40,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break;
     }
     case MessageType.UnSetMockResponse: {
-      unSetMockResponse(msg.data.operationType, msg.data.operationName);
+      unSetMockResponse(
+        msg.data.tabId,
+        msg.data.operationType,
+        msg.data.operationName
+      );
       break;
     }
   }
@@ -75,11 +80,11 @@ const handleInterceptedRequest = async (
   const [operationType, operationName, query, variables] = parsed;
   const key = `${operationType}_${operationName}`;
 
-  const mockResponseConfig = await getOperation(key);
+  const mockResponseConfig = await getOperation(tabId, key);
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
-      await storeQueryEndpoint(mockingRuleKey, query, host, path);
+      await storeQueryEndpoint(tabId, mockingRuleKey, query, host, path);
       const mockingRule = (mockResponseConfig as any)[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
         if (query === "" && mockingRule.shouldRandomizeResponse) {
@@ -130,26 +135,27 @@ const handleInterceptedRequest = async (
 };
 
 const setMockResponse = async (
+  tabId: number,
   operationType: GraphQLOperationType,
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ): Promise<void> => {
   try {
     await storeOperation(
+      tabId,
       `${operationType}_${operationName}`,
       dynamicResponseData
     );
-  } catch {
-    return;
-  }
 };
 
+
 const unSetMockResponse = async (
+  tabId: number,
   operationType: GraphQLOperationType,
   operationName: string
 ): Promise<void> => {
   try {
-    await deleteOperation(`${operationType}_${operationName}`);
+    await deleteOperation(tabId, `${operationType}_${operationName}`);
   } catch {
     return;
   }

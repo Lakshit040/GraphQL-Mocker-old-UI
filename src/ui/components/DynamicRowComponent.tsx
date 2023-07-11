@@ -38,7 +38,8 @@ const DynamicRowComponent = ({
   }, []);
   const handleResponseHere = useCallback(
     async (id: string) => {
-      const response = await fastRandomize(id);
+      const { tabId } = chrome.devtools.inspectedWindow;
+      const response = await fastRandomize(tabId, id);
       if (response !== undefined) {
         dynamicHook.handleGenerateResponseHere(
           JSON.stringify(response, null, 2)
