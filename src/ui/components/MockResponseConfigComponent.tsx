@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import AccordionComponent from "./AccordionComponent";
 import TopAlignedLabelAndInput from "./TopAlignedLabelAndInput";
 import DynamicExpressionComponent from "./DynamicExpressionComponent";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { GraphQLOperationType, DynamicComponentData } from "../../common/types";
 import {
+  backgroundBindMock,
+  backgroundUnbindMock,
   backgroundSetMockResponse,
   backgroundUnSetMockResponse,
 } from "../helpers/utils";
@@ -28,11 +30,13 @@ const MockResponseConfigComponent = ({
   );
   const [operationName, setOperationName] = useState("");
 
-  const [areMocking, setAreMocking] = useState(false);
   const [dynamicResponseConfigKeys, setDynamicResponseConfigKeys] = useState([
     uuidv4(),
   ]);
 
+  useEffect(() => {
+    backgroundBindMock(id, operationType, operationName);
+  }, [id, operationType, operationName]);
   // const onMockingRuleStarted = () => {
   //   if (areMocking) {
   //     backgroundUnSetMockResponse(operationType, operationName);
@@ -43,19 +47,30 @@ const MockResponseConfigComponent = ({
   // };
 
   const handleAddExpressionButtonPressed = useCallback(() => {
-    backgroundUnSetMockResponse(operationType, operationName);
-    setAreMocking(false);
     setDynamicResponseConfigKeys((keys) => [...keys, uuidv4()]);
-  }, [operationName, operationType]);
+  }, []);
 
   const handleDeleteDynamicExpressionConfig = useCallback(
-    async (id: string) => {
-      backgroundUnSetMockResponse(operationType, operationName);
-      setAreMocking(false);
-      await removeQueryEndpoint(chrome.devtools.inspectedWindow.tabId, id);
-      setDynamicResponseConfigKeys((keys) => keys.filter((key) => key !== id));
+    (dynamicComponentId: string) => {
+      backgroundUnSetMockResponse(id, dynamicComponentId);
+      removeQueryEndpoint(
+        chrome.devtools.inspectedWindow.tabId,
+        dynamicComponentId
+      );
+      setDynamicResponseConfigKeys((keys) =>
+        keys.filter((key) => key !== dynamicComponentId)
+      );
     },
-    [operationName, operationType]
+    [id]
+  );
+
+  const handleDynamicExpressionConfigChanged = useCallback(
+    (dynamicComponentId: string, data: DynamicComponentData) => {
+      if (!(data.dynamicExpression === "")) {
+        backgroundSetMockResponse(id, dynamicComponentId, data);
+      }
+    },
+    [id]
   );
 
   const handleOperationTypeChange = useCallback(
@@ -75,14 +90,9 @@ const MockResponseConfigComponent = ({
   );
 
   const handleDeleteMockResponseConfig = useCallback(() => {
-    backgroundUnSetMockResponse(operationType, operationName);
+    backgroundUnbindMock(id);
     onDelete(id);
-  }, [id, onDelete, operationName, operationType]);
-
-  const handlePlayPauseDynamicExpressionConfig = useCallback(() => {
-    backgroundUnSetMockResponse(operationType, operationName);
-    setAreMocking(false);
-  }, [operationType, operationName]);
+  }, [id, onDelete]);
 
   return (
     <div className="w-full my-1 border-none overflow-auto">
@@ -135,9 +145,7 @@ const MockResponseConfigComponent = ({
               key={key}
               id={key}
               onDynamicExpressionDelete={handleDeleteDynamicExpressionConfig}
-              onDynamicExpressionPlayPause={
-                handlePlayPauseDynamicExpressionConfig
-              }
+              onDynamicExpressionChanged={handleDynamicExpressionConfigChanged}
             />
           ))}
           <button

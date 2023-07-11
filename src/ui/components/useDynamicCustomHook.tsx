@@ -14,6 +14,7 @@ type State = {
   statusCode: number;
   shouldRandomizeResponse: boolean;
   dynamicExpression: string;
+  enabled: boolean;
 };
 
 type Action = {
@@ -34,6 +35,7 @@ const initialState: State = {
   statusCode: 200,
   shouldRandomizeResponse: false,
   dynamicExpression: "",
+  enabled: false,
 };
 
 const reducer = (state: State, action: Action) => {
@@ -101,6 +103,10 @@ const useDynamicComponentHook = () => {
     }
   }, [state.mockResponse]);
 
+  const handleToggleEnabled = useCallback(() => {
+    dispatch({ type: "enabled", payload: !state.enabled });
+  }, [state.enabled]);
+
   return {
     ...state,
     handleInputChange,
@@ -108,6 +114,7 @@ const useDynamicComponentHook = () => {
     handleBooleanTypeChange,
     handleGenerateResponseHere,
     handlePrettifyButtonPressed,
+    handleToggleEnabled,
   };
 };
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/solid";
 import MockingAreaComponent from "./MockingAreaComponent";
 import AccordionComponent from "./AccordionComponent";
@@ -7,27 +7,31 @@ import RandomResponseConfigComponent from "./RandomResponseConfigComponent";
 import ResponseDelayCodeComponent from "./ResponseDelayCodeComponent";
 import useDynamicComponentHook from "./useDynamicCustomHook";
 import { fastRandomize } from "../../background/helpers/fastRandomization";
+import { DynamicComponentData } from "../../common/types";
+
 interface DynamicComponentProps {
   id: string;
   onDynamicExpressionDelete: (id: string) => void;
-  onDynamicExpressionPlayPause: (id: string) => void;
+  onDynamicExpressionChanged: (id: string, data: DynamicComponentData) => void;
 }
 
 const DynamicExpressionComponent = ({
   id,
   onDynamicExpressionDelete,
-  onDynamicExpressionPlayPause,
+  onDynamicExpressionChanged,
 }: DynamicComponentProps) => {
   const [isMockResponseTextAreaFocused, setIsMockResponseTextAreaFocused] =
     useState(false);
 
   const dynamicHook = useDynamicComponentHook();
-  const [isExpressionMocking, setIsExpressionMocking] = useState(false);
 
-  const handleExpressionMockingPlayPause = useCallback(() => {
-    onDynamicExpressionPlayPause(id);
-    setIsExpressionMocking((e) => !e);
-  }, [id, onDynamicExpressionPlayPause]);
+  useEffect(() => {
+    onDynamicExpressionChanged(id, dynamicHook);
+  }, [id, dynamicHook, onDynamicExpressionChanged]);
+
+  const handleDeleteExpressionButtonPressed = useCallback(() => {
+    onDynamicExpressionDelete(id);
+  }, [id, onDynamicExpressionDelete]);
 
   const handleMockResponseTextAreaFocused = useCallback(() => {
     setIsMockResponseTextAreaFocused(true);
@@ -36,9 +40,6 @@ const DynamicExpressionComponent = ({
   const handleMockResponseTextAreaBlurred = useCallback(() => {
     setIsMockResponseTextAreaFocused(false);
   }, []);
-  const handleDeleteExpressionButtonPressed = useCallback(() => {
-    onDynamicExpressionDelete(id);
-  }, [id, onDynamicExpressionDelete]);
 
   const handleResponseHere = useCallback(
     async (id: string) => {
@@ -73,17 +74,17 @@ const DynamicExpressionComponent = ({
                 className="w-10 h-10 p-2 mx-1 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
                 onClick={handleDeleteExpressionButtonPressed}
               />
-              {isExpressionMocking ? (
+              {dynamicHook.enabled ? (
                 <PauseIcon
                   title="Deactivate rule"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
-                  onClick={handleExpressionMockingPlayPause}
+                  onClick={dynamicHook.handleToggleEnabled}
                 />
               ) : (
                 <PlayIcon
                   title="Activate rule"
                   className="w-10 h-10 p-2 shrink-0 rounded-full text-gray-400 hover:bg-gray-600"
-                  onClick={handleExpressionMockingPlayPause}
+                  onClick={dynamicHook.handleToggleEnabled}
                 />
               )}
             </div>

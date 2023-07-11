@@ -8,7 +8,9 @@ import { DynamicComponentData } from "../../common/types";
 const Namespaces = {
   CachedSchema: "CACHED_SCHEMA",
   QueryEndpoint: "QUERY_ENDPOINT",
-  Operation: "OPERATION",
+  MockBinding: "MOCK_BINDING",
+  InvMockBinding: "INV_MOCK_BINDING",
+  MockRules: "MOCK_RULES",
 };
 
 export const getSchema = async (endpointHost: string, endpointPath: string) => {
@@ -61,18 +63,82 @@ export const removeQueryEndpoint = async (
   );
 };
 
-export const getOperation = async (tabId: number, key: string) => {
-  return await readFromSessionStorage(Namespaces.Operation, `${tabId}_${key}`);
+export const getMockBinding = async (tabId: number, key: string) => {
+  return await readFromSessionStorage(
+    Namespaces.MockBinding,
+    `${tabId}_${key}`
+  );
 };
 
-export const storeOperation = async (
+export const storeMockBinding = async (
   tabId: number,
   key: string,
-  value: Record<string, DynamicComponentData>
+  id: string
 ) => {
-  await writeToSessionStorage(Namespaces.Operation, `${tabId}_${key}`, value);
+  await writeToSessionStorage(Namespaces.MockBinding, `${tabId}_${key}`, id);
 };
 
-export const deleteOperation = async (tabId: number, key: string) => {
-  await deleteFromSessionStorage(Namespaces.Operation, `${tabId}_${key}`);
+export const deleteMockBinding = async (tabId: number, key: string) => {
+  await deleteFromSessionStorage(Namespaces.MockBinding, `${tabId}_${key}`);
+};
+
+export const getInvMockBinding = async (tabId: number, id: string) => {
+  return await readFromSessionStorage(
+    Namespaces.InvMockBinding,
+    `${tabId}_${id}`
+  );
+};
+
+export const storeInvMockBinding = async (
+  tabId: number,
+  id: string,
+  key: string
+) => {
+  await writeToSessionStorage(Namespaces.InvMockBinding, `${tabId}_${id}`, key);
+};
+
+export const deleteInvMockBinding = async (tabId: number, id: string) => {
+  await deleteFromSessionStorage(Namespaces.InvMockBinding, `${tabId}_${id}`);
+};
+
+export const getMockRules = async (
+  tabId: number,
+  id: string
+): Promise<Record<string, DynamicComponentData>> => {
+  return (
+    (await readFromSessionStorage(Namespaces.MockRules, `${tabId}_${id}`)) ?? {}
+  );
+};
+
+export const storeMockRule = async (
+  tabId: number,
+  id: string,
+  dynamicComponentId: string,
+  dynamicComponentData: DynamicComponentData
+) => {
+  const mockRules = await getMockRules(tabId, id);
+  mockRules[dynamicComponentId] = dynamicComponentData;
+  await writeToSessionStorage(
+    Namespaces.MockRules,
+    `${tabId}_${id}`,
+    mockRules
+  );
+};
+
+export const deleteMockRule = async (
+  tabId: number,
+  id: string,
+  dynamicComponentId: string
+) => {
+  const mockRules = await getMockRules(tabId, id);
+  delete mockRules[dynamicComponentId];
+  await writeToSessionStorage(
+    Namespaces.MockRules,
+    `${tabId}_${id}`,
+    mockRules
+  );
+};
+
+export const deleteMockRules = async (tabId: number, id: string) => {
+  await deleteFromSessionStorage(Namespaces.MockRules, `${tabId}_${id}`);
 };

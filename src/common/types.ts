@@ -1,8 +1,10 @@
 export enum MessageType {
   PanelMounted,
   RequestIntercepted,
-  SetMockResponse,
-  UnSetMockResponse,
+  BindMock,
+  UnbindMock,
+  SetMockRule,
+  UnSetMockRule,
   DoFetch,
   FetchResponse,
 }
@@ -39,12 +41,7 @@ export interface DynamicComponentData {
   responseDelay: number;
   afterDecimals: number;
   booleanType: BooleanType;
+  enabled: boolean;
 }
 
-export {
-  TRUE,
-  FALSE,
-  RANDOM,
-  ALL_CHARACTERS,
-  NORMAL_CHARACTERS,
-};
+export { TRUE, FALSE, RANDOM, ALL_CHARACTERS, NORMAL_CHARACTERS };
