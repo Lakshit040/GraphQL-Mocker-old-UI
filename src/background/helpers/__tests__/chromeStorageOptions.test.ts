@@ -3,6 +3,7 @@ import {
   writeToSessionStorage,
   deleteFromSessionStorage,
 } from "../../../common/chromeStorageHelpers";
+import { BooleanType } from "../../../common/types";
 import {
   getSchema,
   storeSchema,
@@ -41,16 +42,15 @@ describe("Chrome Storage Helpers", () => {
   });
 
   it("getQueryEndpoint should call readFromSessionStorage with correct parameters", async () => {
-    await getQueryEndpoint(1, "testExpression");
+    await getQueryEndpoint("testExpression");
     expect(readFromSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "1_testExpression"
+      "testExpression"
     );
   });
 
   it("storeQueryEndpoint should call writeToSessionStorage with correct parameters", async () => {
     await storeQueryEndpoint(
-      1,
       "testExpression",
       "testQuery",
       "testOrigin",
@@ -58,32 +58,32 @@ describe("Chrome Storage Helpers", () => {
     );
     expect(writeToSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "1_testExpression",
+      "testExpression",
       "testQuery__testOrigin__testPath"
     );
   });
 
   it("removeQueryEndpoint should call deleteFromSessionStorage with correct parameters", async () => {
-    await removeQueryEndpoint(1, "testExpression");
+    await removeQueryEndpoint("testExpression");
     expect(deleteFromSessionStorage).toHaveBeenCalledWith(
       "QUERY_ENDPOINT",
-      "1_testExpression"
+      "testExpression"
     );
   });
 
   it("getOperation should call readFromSessionStorage with correct parameters", async () => {
-    await getOperation(1, "operationType_operationName");
+    await getOperation("operationType_operationName");
     expect(readFromSessionStorage).toHaveBeenCalledWith(
       "OPERATION",
-      "1_operationType_operationName"
+      "operationType_operationName"
     );
   });
 
   it("deleteOperation should call deleteFromSessionStorage with correct parameters", async () => {
-    await deleteOperation(1, "operationType_operationName");
+    await deleteOperation("operationType_operationName");
     expect(deleteFromSessionStorage).toHaveBeenCalledWith(
       "OPERATION",
-      "1_operationType_operationName"
+      "operationType_operationName"
     );
   });
 
@@ -92,23 +92,19 @@ describe("Chrome Storage Helpers", () => {
       dynamicComponentDataKey: {
         dynamicExpression: "example expression",
         shouldRandomizeResponse: true,
-        numberStart: "1",
-        numberEnd: "100",
-        arrayLength: "5",
-        stringLength: "10",
+        numberRangeStart: 1,
+        numberRangeEnd: 100,
+        arrayLength: 5,
+        stringLength: 10,
         specialCharactersAllowed: true,
         mockResponse: "{data: {}}",
-        statusCode: "200",
-        responseDelay: "0",
-        afterDecimals: "2",
-        booleanType: "RANDOM",
+        statusCode: 200,
+        responseDelay: 0,
+        afterDecimals: 2,
+        booleanType: BooleanType.Random,
       },
     };
-    await storeOperation(1, "operationType_operationName", value);
-    expect(writeToSessionStorage).toHaveBeenCalledWith(
-      "OPERATION",
-      "1_operationType_operationName",
-      value
-    );
+    await storeOperation("operationType_operationName", value);
+    expect(writeToSessionStorage).toHaveBeenCalledWith("OPERATION", "operationType_operationName", value);
   });
 });

@@ -12,6 +12,12 @@ export enum GraphQLOperationType {
   Mutation,
 }
 
+export enum BooleanType {
+  True,
+  False,
+  Random,
+}
+
 const TRUE = "true";
 const FALSE = "false";
 const RANDOM = "random";
@@ -23,16 +29,16 @@ const NORMAL_CHARACTERS =
 export interface DynamicComponentData {
   dynamicExpression: string;
   shouldRandomizeResponse: boolean;
-  numberStart: string;
-  numberEnd: string;
-  arrayLength: string;
-  stringLength: string;
+  numberRangeStart: number;
+  numberRangeEnd: number;
+  arrayLength: number;
+  stringLength: number;
   specialCharactersAllowed: boolean;
   mockResponse: string;
-  statusCode: string;
-  responseDelay: string;
-  afterDecimals: string;
-  booleanType: string;
+  statusCode: number;
+  responseDelay: number;
+  afterDecimals: number;
+  booleanType: BooleanType;
 }
 
 export {

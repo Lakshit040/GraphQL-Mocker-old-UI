@@ -5,7 +5,7 @@ import {
   printSchema,
   buildSchema,
 } from "graphql";
-import { MessageType } from "../../common/types";
+import { MessageType, BooleanType } from "../../common/types";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { giveTypeMaps } from "./typeMapProvider";
 import { queryResponseValidator } from "./queryResponseValidator";
@@ -49,15 +49,16 @@ export const generateRandomizedResponse = async (
   isSpecialAllowed: boolean,
   arrayLength: number,
   stringLength: number,
-  booleanValues: string,
+  booleanValues: BooleanType,
   digitsAfterDecimal: number,
   mockResponse: string,
   shouldRandomizeResponse: boolean
 ): Promise<GeneratedResponseConfig> => {
+  if (!(shouldRandomizeResponse || graphqlQuery !== "")) {
+    return { data: JSON.parse(mockResponse).data };
+  }
+
   try {
-    if (graphqlQuery === "") {
-      return { data: JSON.parse(mockResponse).data };
-    }
     let schemaString = await getSchema(endpointHost, endpointPath);
 
     if (schemaString === undefined) {
@@ -65,28 +66,23 @@ export const generateRandomizedResponse = async (
         query: getIntrospectionQuery(),
       });
 
+      const introspectionResult = await fetchJSONFromInjectedScript(
+        tabId!,
+        frameId!,
+        endpointPath,
+        requestBody,
+        requestId
+      );
+
+      if (introspectionResult.errors || introspectionResult.error) {
+        return { data: {}, message: "SCHEMA_INTROSPECTION_ERROR" };
+      }
+      const schemaSDL = buildClientSchema(introspectionResult.data);
+      const schemaString = printSchema(schemaSDL);
       try {
-        const introspectionResult = await fetchJSONFromInjectedScript(
-          tabId!,
-          frameId!,
-          endpointPath,
-          requestBody,
-          requestId
-        );
-
-        const schemaSDL = buildClientSchema(introspectionResult.data);
-        const schemaString = printSchema(schemaSDL);
-
         await storeSchema(endpointHost, endpointPath, schemaString);
-      } catch {
-        try {
-          return {
-            data: JSON.parse(mockResponse).data,
-            message: "SCHEMA_INTROSPECTION_FAILED",
-          };
-        } catch {
-          return { data: {}, message: "SCHEMA_INTROSPECTION_FAILED" };
-        }
+      } catch (error) {
+        console.error(error);
       }
     }
     schemaString = await getSchema(endpointHost, endpointPath);
@@ -95,25 +91,16 @@ export const generateRandomizedResponse = async (
 
     const [fieldTypes, enumTypes, unionTypes, interfaceTypes] =
       await giveTypeMaps(typeMap);
-    let queryDocument;
-    try{
-      queryDocument = parse(graphqlQuery);
-    }
-    catch{
-      return {data: {}, message: "QUERY_PARSING_ERROR"}
-    }
+
+    const queryDocument = parse(graphqlQuery);
 
     if (!shouldRandomizeResponse) {
       const response = queryResponseValidator(
         JSON.parse(mockResponse!).data,
         fieldTypes
       );
-      let data = {};
-      try {
-        data = JSON.parse(mockResponse).data;
-      } catch {}
       return {
-        data: data,
+        data: JSON.parse(mockResponse!).data,
         message:
           response.errors.length === 0 && response.fieldNotFound.length === 0
             ? "VALID_RESPONSE"
@@ -126,7 +113,7 @@ export const generateRandomizedResponse = async (
       stringLength: stringLength ?? 8,
       arrayLength: arrayLength ?? 4,
       isSpecialAllowed: isSpecialAllowed ?? true,
-      booleanValues: booleanValues ?? "RANDOM",
+      booleanValues: booleanValues ?? BooleanType.Random,
       numRangeEnd: numRangeEnd ?? 1000,
       numRangeStart: numRangeStart ?? 1,
       digitsAfterDecimal: digitsAfterDecimal ?? 2,

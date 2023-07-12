@@ -2,12 +2,10 @@ import { giveTypeMaps } from "./typeMapProvider";
 import giveRandomResponse from "./randomMockDataGenerator";
 import { buildSchema, parse } from "graphql";
 import { getQueryEndpoint, getSchema } from "./chromeStorageOptions";
+import { BooleanType } from "../../common/types";
 
-export const fastRandomize = async (
-  tabId: number,
-  id: string
-): Promise<any> => {
-  const queryEndpoint = await getQueryEndpoint(tabId, id);
+export const fastRandomize = async (id: string): Promise<any> => {
+  const queryEndpoint = await getQueryEndpoint(id);
   if (queryEndpoint !== undefined) {
     const [query, endpointHost, endpointPath] = queryEndpoint.split("__");
     const schemaString = await getSchema(endpointHost, endpointPath);
@@ -18,7 +16,7 @@ export const fastRandomize = async (
         stringLength: 8,
         arrayLength: 4,
         isSpecialAllowed: true,
-        booleanValues: "RANDOM",
+        booleanValues: BooleanType.Random,
         numRangeEnd: 1000,
         numRangeStart: 1,
         digitsAfterDecimal: 2,

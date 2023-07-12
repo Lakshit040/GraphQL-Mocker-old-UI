@@ -1,5 +1,6 @@
 import { parse } from 'graphql';
 import giveRandomResponse from '../randomMockDataGenerator';
+import { BooleanType } from '../../../common/types';
 
 describe('giveRandomResponse function', () => {
 
@@ -20,10 +21,11 @@ describe('giveRandomResponse function', () => {
     numRangeStart: 1,
     numRangeEnd: 100,
     digitsAfterDecimal: 2,
-    booleanValues: "TRUE",
+    booleanValues: BooleanType.True,
     isSpecialAllowed: false,
   };
 
+  // Test case for Query operation
   it('should correctly handle Query operation', () => {
     const queryString = `
       query {

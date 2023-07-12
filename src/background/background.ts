@@ -32,7 +32,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case MessageType.SetMockResponse: {
       setMockResponse(
-        msg.data.tabId,
         msg.data.operationType,
         msg.data.operationName,
         msg.data.dynamicResponseData
@@ -40,11 +39,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break;
     }
     case MessageType.UnSetMockResponse: {
-      unSetMockResponse(
-        msg.data.tabId,
-        msg.data.operationType,
-        msg.data.operationName
-      );
+      unSetMockResponse(msg.data.operationType, msg.data.operationName);
       break;
     }
   }
@@ -80,11 +75,11 @@ const handleInterceptedRequest = async (
   const [operationType, operationName, query, variables] = parsed;
   const key = `${operationType}_${operationName}`;
 
-  const mockResponseConfig = await getOperation(tabId, key);
+  const mockResponseConfig = await getOperation(key);
 
   if (mockResponseConfig !== undefined) {
     for (const mockingRuleKey in mockResponseConfig) {
-      await storeQueryEndpoint(tabId, mockingRuleKey, query, host, path);
+      await storeQueryEndpoint(mockingRuleKey, query, host, path);
       const mockingRule = (mockResponseConfig as any)[mockingRuleKey];
       if (doesMockingRuleHold(mockingRule.dynamicExpression, variables)) {
         if (query === "" && mockingRule.shouldRandomizeResponse) {
@@ -100,13 +95,13 @@ const handleInterceptedRequest = async (
           config,
           requestId,
           query,
-          Number(mockingRule.numberStart) ?? 1,
-          Number(mockingRule.numberEnd) ?? 1000,
+          mockingRule.numberRangeStart,
+          mockingRule.numberRangeEnd,
           mockingRule.specialCharactersAllowed,
-          Number(mockingRule.arrayLength) ?? 4,
-          Number(mockingRule.stringLength) ?? 8,
+          mockingRule.arrayLength,
+          mockingRule.stringLength,
           mockingRule.booleanType,
-          Number(mockingRule.afterDecimals) ?? 2,
+          mockingRule.afterDecimals,
           mockingRule.mockResponse,
           mockingRule.shouldRandomizeResponse
         );
@@ -135,27 +130,26 @@ const handleInterceptedRequest = async (
 };
 
 const setMockResponse = async (
-  tabId: number,
   operationType: GraphQLOperationType,
   operationName: string,
   dynamicResponseData: Record<string, DynamicComponentData>
 ): Promise<void> => {
   try {
     await storeOperation(
-      tabId,
       `${operationType}_${operationName}`,
       dynamicResponseData
     );
-  } catch {}
+  } catch {
+    return;
+  }
 };
 
 const unSetMockResponse = async (
-  tabId: number,
   operationType: GraphQLOperationType,
   operationName: string
 ): Promise<void> => {
   try {
-    await deleteOperation(tabId, `${operationType}_${operationName}`);
+    await deleteOperation(`${operationType}_${operationName}`);
   } catch {
     return;
   }

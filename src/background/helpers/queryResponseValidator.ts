@@ -72,6 +72,7 @@ export const queryResponseValidator = (
         fieldNotFound.push(key);
       }
     }
-  })
+  });
+
   return { errors: errors, fieldNotFound: fieldNotFound };
 };
