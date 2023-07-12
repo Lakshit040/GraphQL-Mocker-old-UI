@@ -88,7 +88,6 @@ const handleInterceptedRequest = async (
   }
 
   const [operationType, operationName, query, variables] = parsed;
-  console.log(parsed);
   const key = `${operationType}_${operationName}`;
 
   const mockId = await getMockBinding(tabId, key);
@@ -108,7 +107,6 @@ const handleInterceptedRequest = async (
         // TODO: notify frontend
         return;
       }
-      console.log("Not rejected yet");
       const generatedRandomResponse = await generateRandomizedResponse(
         tabId,
         frameId,

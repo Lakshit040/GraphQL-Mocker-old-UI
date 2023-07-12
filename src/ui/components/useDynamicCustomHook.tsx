@@ -99,7 +99,7 @@ const useDynamicComponentHook = () => {
       );
       dispatch({ type: "mockResponse", payload: prettified });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [state.mockResponse]);
 
